@@ -19,7 +19,7 @@ log.info('$PATH=%s' % os.environ['PATH'])
 LONG_DESCRIPTION = 'Python bindings for the HiGlass viewer'
 
 version_ns = {}
-with open(os.path.join(here, 'higlass_python', '_version.py')) as f:
+with open(os.path.join(here, 'higlass', '_version.py')) as f:
     exec(f.read(), {}, version_ns)
 
 setup_args = {
@@ -29,7 +29,8 @@ setup_args = {
     'long_description': LONG_DESCRIPTION,
     'include_package_data': True,
     'install_requires': [
-        'clodius'
+        'clodius',
+        'higlass_jupyter',
     ],
     'setup_requires': [
     ],

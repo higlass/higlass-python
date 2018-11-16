@@ -2,3 +2,7 @@
 *.swp
 *.swo
 *.swn
+data
+__pycache__
+*.egg-info
+.ipynb_checkpoints

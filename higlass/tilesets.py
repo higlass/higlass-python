@@ -8,7 +8,9 @@ class Tileset:
     def __init__(self, tileset_info=None, 
             tiles=None, 
             uuid=None,
-            chromsizes=lambda: None):
+            chromsizes=lambda: None,
+            track_type=None,
+            track_position=None):
         '''
         Parameters 
         ----------
@@ -21,6 +23,9 @@ class Tileset:
         self.tileset_info_fn = tileset_info 
         self.tiles_fn = tiles
         self.chromsizes_fn = chromsizes
+        self.track_type = track_type
+        self.track_position = track_position
+
         if uuid is not None:
             self.uuid = uuid 
         else:
@@ -39,7 +44,9 @@ def cooler(filepath, uuid=None):
     return Tileset(
             tileset_info=lambda: hgco.tileset_info(filepath),
             tiles=lambda tids: hgco.tiles(filepath, tids),
-            uuid=uuid
+            uuid=uuid,
+            track_type='matrix',
+            track_position='center'
         )
 
 def bigwig(filepath, chromsizes=None, uuid=None):

@@ -34,6 +34,8 @@ def create_app(tilesets):
     CORS(app)
 
     TILESETS = tilesets
+    print("ts2:", tilesets)
+
 
     #############
     ### VIEWS ###

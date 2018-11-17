@@ -45,7 +45,7 @@ def cooler(filepath, uuid=None):
             tileset_info=lambda: hgco.tileset_info(filepath),
             tiles=lambda tids: hgco.tiles(filepath, tids),
             uuid=uuid,
-            track_type='matrix',
+            track_type='heatmap',
             track_position='center'
         )
 

@@ -1,8 +1,34 @@
-from higlass_jupyter import HiGlassDisplay
 import higlass.server as hgse
 import higlass.client as hgc
 
-def viewer(tilesets):
+from higlass_jupyter import HiGlassDisplay
+
+def display(views):
+    '''
+    Instantiate a HiGlass display with the given views
+    '''
+    tilesets = []
+
+    for view in views:
+        print('view:', view)
+        for track in view.tracks:
+            if track.tileset:
+                tilesets += [track.tileset]
+
+    server = hgse.start(tilesets)
+
+    print('hi', server.api_address)
+
+    for view in views:
+        for track in view.tracks:
+            track.viewconf['server'] = server.api_address
+
+    conf = hgc.ViewConf(views)
+    print('conf:', conf.to_json())
+
+    return lambda: HiGlassDisplay(viewconf=conf.to_json())
+
+def view(tilesets):
     '''
     Create a higlass viewer that displays the specified tilesets
 
@@ -13,18 +39,20 @@ def viewer(tilesets):
     -------
         Nothing
     '''
-    view = hgc.View()
-    
+    curr_view = hgc.View()
     server = hgse.start(
                 tilesets
             )
 
     for ts in tilesets:
         if (ts.track_type is not None 
-                and ts.position is not None):
-            view.add_track(track.track_type,
-                    track.position,
-                    api_url=server.server.api_address
+                and ts.track_position is not None):
+            curr_view.add_track(ts.track_type,
+                    ts.track_position,
+                    api_url=server.api_address,
+                    tileset_uuid=ts.uuid,
                 )
 
-    return view
+
+    curr_view.server = server
+    return curr_view

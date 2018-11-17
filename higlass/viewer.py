@@ -10,21 +10,18 @@ def display(views):
     tilesets = []
 
     for view in views:
-        print('view:', view)
         for track in view.tracks:
             if track.tileset:
                 tilesets += [track.tileset]
 
-    server = hgse.start(tilesets)
-
-    print('hi', server.api_address)
+    server = hgse.Server(tilesets)
+    server.start()
 
     for view in views:
         for track in view.tracks:
             track.viewconf['server'] = server.api_address
 
     conf = hgc.ViewConf(views)
-    print('conf:', conf.to_json())
 
     return lambda: HiGlassDisplay(viewconf=conf.to_json())
 

@@ -5,6 +5,7 @@ track_default_positions = {
     'top-axis': 'top',
     'horizontal-line': 'top',
     'heatmap': 'center',
+    'horizontal-heatmap': 'top',
 }
 
 class Track:

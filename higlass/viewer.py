@@ -1,7 +1,7 @@
 import higlass.server as hgse
 import higlass.client as hgc
 
-from higlass_jupyter import HiGlassDisplay
+from .widgets import HiGlassDisplay
 
 def display(views, location_sync=[], zoom_sync=[]):
     '''
@@ -32,7 +32,7 @@ def view(tilesets):
     Parameters:
     -----------
 
-    Returns 
+    Returns
     -------
         Nothing
     '''
@@ -42,7 +42,7 @@ def view(tilesets):
             )
 
     for ts in tilesets:
-        if (ts.track_type is not None 
+        if (ts.track_type is not None
                 and ts.track_position is not None):
             curr_view.add_track(ts.track_type,
                     ts.track_position,

@@ -2,7 +2,39 @@
 *.swp
 *.swo
 *.swn
-data
+*.py[cod]
 __pycache__
-*.egg-info
+*.so
+
+# Testing
+.pytest_cache
+.cache
+.coverage
+
+# Build artifacts
+*.egg-info/
+build/
+dist/
+MANIFEST
+docs/_*
+
+# Webpack watch files
+js/node_modules/
+js/package-lock.json
+
+# Compiled javascript
+higlass/static/
+
+# Notebook
+Untitle*.ipynb
 .ipynb_checkpoints
+
+# OS-generated files
+.DS_Store
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+data/
+tmp/

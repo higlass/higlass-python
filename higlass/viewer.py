@@ -3,7 +3,7 @@ import higlass.client as hgc
 
 from higlass_jupyter import HiGlassDisplay
 
-def display(views):
+def display(views, location_sync=[], zoom_sync=[]):
     '''
     Instantiate a HiGlass display with the given views
     '''
@@ -21,9 +21,9 @@ def display(views):
         for track in view.tracks:
             track.viewconf['server'] = server.api_address
 
-    conf = hgc.ViewConf(views)
+    conf = hgc.ViewConf(views, location_sync=location_sync, zoom_sync=zoom_sync)
 
-    return lambda: HiGlassDisplay(viewconf=conf.to_json())
+    return (server, HiGlassDisplay(viewconf=conf.to_json()))
 
 def view(tilesets):
     '''

@@ -6,6 +6,7 @@ track_default_positions = {
     'horizontal-line': 'top',
     'heatmap': 'center',
     'horizontal-heatmap': 'top',
+    'osm-tiles': 'center',
 }
 
 class Track:
@@ -148,19 +149,54 @@ class View:
 
 
 class ViewConf:
-    def __init__(self, views=[]):
+    def __init__(self, views=[], location_sync=[], zoom_sync=[]):
         self.viewconf = {
         'editable': True,
         'views': [],
           "trackSourceServers": [
             "http://higlass.io/api/v1"
           ],
+          "locationLocks": {
+            "locksByViewUid": {
+
+            },
+            "locksDict": {
+            }
+          },
+          "zoomLocks": {
+            "locksByViewUid": {
+
+            },
+            "locksDict": {
+            }
+          },
           "exportViewUrl": "http://higlass.io/api/v1/viewconfs"
         }
 
         self.views = views
+
+        self.add_location_sync(location_sync)
+        self.add_zoom_sync(zoom_sync)
         
         pass
+
+    def add_sync(self, locks_name, views_to_sync):
+        lock_id = slugid.nice().decode('utf-8')
+        for view_uid in [v.uid for v in views_to_sync]:
+            print("adding:", view_uid)
+
+            if lock_id not in self.viewconf[locks_name]['locksDict']:
+                self.viewconf[locks_name]['locksDict'][lock_id] = {}
+
+            self.viewconf[locks_name]['locksDict'][lock_id][view_uid] = (1,1,1)
+            self.viewconf[locks_name]['locksByViewUid'][view_uid] = lock_id
+
+    def add_zoom_sync(self, views_to_sync=[]):
+        self.add_sync('zoomLocks', views_to_sync)
+    def add_location_sync(self, views_to_sync=[]):
+        self.add_sync('locationLocks', views_to_sync)
+
+
     
     def add_view(self, *args, **kwargs):
         '''

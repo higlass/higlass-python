@@ -1,7 +1,12 @@
-import hgtiles.bigwig as hgbi
-import hgtiles.chromsizes as hgch
-import hgtiles.cooler as hgco
+import clodius.tiles.bigwig as hgbi
+import clodius.tiles.chromsizes as hgch
+import clodius.tiles.cooler as hgco
+import clodius.tiles.mrmatrix as hgmm
 
+import clodius.tiles.utils as hgut
+import clodius.tiles.format as hgfo
+
+import h5py
 import slugid 
 
 class Tileset:
@@ -61,4 +66,14 @@ def chromsizes(filepath, uuid=None):
             chromsizes=lambda: hgch.get_tsv_chromsizes(filepath),
             uuid=uuid
         )
+
+def mmatrix(filepath, uuid=None):
+    f = h5py.File(filepath, 'r')
+
+    return Tileset(
+        tileset_info=lambda: hgmm.tileset_info(f),
+        tiles=lambda tile_ids: hgut.tiles_wrapper_2d(tile_ids,
+                        lambda z,x,y: hgfo.format_dense_tile(
+                            hgmm.tiles(f, z, x, y)))
+    )
 

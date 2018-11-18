@@ -24,6 +24,7 @@ js/package-lock.json
 
 # Compiled javascript
 higlass/static/
+higlass/staticlab/
 
 # Notebook
 Untitle*.ipynb

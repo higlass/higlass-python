@@ -10,8 +10,8 @@ from traitlets import Int
 class HiGlassDisplay(widgets.DOMWidget):
     _view_name = Unicode('HiGlassDisplayView').tag(sync=True)
     _model_name = Unicode('HiGlassDisplayModel').tag(sync=True)
-    _view_module = Unicode('higlass_jupyter').tag(sync=True)
-    _model_module = Unicode('higlass_jupyter').tag(sync=True)
+    _view_module = Unicode('higlass-jupyter').tag(sync=True)
+    _model_module = Unicode('higlass-jupyter').tag(sync=True)
 
     _model_data = List([]).tag(sync=True)
     viewconf = Dict({}).tag(sync=True)

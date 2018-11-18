@@ -7,6 +7,18 @@ var rules = [
     { test: /\.css$/, use: ['style-loader', 'css-loader']}
 ]
 
+var buildExtension = require('jupyterlab-extension-builder/lib/builder').buildExtension;
+buildExtension({
+    name: 'higlass-jupyter',
+    entry: './lib/labplugin',
+    outputDir: '../higlass/staticlab',
+    config: {
+        module: {
+            loaders:
+                { test: /\.less$/, loader: "style-loader!css-loader!less-loader" }
+        }
+    }
+});
 
 module.exports = [
     {// Notebook extension
@@ -61,7 +73,7 @@ module.exports = [
             filename: 'index.js',
             path: path.resolve(__dirname, 'dist'),
             libraryTarget: 'amd',
-            publicPath: 'https://unpkg.com/higlass_jupyter@' + version + '/dist/'
+            publicPath: 'https://unpkg.com/higlass-jupyter@' + version + '/dist/'
         },
         devtool: 'source-map',
         module: {

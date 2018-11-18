@@ -22,8 +22,8 @@ var HelloModel = widgets.DOMWidgetModel.extend({
     defaults: _.extend(widgets.DOMWidgetModel.prototype.defaults(), {
         _model_name : 'HelloModel',
         _view_name : 'HelloView',
-        _model_module : 'higlass_jupyter',
-        _view_module : 'higlass_jupyter',
+        _model_module : 'higlass-jupyter',
+        _view_module : 'higlass-jupyter',
         _model_module_version : '0.1.0',
         _view_module_version : '0.1.0',
         value : 'Hello World'

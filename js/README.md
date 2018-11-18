@@ -7,5 +7,5 @@ Package Install
 - [node](http://nodejs.org/)
 
 ```bash
-npm install --save higlass_jupyter
+npm install --save higlass-jupyter
 ```

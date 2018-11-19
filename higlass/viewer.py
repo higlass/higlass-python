@@ -1,12 +1,12 @@
-import higlass.server as hgse
-import higlass.client as hgc
-
 from .widgets import HiGlassDisplay
+
 
 def display(views, location_sync=[], zoom_sync=[]):
     '''
     Instantiate a HiGlass display with the given views
     '''
+    from .server import Server
+    from .client import ViewConf
     tilesets = []
 
     for view in views:
@@ -14,16 +14,17 @@ def display(views, location_sync=[], zoom_sync=[]):
             if track.tileset:
                 tilesets += [track.tileset]
 
-    server = hgse.Server(tilesets)
+    server = Server(tilesets)
     server.start()
 
     for view in views:
         for track in view.tracks:
             track.viewconf['server'] = server.api_address
 
-    conf = hgc.ViewConf(views, location_sync=location_sync, zoom_sync=zoom_sync)
+    conf = ViewConf(views, location_sync=location_sync, zoom_sync=zoom_sync)
 
     return (server, HiGlassDisplay(viewconf=conf.to_json()))
+
 
 def view(tilesets):
     '''
@@ -36,10 +37,12 @@ def view(tilesets):
     -------
         Nothing
     '''
-    curr_view = hgc.View()
-    server = hgse.start(
-                tilesets
-            )
+    from .server import Server
+    from .client import View
+
+    curr_view = View()
+    server = Server()
+    server.start(tilesets)
 
     for ts in tilesets:
         if (ts.track_type is not None
@@ -49,7 +52,6 @@ def view(tilesets):
                     api_url=server.api_address,
                     tileset_uuid=ts.uuid,
                 )
-
 
     curr_view.server = server
     return curr_view

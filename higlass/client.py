@@ -7,6 +7,7 @@ track_default_positions = {
     'heatmap': 'center',
     'horizontal-heatmap': 'top',
     'osm-tiles': 'center',
+    'horizontal-bar': 'top'
 }
 
 class Track:

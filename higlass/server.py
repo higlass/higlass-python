@@ -15,23 +15,60 @@ from flask import request, jsonify
 from flask_cors import CORS
 
 from fuse import FUSE
+import hashlib as hl
 import requests
 import slugid
 import sh
+
+import higlass.tilesets as hgti
 
 
 __all__ = ['Server']
 
 
-def create_app(tilesets, name, log_file, log_level):
+def create_app(tilesets, name, log_file, log_level, file_ids):
     app = Flask(__name__)
     CORS(app)
 
     TILESETS = tilesets
 
+    remote_tilesets = {
+
+    }
+
     @app.route('/api/v1/')
     def hello():
         return("Hello World!")
+
+    @app.route('/api/v1/register_url/', methods=['POST'])
+    def register_url():
+        js = request.json
+        key = (js['url'], js['filetype'])
+
+        print("by_filetype", hgti.by_filetype, js['filetype'],
+            js['filetype'] in hgti.by_filetype)
+
+
+        if js['filetype'] not in hgti.by_filetype:
+            return jsonify({
+                'error': "Unknown filetype: {}".format(js['filetype'])
+            }),400
+
+        if key in remote_tilesets:
+            return jsonify({
+                'uid': remote_tilesets[key].uuid
+            }),400
+
+        new_tileset = hgti.by_filetype[js['filetype']](js['url'])
+        print("tilesets:", TILESETS)
+        
+        TILESETS += [new_tileset]
+
+        remote_tilesets[key] = new_tileset
+        
+        return jsonify({
+            'uid': new_tileset.uuid
+        })
 
     @app.route('/api/v1/chrom-sizes/', methods=['GET'])
     def chrom_sizes():
@@ -262,6 +299,7 @@ class Server:
         self.host = host
         self.port = port
         self.tmp_dir = tmp_dir
+        self.file_ids = dict()
 
     def start(self, log_file='/tmp/hgserver.log', log_level=logging.INFO):
 
@@ -275,7 +313,8 @@ class Server:
             self.tilesets,
             __name__,
             log_file=log_file,
-            log_level=log_level)
+            log_level=log_level, 
+            file_ids=self.file_ids)
 
         # we're going to assign a uuid to each server process so that if anything
         # goes wrong, the variable referencing the process doesn't get lost

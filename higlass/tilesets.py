@@ -77,3 +77,8 @@ def mmatrix(filepath, uuid=None):
                             hgmm.tiles(f, z, x, y)))
     )
 
+by_filetype = {
+    'cooler': cooler,
+    'bigwig': bigwig,
+}
+

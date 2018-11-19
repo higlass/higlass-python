@@ -1,4 +1,7 @@
 from setuptools import setup, find_packages, Command
+from setuptools.command.build_py import build_py
+from setuptools.command.egg_info import egg_info
+from setuptools.command.sdist import sdist
 from subprocess import check_call
 import platform
 import sys
@@ -42,8 +45,8 @@ def js_prerelease(command, strict=False):
         def run(self):
             jsdeps = self.distribution.get_command_obj('jsdeps')
             if not is_repo and all(os.path.exists(t) for t in jsdeps.targets):
-            , nothing to do
-            command.run(self)
+                # sdist, nothing to do
+                command.run(self)
                 return
 
             try:
@@ -146,7 +149,7 @@ class NPM(Command):
 
 
 setup_args = {
-    'name': 'higlass',
+    'name': 'higlass-python',
     'version': get_version('higlass', '_version.py'),
     'packages': find_packages(),
     'license': 'MIT',
@@ -181,6 +184,12 @@ setup_args = {
     'tests_require': [
         'pytest'
     ],
+    'cmdclass': {
+        'build_py': js_prerelease(build_py),
+        'egg_info': js_prerelease(egg_info),
+        'sdist': js_prerelease(sdist, strict=True),
+        'jsdeps': NPM,
+    },
 }
 
 setup(**setup_args)

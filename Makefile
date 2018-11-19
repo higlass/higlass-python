@@ -1,14 +1,10 @@
-.PHONY: build install clean all
+.PHONY: build install uninstall clean nbext-deps install-nbext uninstall-nbext labext-deps install-labext uninstall-labext
 
 install:
-	python setup.py jsdeps
-	jupyter nbextension install --py --symlink --sys-prefix higlass
-	jupyter nbextension enable --py --sys-prefix higlass
+	pip install -e .
 
 uninstall:
-	jupyter nbextension uninstall --py --sys-prefix higlass
-	rm -rf higlass/static/
-	rm -rf build
+	pip uninstall higlass-python
 
 build:
 	python setup.py jsdeps
@@ -16,3 +12,29 @@ build:
 clean:
 	rm -rf higlass/static/
 	rm -rf build
+
+clean-npm:
+	rm -rf js/dist
+	rm -rf js/node_modules
+
+nbext-deps:
+	pip install jupyter_contrib_nbextensions
+	jupyter contrib nbextension install --sys-prefix
+	jupyter nbextension enable --py --sys-prefix widgetsnbextension
+
+install-nbext:
+	jupyter nbextension install --py --symlink --sys-prefix higlass
+	jupyter nbextension enable --py --sys-prefix higlass
+
+uninstall-nbext:
+	jupyter nbextension uninstall --py --sys-prefix higlass
+
+
+labext-deps:
+	jupyter labextension install @jupyter-widgets/jupyterlab-manager
+
+install-labext:
+	cd js && jupyter labextension link .
+
+uninstall-labext:
+	cd js && jupyter labextension unlink .

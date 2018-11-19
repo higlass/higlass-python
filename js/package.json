@@ -1,12 +1,12 @@
 {
-  "name": "higlass-jupyter",
+  "name": "jupyter-higlass",
   "version": "0.1.0",
   "description": "HiGlass in your Jupyter Notebook",
   "author": "Nezar Abdennur, Peter Kerpedjiev",
   "main": "lib/index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/pkerpedjiev/higlass-jupyter.git"
+    "url": "https://github.com/higlass/higlass-python.git"
   },
   "keywords": [
     "jupyter",
@@ -29,8 +29,7 @@
   },
   "dependencies": {
     "@jupyter-widgets/base": "^1.0.0",
-    "jupyterlab" : "^0.3.0",
-    "jupyterlab_widgets" : "^0.2.2",
+    "@jupyter-widgets/jupyterlab-manager": "^0.38.1",
     "css-loader": "^0.28.7",
     "higlass": "^1.2.4",
     "higlass-multivec": "^0.2.0-alpha.3",
@@ -40,6 +39,6 @@
     "style-loader": "^0.19.0"
   },
   "jupyterlab": {
-    "extension": "lib/jupyterlab-plugin"
+    "extension": "lib/labplugin"
   }
 }

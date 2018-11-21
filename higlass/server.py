@@ -43,11 +43,7 @@ def create_app(tilesets, name, log_file, log_level, file_ids):
     @app.route('/api/v1/register_url/', methods=['POST'])
     def register_url():
         js = request.json
-        key = (js['url'], js['filetype'])
-
-        print("by_filetype", hgti.by_filetype, js['filetype'],
-            js['filetype'] in hgti.by_filetype)
-
+        key = (js['fileUrl'], js['filetype'])
 
         if js['filetype'] not in hgti.by_filetype:
             return jsonify({
@@ -57,13 +53,9 @@ def create_app(tilesets, name, log_file, log_level, file_ids):
         if key in remote_tilesets:
             return jsonify({
                 'uid': remote_tilesets[key].uuid
-            }),400
+            })
 
-        new_tileset = hgti.by_filetype[js['filetype']](js['url'])
-        print("tilesets:", TILESETS)
-        
-        TILESETS += [new_tileset]
-
+        new_tileset = hgti.by_filetype[js['filetype']](js['fileUrl'])
         remote_tilesets[key] = new_tileset
         
         return jsonify({
@@ -89,7 +81,7 @@ def create_app(tilesets, name, log_file, log_level, file_ids):
         res_type = request.args.get('type', 'tsv')
         incl_cum = request.args.get('cum', False)
 
-        ts = next((ts for ts in TILESETS if ts.uuid == uuid), None)
+        ts = next((ts for ts in list_tilesets() if ts.uuid == uuid), None)
 
         if ts is None:
             return jsonify({"error": "Not found"}), 404
@@ -152,13 +144,18 @@ def create_app(tilesets, name, log_file, log_level, file_ids):
             "results": [ts.meta for ts in TILESETS],
         })
 
+    def list_tilesets():
+        return (
+            TILESETS + list(remote_tilesets.values())
+            )
+
     @app.route('/api/v1/tileset_info/', methods=['GET'])
     def tileset_info():
         uuids = request.args.getlist("d")
 
         info = {}
         for uuid in uuids:
-            ts = next((ts for ts in TILESETS if ts.uuid == uuid), None)
+            ts = next((ts for ts in list_tilesets() if ts.uuid == uuid), None)
 
             if ts is not None:
                 info[uuid] = ts.tileset_info()
@@ -179,9 +176,11 @@ def create_app(tilesets, name, log_file, log_level, file_ids):
         extract_uuid = lambda tid: tid.split('.')[0]
         uuids_to_tids = toolz.groupby(extract_uuid, tids_requested)
 
+        print("TILESETS:", TILESETS)
+
         tiles = []
         for uuid, tids in uuids_to_tids.items():
-            ts = next((ts for ts in TILESETS if ts.uuid == uuid), None)
+            ts = next((ts for ts in list_tilesets() if ts.uuid == uuid), None)
             tiles.extend(ts.tiles(tids))
         data = {tid: tval for tid, tval in tiles}
         return jsonify(data)

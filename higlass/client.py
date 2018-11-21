@@ -11,7 +11,10 @@ track_default_positions = {
 }
 
 class Track:
-    def __init__(self, track_type, position=None, tileset=None, height=None, width=None, options={}):
+    def __init__(self, track_type, position=None, 
+        tileset=None, height=None, width=None, 
+        server=None, file_url=None, filetype=None,
+        options={}):
         '''
         Add a track to a position.
         
@@ -39,6 +42,12 @@ class Track:
 
         if tileset is not None:
             new_track['tilesetUid'] = tileset.uuid
+        if (server is not None 
+            and file_url is not None
+            and filetype is not None):
+            new_track['server'] = server
+            new_track['fileUrl'] = file_url
+            new_track['filetype'] = filetype
         if height is not None:
             new_track['height'] = height
         if width is not None:

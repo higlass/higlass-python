@@ -80,5 +80,6 @@ def mmatrix(filepath, uuid=None):
 by_filetype = {
     'cooler': cooler,
     'bigwig': bigwig,
+    'mmatrix': mmatrix,
 }
 

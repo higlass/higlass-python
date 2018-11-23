@@ -277,6 +277,9 @@ class FuseProcess:
 
 
 class Server:
+    '''
+    A lightweight HiGlass server.
+    '''
     # Keep track of the server processes that have been started.
     # So that when someone says 'start', the old ones are terminated
     processes = {}
@@ -288,10 +291,16 @@ class Server:
         '''
         Maintain a reference to a running higlass server
 
-        Parameters:
+        Parameters
         ----------
         port: int
             The port that this server will run on
+        tileset: []
+            A list of tilesets to serve (see higlass.tilesets)
+        host: string
+            The host this server is running on.  Usually just localhost
+        tmp_dir: string
+            A temporary directory into which to mount the http and https files
 
         '''
         self.tilesets = tilesets
@@ -301,7 +310,16 @@ class Server:
         self.file_ids = dict()
 
     def start(self, log_file='/tmp/hgserver.log', log_level=logging.INFO):
+        """
+        Start a lightweight higlass server.
 
+        Parameters
+        ----------
+        log_file: string
+            Where to place diagnostic log files
+        log_level: logging.*
+            What level to log at
+        """
         for puid in list(self.processes.keys()):
             print("terminating:", puid)
             self.processes[puid].terminate()

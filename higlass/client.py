@@ -32,6 +32,13 @@ class Track:
             The height of the track (in pixels)
         width: int 
             The width of the track (in pixels)
+        server: string
+            The server name (usually just 'localhost')
+        file_url: string
+            An http accessible tileset file
+        filetype: string
+            The type of the remote tilesets (e.g. 'bigwig' or
+            'cooler')
         options: {} 
             The options to pass onto the track
         '''

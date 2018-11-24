@@ -176,8 +176,6 @@ def create_app(tilesets, name, log_file, log_level, file_ids):
         extract_uuid = lambda tid: tid.split('.')[0]
         uuids_to_tids = toolz.groupby(extract_uuid, tids_requested)
 
-        print("TILESETS:", TILESETS)
-
         tiles = []
         for uuid, tids in uuids_to_tids.items():
             ts = next((ts for ts in list_tilesets() if ts.uuid == uuid), None)
@@ -325,7 +323,6 @@ class Server:
             self.processes[puid].terminate()
             del self.processes[puid]
 
-        print('self.tilesets:', self.tilesets)
         self.app = create_app(
             self.tilesets,
             __name__,

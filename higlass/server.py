@@ -15,23 +15,52 @@ from flask import request, jsonify
 from flask_cors import CORS
 
 from fuse import FUSE
+import hashlib as hl
 import requests
 import slugid
 import sh
+
+import higlass.tilesets as hgti
 
 
 __all__ = ['Server']
 
 
-def create_app(tilesets, name, log_file, log_level):
+def create_app(tilesets, name, log_file, log_level, file_ids):
     app = Flask(__name__)
     CORS(app)
 
     TILESETS = tilesets
 
+    remote_tilesets = {
+
+    }
+
     @app.route('/api/v1/')
     def hello():
         return("Hello World!")
+
+    @app.route('/api/v1/register_url/', methods=['POST'])
+    def register_url():
+        js = request.json
+        key = (js['fileUrl'], js['filetype'])
+
+        if js['filetype'] not in hgti.by_filetype:
+            return jsonify({
+                'error': "Unknown filetype: {}".format(js['filetype'])
+            }),400
+
+        if key in remote_tilesets:
+            return jsonify({
+                'uid': remote_tilesets[key].uuid
+            })
+
+        new_tileset = hgti.by_filetype[js['filetype']](js['fileUrl'])
+        remote_tilesets[key] = new_tileset
+        
+        return jsonify({
+            'uid': new_tileset.uuid
+        })
 
     @app.route('/api/v1/chrom-sizes/', methods=['GET'])
     def chrom_sizes():
@@ -52,7 +81,7 @@ def create_app(tilesets, name, log_file, log_level):
         res_type = request.args.get('type', 'tsv')
         incl_cum = request.args.get('cum', False)
 
-        ts = next((ts for ts in TILESETS if ts.uuid == uuid), None)
+        ts = next((ts for ts in list_tilesets() if ts.uuid == uuid), None)
 
         if ts is None:
             return jsonify({"error": "Not found"}), 404
@@ -115,13 +144,18 @@ def create_app(tilesets, name, log_file, log_level):
             "results": [ts.meta for ts in TILESETS],
         })
 
+    def list_tilesets():
+        return (
+            TILESETS + list(remote_tilesets.values())
+            )
+
     @app.route('/api/v1/tileset_info/', methods=['GET'])
     def tileset_info():
         uuids = request.args.getlist("d")
 
         info = {}
         for uuid in uuids:
-            ts = next((ts for ts in TILESETS if ts.uuid == uuid), None)
+            ts = next((ts for ts in list_tilesets() if ts.uuid == uuid), None)
 
             if ts is not None:
                 info[uuid] = ts.tileset_info()
@@ -144,7 +178,7 @@ def create_app(tilesets, name, log_file, log_level):
 
         tiles = []
         for uuid, tids in uuids_to_tids.items():
-            ts = next((ts for ts in TILESETS if ts.uuid == uuid), None)
+            ts = next((ts for ts in list_tilesets() if ts.uuid == uuid), None)
             tiles.extend(ts.tiles(tids))
         data = {tid: tval for tid, tval in tiles}
         return jsonify(data)
@@ -241,6 +275,9 @@ class FuseProcess:
 
 
 class Server:
+    '''
+    A lightweight HiGlass server.
+    '''
     # Keep track of the server processes that have been started.
     # So that when someone says 'start', the old ones are terminated
     processes = {}
@@ -252,30 +289,46 @@ class Server:
         '''
         Maintain a reference to a running higlass server
 
-        Parameters:
+        Parameters
         ----------
         port: int
             The port that this server will run on
+        tileset: []
+            A list of tilesets to serve (see higlass.tilesets)
+        host: string
+            The host this server is running on.  Usually just localhost
+        tmp_dir: string
+            A temporary directory into which to mount the http and https files
 
         '''
         self.tilesets = tilesets
         self.host = host
         self.port = port
         self.tmp_dir = tmp_dir
+        self.file_ids = dict()
 
     def start(self, log_file='/tmp/hgserver.log', log_level=logging.INFO):
+        """
+        Start a lightweight higlass server.
 
+        Parameters
+        ----------
+        log_file: string
+            Where to place diagnostic log files
+        log_level: logging.*
+            What level to log at
+        """
         for puid in list(self.processes.keys()):
             print("terminating:", puid)
             self.processes[puid].terminate()
             del self.processes[puid]
 
-        print('self.tilesets:', self.tilesets)
         self.app = create_app(
             self.tilesets,
             __name__,
             log_file=log_file,
-            log_level=log_level)
+            log_level=log_level, 
+            file_ids=self.file_ids)
 
         # we're going to assign a uuid to each server process so that if anything
         # goes wrong, the variable referencing the process doesn't get lost

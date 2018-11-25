@@ -8,12 +8,16 @@ track_default_positions = {
     'heatmap': 'center',
     'horizontal-heatmap': 'top',
     'osm-tiles': 'center',
+    'horizontal-bar': 'top'
 }
 
 
 class Track:
-    def __init__(self, track_type, position=None, tileset=None, api_url=None,
-                 height=None, width=None, options={}):
+    def __init__(self, track_type, position=None, 
+        tileset=None, api_url=None, height=None, width=None, 
+        server=None, file_url=None, filetype=None,
+        options={}):
+
         '''
         Add a track to a position.
 
@@ -31,7 +35,15 @@ class Track:
             The height of the track (in pixels)
         width: int
             The width of the track (in pixels)
-        options: {}
+        server: string
+            The server name (usually just 'localhost')
+        file_url: string
+            An http accessible tileset file
+        filetype: string
+            The type of the remote tilesets (e.g. 'bigwig' or
+            'cooler')
+        options: {} 
+
             The options to pass onto the track
         '''
         new_track = {
@@ -41,6 +53,12 @@ class Track:
 
         if tileset is not None:
             new_track['tilesetUid'] = tileset.uuid
+        if (server is not None 
+            and file_url is not None
+            and filetype is not None):
+            new_track['server'] = server
+            new_track['fileUrl'] = file_url
+            new_track['filetype'] = filetype
         if height is not None:
             new_track['height'] = height
         if width is not None:

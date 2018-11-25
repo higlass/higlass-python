@@ -15,7 +15,6 @@ from flask import request, jsonify
 from flask_cors import CORS
 
 from fuse import FUSE
-import hashlib as hl
 import requests
 import slugid
 import sh
@@ -26,11 +25,11 @@ import higlass.tilesets as hgti
 __all__ = ['Server']
 
 
-def create_app(tilesets, name, log_file, log_level, file_ids):
+def create_app(tilesets_in, name, log_file, log_level, file_ids):
     app = Flask(__name__)
     CORS(app)
 
-    TILESETS = tilesets
+    TILESETS = tilesets_in
 
     remote_tilesets = {
 

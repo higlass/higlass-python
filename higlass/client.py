@@ -15,7 +15,7 @@ track_default_positions = {
 class Track:
     def __init__(self, track_type, position=None, 
         tileset=None, api_url=None, height=None, width=None, 
-        server=None, file_url=None, filetype=None,
+        tileset_uuid=None, server=None, file_url=None, filetype=None,
         options={}):
 
         '''
@@ -53,6 +53,16 @@ class Track:
 
         if tileset is not None:
             new_track['tilesetUid'] = tileset.uuid
+
+        if (server is not None
+            and tileset_uuid is not None):
+            if tileset is None:
+                new_track['tilesetUid'] = tileset_uuid
+                new_track['server'] = server
+            else:
+                print("Both a tileset object and server and tileset_uuid " 
+                    + "were provided, using the tileset object", 
+                    file=sys.stderr)
         if (server is not None 
             and file_url is not None
             and filetype is not None):

@@ -24,6 +24,28 @@ import higlass.tilesets as hgti
 
 __all__ = ['Server']
 
+TMP_DIR='/tmp/higlass-python/'
+
+def get_filepath(filepath):
+    '''
+    Get the filepath from a tileset definition
+
+    Parameters
+    ----------
+    tileset_def: { 'filepath': ..., 'uid': ..., 'filetype': ...}
+        The tileset definition     
+    returns: string
+        The filepath, either as specified in the tileset_def or
+        None
+    '''
+        
+    if filepath[:7] == 'http://':
+        filepath = fuse.http_directory + '//' + filepath[5:] + ".."
+    if filepath[:8] == 'https://':
+        filepath = fuse.https_directory + '//' + filepath[6:] + ".."
+    
+    return filepath
+
 
 def create_app(tilesets_in, name, log_file, log_level, file_ids):
     app = Flask(__name__)
@@ -54,12 +76,14 @@ def create_app(tilesets_in, name, log_file, log_level, file_ids):
                 'uid': remote_tilesets[key].uuid
             })
 
-        new_tileset = hgti.by_filetype[js['filetype']](js['fileUrl'])
+
+        new_tileset = hgti.by_filetype[js['filetype']](get_filepath(js['fileUrl']))
         remote_tilesets[key] = new_tileset
         
         return jsonify({
             'uid': new_tileset.uuid
         })
+
 
     @app.route('/api/v1/chrom-sizes/', methods=['GET'])
     def chrom_sizes():
@@ -206,8 +230,8 @@ def get_open_port():
 class FuseProcess:
     def __init__(self, tmp_dir):
         self.tmp_dir = tmp_dir
-        self.http_directory = op.join(tmp_dir, 'http')
-        self.https_directory = op.join(tmp_dir, 'https')
+        self.http_directory = op.join(tmp_dir, 'hpp')
+        self.https_directory = op.join(tmp_dir, 'hpps')
         self.diskcache_directory = op.join(tmp_dir, 'dc')
 
     def setup(self):
@@ -305,6 +329,9 @@ class Server:
         self.port = port
         self.tmp_dir = tmp_dir
         self.file_ids = dict()
+
+        self.fuse_process = FuseProcess(tmp_dir)
+        self.fuse_process.setup()
 
     def start(self, log_file='/tmp/hgserver.log', log_level=logging.INFO):
         """
@@ -416,3 +443,7 @@ class Server:
         return 'http://{host}:{port}/api/v1'.format(
             host=self.host,
             port=self.port)
+
+
+fuse = FuseProcess(TMP_DIR)
+fuse.setup()

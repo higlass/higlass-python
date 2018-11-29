@@ -190,13 +190,13 @@ class HttpFs(LoggingMixIn, Operations):
         cache_key=  "{}.{}".format(url, block_num)
         cache = self.disk_cache
 
-        if False: #cache_key in self.lru_cache:
+        if cache_key in self.lru_cache:
             self.lru_hits += 1
             return self.lru_cache[cache_key]
         else:
             self.lru_misses += 1
 
-            if False: #cache_key in self.disk_cache:
+            if cache_key in self.disk_cache:
                 self.disk_hits += 1
                 block_data = self.disk_cache[cache_key]
                 self.lru_cache[cache_key] = block_data

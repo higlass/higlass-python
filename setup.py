@@ -7,6 +7,7 @@ from subprocess import check_call
 import os
 import sys
 import platform
+import versioneer
 
 here = os.path.dirname(os.path.abspath(__file__))
 is_repo = os.path.exists(os.path.join(here, '.git'))
@@ -18,13 +19,9 @@ log.info('$PATH=%s' % os.environ['PATH'])
 
 LONG_DESCRIPTION = 'Python bindings for the HiGlass viewer'
 
-version_ns = {}
-with open(os.path.join(here, 'higlass', '_version.py')) as f:
-    exec(f.read(), {}, version_ns)
-
 setup_args = {
     'name': 'higlass_python',
-    'version': version_ns['__version__'],
+    'version': versioneer.get_version(),
     'description': 'Python bindings for the HiGlass viewer',
     'long_description': LONG_DESCRIPTION,
     'include_package_data': True,

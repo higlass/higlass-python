@@ -43,6 +43,8 @@ def get_filepath(filepath):
         filepath = fuse.http_directory + '//' + filepath[5:] + ".."
     if filepath[:8] == 'https://':
         filepath = fuse.https_directory + '//' + filepath[6:] + ".."
+
+    print("******** filepath:", filepath)
     
     return filepath
 
@@ -269,7 +271,7 @@ class FuseProcess:
         lru_capacity = 400
         print("self.diskcache_directory", self.diskcache_directory, op.exists(self.diskcache_directory))
 
-        def start_fuse(directory):
+        def start_fuse_http(directory):
             print("starting fuse")
             fuse = FUSE(
                 httpfs.HttpFs('http',
@@ -281,7 +283,23 @@ class FuseProcess:
                 foreground=False
             )
 
-        proc = mp.Process(target=start_fuse, args=[self.http_directory])
+        def start_fuse_https(directory):
+            print("starting fuse")
+            fuse = FUSE(
+                httpfs.HttpFs('https',
+                       disk_cache_size=disk_cache_size,
+                       disk_cache_dir=self.diskcache_directory,
+                       lru_capacity=lru_capacity,
+                    ),
+                directory,
+                foreground=False
+            )
+
+        proc = mp.Process(target=start_fuse_http, args=[self.http_directory])
+        proc.start()
+        proc.join()
+
+        proc = mp.Process(target=start_fuse_https, args=[self.https_directory])
         proc.start()
         proc.join()
 

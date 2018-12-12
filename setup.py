@@ -7,6 +7,7 @@ import platform
 import sys
 import os
 import io
+import versioneer
 
 here = os.path.dirname(os.path.abspath(__file__))
 is_repo = os.path.exists(os.path.join(here, '.git'))
@@ -30,14 +31,6 @@ def read(*parts, **kwargs):
     with io.open(filepath, encoding=encoding) as fh:
         text = fh.read()
     return text
-
-
-def get_version(*parts):
-    version_ns = {}
-    with open(os.path.join(here, *parts)) as f:
-        exec(f.read(), {}, version_ns)
-    return version_ns['__version__']
-
 
 def js_prerelease(command, strict=False):
     """decorator for building minified js/css prior to another command"""
@@ -150,7 +143,7 @@ class NPM(Command):
 
 setup_args = {
     'name': 'higlass-python',
-    'version': get_version('higlass', '_version.py'),
+    'version': versioneer.get_version(),
     'packages': find_packages(),
     'license': 'MIT',
     'description': 'Python bindings for the HiGlass viewer',

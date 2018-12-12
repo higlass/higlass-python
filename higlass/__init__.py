@@ -7,3 +7,7 @@ def _jupyter_nbextension_paths():
         'dest': 'jupyter-higlass',
         'require': 'jupyter-higlass/extension'
     }]
+
+from ._version import get_versions
+__version__ = get_versions()['version']
+del get_versions

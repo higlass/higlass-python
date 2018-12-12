@@ -16,3 +16,5 @@ global-exclude *.dylib
 global-exclude .git*
 global-exclude .deps/*
 global-exclude .DS_Store
+include versioneer.py
+include higlass/_version.py

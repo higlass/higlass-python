@@ -5,3 +5,4 @@ flask-cors
 fuse
 fusepy
 sh
+ipywidgets

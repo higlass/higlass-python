@@ -23,7 +23,7 @@ def display(views, location_sync=[], zoom_sync=[]):
 
     conf = ViewConf(views, location_sync=location_sync, zoom_sync=zoom_sync)
 
-    return (server, HiGlassDisplay(viewconf=conf.to_json()))
+    return (server, HiGlassDisplay(viewconf=conf.to_dict()))
 
 
 def view(tilesets):

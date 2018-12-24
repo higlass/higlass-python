@@ -1,10 +1,10 @@
-# import clodius.tiles.bigwig as hgbi
-# import clodius.tiles.chromsizes as hgch
-# import clodius.tiles.cooler as hgco
-# import clodius.tiles.mrmatrix as hgmm
+import clodius.tiles.bigwig as hgbi
+import clodius.tiles.chromsizes as hgch
+import clodius.tiles.cooler as hgco
+import clodius.tiles.mrmatrix as hgmm
 
-# import clodius.tiles.utils as hgut
-# import clodius.tiles.format as hgfo
+import clodius.tiles.utils as hgut
+import clodius.tiles.format as hgfo
 
 import h5py
 import slugid
@@ -13,7 +13,9 @@ import slugid
 class Tileset:
     def __init__(self, tileset_info=None, tiles=None,
                  chromsizes=lambda: None, uuid=None,
-                 private=False, name='', datatype=''):
+                 private=False, name='', datatype='',
+                track_type=None,
+                track_position=None):
         '''
         Parameters
         ----------
@@ -29,6 +31,9 @@ class Tileset:
         self.tiles_fn = tiles
         self.chromsizes_fn = chromsizes
         self.private = private
+        self.track_type = None
+        self.track_position = None
+        
         if uuid is not None:
             self.uuid = uuid
         else:

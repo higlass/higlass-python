@@ -177,6 +177,8 @@ class View:
         viewconf = json.loads(json.dumps(self.viewconf))
 
         for track in self.tracks:
+            if track.position is None:
+                raise ValueError("Track has no position: {}".format(track.viewconf['type']))
             viewconf['tracks'][track.position] += [track.to_dict()]
 
         return viewconf

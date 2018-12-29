@@ -25,6 +25,27 @@ import higlass.tilesets as hgti
 
 __all__ = ['Server']
 
+def get_filepath(filepath):
+    '''
+    Get the filepath from a tileset definition
+    Parameters
+    ----------
+    tileset_def: { 'filepath': ..., 'uid': ..., 'filetype': ...}
+        The tileset definition     
+    returns: string
+        The filepath, either as specified in the tileset_def or
+        None
+    '''
+        
+    if filepath[:7] == 'http://':
+        filepath = fuse.http_directory + filepath[6:] + ".."
+    if filepath[:8] == 'https://':
+        filepath = fuse.https_directory + filepath[7:] + ".."
+
+    print("******** filepath:", filepath)
+    
+    return filepath
+
 
 def create_app(tilesets, name, log_file, log_level, file_ids):
     app = Flask(__name__)
@@ -55,7 +76,7 @@ def create_app(tilesets, name, log_file, log_level, file_ids):
                 'uid': remote_tilesets[key].uuid
             })
 
-        new_tileset = hgti.by_filetype[js['filetype']](js['fileUrl'])
+        new_tileset = hgti.by_filetype[js['filetype']](get_filepath(js['fileUrl']))
         remote_tilesets[key] = new_tileset
         
         return jsonify({
@@ -222,7 +243,7 @@ class FuseProcess:
             The temporary directory where to create the
             http and https directories
         '''
-        from . import httpfs
+        from simple_httpfs import HttpFs
 
         if not op.exists(self.http_directory):
             os.makedirs(self.http_directory)
@@ -249,7 +270,7 @@ class FuseProcess:
         def start_fuse(directory):
             print("starting fuse")
             fuse = FUSE(
-                httpfs.HttpFs('http',
+                HttpFs('http',
                        disk_cache_size=disk_cache_size,
                        disk_cache_dir=self.diskcache_directory,
                        lru_capacity=lru_capacity,
@@ -281,8 +302,6 @@ class Server:
     # Keep track of the server processes that have been started.
     # So that when someone says 'start', the old ones are terminated
     processes = {}
-    http_directory = '/tmp/hgflask/http'
-    https_directory = '/tmp/hgflask/https'
     diskcache_directory = '/tmp/hgflask/dc'
 
     def __init__(self, tilesets, port=None, host='localhost', tmp_dir='/tmp/hgflask'):
@@ -306,6 +325,9 @@ class Server:
         self.port = port
         self.tmp_dir = tmp_dir
         self.file_ids = dict()
+
+        self.fuse_process = FuseProcess(tmp_dir)
+        self.fuse_process.setup()
 
     def start(self, log_file='/tmp/hgserver.log', log_level=logging.INFO):
         """
@@ -390,6 +412,8 @@ class Server:
             port=self.port,
             tile_id=tile_id)
 
+        print("url:", url)
+
         req = requests.get(url)
         if req.status_code != 200:
             raise ServerError('Error fetching tile:', req.content)
@@ -417,3 +441,8 @@ class Server:
         return 'http://{host}:{port}/api/v1'.format(
             host=self.host,
             port=self.port)
+
+TMP_DIR='/tmp/higlass-python/'
+
+fuse = FuseProcess(TMP_DIR)
+fuse.setup()

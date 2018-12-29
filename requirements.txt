@@ -6,3 +6,4 @@ fuse
 fusepy
 sh
 ipywidgets
+num2words

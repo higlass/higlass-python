@@ -1,0 +1,29 @@
+sudo: required
+language: python
+python:
+      - "3.6"
+
+cache: apt
+addons:
+  apt:
+    packages: # Since we've turned on sudo, apt-get is available, but this works, too.
+    - libatlas-dev
+    - libatlas-base-dev
+    - liblapack-dev
+    - gfortran
+
+before_install:
+  - wget http://repo.continuum.io/miniconda/Miniconda3-4.3.21-Linux-x86_64.sh -O miniconda.sh
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - export PATH="$HOME/miniconda/bin:$PATH"
+  # Prefer stability to having the latest
+  #- conda update --yes conda
+
+install:
+  - conda install --yes python=$TRAVIS_PYTHON_VERSION numpy=1.13.1
+  - pip install nose
+  - pip install -r requirements.txt
+
+script:
+  - nosetests test 
+

@@ -8,7 +8,8 @@ track_default_positions = {
     'heatmap': 'center',
     'horizontal-heatmap': 'top',
     'osm-tiles': 'center',
-    'horizontal-bar': 'top'
+    'horizontal-bar': 'top',
+    'horizontal-multivec': 'top'
 }
 
 

@@ -1,4 +1,5 @@
 import ipywidgets as widgets
+import json
 
 from traitlets import Unicode
 from traitlets import default
@@ -6,9 +7,8 @@ from traitlets import List
 from traitlets import Dict
 from traitlets import Int
 
-from ._version import get_versions
-__version__ = get_versions()['version']
-del get_versions
+with open('../js/package.json', 'r') as f:
+    __version__ = json.load(f)['version']
 
 
 @widgets.register

@@ -10,11 +10,13 @@ from ._version import get_versions
 __version__ = get_versions()['version']
 del get_versions
 
+
+@widgets.register
 class HiGlassDisplay(widgets.DOMWidget):
     _view_name = Unicode('HiGlassDisplayView').tag(sync=True)
     _model_name = Unicode('HiGlassDisplayModel').tag(sync=True)
-    _view_module = Unicode('higlass-python').tag(sync=True)
-    _model_module = Unicode('higlass-python').tag(sync=True)
+    _view_module = Unicode('higlass-jupyter').tag(sync=True)
+    _model_module = Unicode('higlass-jupyter').tag(sync=True)
     _view_module_version = Unicode(__version__).tag(sync=True)
     _model_module_version = Unicode(__version__).tag(sync=True)
 

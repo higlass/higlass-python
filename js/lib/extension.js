@@ -7,7 +7,7 @@ if (window.require) {
     window.require.config({
         map: {
             "*" : {
-                "higlass-python": "nbextensions/higlass-python/index",
+                "higlass-jupyter": "nbextensions/higlass-jupyter/index",
             }
         }
     });

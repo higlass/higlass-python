@@ -13,8 +13,8 @@ del get_versions
 class HiGlassDisplay(widgets.DOMWidget):
     _view_name = Unicode('HiGlassDisplayView').tag(sync=True)
     _model_name = Unicode('HiGlassDisplayModel').tag(sync=True)
-    _view_module = Unicode('jupyter-higlass').tag(sync=True)
-    _model_module = Unicode('jupyter-higlass').tag(sync=True)
+    _view_module = Unicode('higlass-python').tag(sync=True)
+    _model_module = Unicode('higlass-python').tag(sync=True)
     _view_module_version = Unicode(__version__).tag(sync=True)
     _model_module_version = Unicode(__version__).tag(sync=True)
 

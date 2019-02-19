@@ -1,7 +1,7 @@
 {
-  "name": "jupyter-higlass",
+  "name": "higlass-python",
   "version": "0.1.0",
-  "description": "HiGlass in your Jupyter Notebook",
+  "description": "HiGlass integration for Jupyter Notebook and Lab",
   "author": "Nezar Abdennur, Peter Kerpedjiev",
   "main": "lib/index.js",
   "repository": {
@@ -10,6 +10,8 @@
   },
   "keywords": [
     "jupyter",
+    "nootbook",
+    "lab",
     "widgets",
     "ipython",
     "ipywidgets"
@@ -28,10 +30,10 @@
     "rimraf": "^2.6.1"
   },
   "dependencies": {
-    "@jupyter-widgets/base": "^1.0.0",
-    "@jupyter-widgets/jupyterlab-manager": "^0.38.1",
+    "@jupyter-widgets/base": "^1.2.3",
+    "@jupyter-widgets/jupyterlab-manager": "^0.39.0",
     "css-loader": "^0.28.7",
-    "higlass": "^1.2.4",
+    "higlass": "^1.4.1",
     "higlass-multivec": "^0.2.0-alpha.3",
     "lodash": "^4.17.4",
     "react": "^16.5.1",

@@ -358,7 +358,7 @@ class Server:
 
         # we're going to assign a uuid to each server process so that if anything
         # goes wrong, the variable referencing the process doesn't get lost
-        uuid = slugid.nice().decode("utf8")
+        uuid = slugid.nice()
         if self.port is None:
             self.port = get_open_port()
         target = partial(

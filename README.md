@@ -14,7 +14,8 @@ This package provide access to:
 
 ### Requirements
 
-- Python >= 3.6
+- Python >= 3.7
+- [FUSE](https://github.com/libfuse/libfuse) or [MacFuse](https://osxfuse.github.io/)
 - Jupyter Notebook >= 5.7
 - Jupyter Lab >= 0.35
 
@@ -31,12 +32,9 @@ pip install higlass-python
 Open a terminal and execute the following code to activate the integration:
 
 ```bash
-# Only required if you have not enabled the ipywidgets nbextension yet
+# The following is only required if you have not enabled the ipywidgets nbextension yet
 jupyter nbextension enable --py --sys-prefix widgetsnbextension
-
-# For notebook
-jupyter nbextension enable --py --sys-prefix higlass-jupyter
-
+jupyter nbextension enable --py --sys-prefix higlass
 ```
 
 #### Jupyter notebook integration
@@ -44,10 +42,8 @@ jupyter nbextension enable --py --sys-prefix higlass-jupyter
 Open a terminal and execute the following code to activate the integration:
 
 ```bash
-# Only required if you have not enabled the jupyterlab manager yet
+# The following is only required if you have not enabled the jupyterlab manager yet
 jupyter labextension install @jupyter-widgets/jupyterlab-manager
-
-# For lab
 jupyter labextension install higlass-jupyter
 ```
 
@@ -68,8 +64,8 @@ Take a look at [notebooks/Examples.ipynb](notebooks/Examples.ipynb) on how to ge
    ```bash
    python setup.py jsdeps
    jupyter nbextension enable --py --sys-prefix widgetsnbextension
-   jupyter nbextension install --py --symlink --sys-prefix higlass-jupyter
-   jupyter nbextension enable --py --sys-prefix higlass-jupyter
+   jupyter nbextension install --py --symlink --sys-prefix higlass
+   jupyter nbextension enable --py --sys-prefix higlass
    ```
 
 * Uninstall the Jupyter Notebook Extension

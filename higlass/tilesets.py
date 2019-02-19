@@ -11,12 +11,19 @@ import slugid
 
 
 class Tileset:
-    def __init__(self, tileset_info=None, tiles=None,
-                 chromsizes=lambda: None, uuid=None,
-                 private=False, name='', datatype='',
-                track_type=None,
-                track_position=None):
-        '''
+    def __init__(
+        self,
+        tileset_info=None,
+        tiles=None,
+        chromsizes=lambda: None,
+        uuid=None,
+        private=False,
+        name="",
+        datatype="",
+        track_type=None,
+        track_position=None,
+    ):
+        """
         Parameters
         ----------
         tileset_info: function
@@ -24,7 +31,7 @@ class Tileset:
             for this tileset.
         tiles: function
             A function returning tile data for this tileset
-        '''
+        """
         self.name = name
         self.datatype = datatype
         self.tileset_info_fn = tileset_info
@@ -33,16 +40,16 @@ class Tileset:
         self.private = private
         self.track_type = None
         self.track_position = None
-        
+
         if uuid is not None:
             self.uuid = uuid
         else:
-            self.uuid = slugid.nice().decode('utf-8')
+            self.uuid = slugid.nice().decode("utf-8")
 
     def tileset_info(self):
         return self.tileset_info_fn()
 
-    def tiles(self, tile_ids ):
+    def tiles(self, tile_ids):
         return self.tiles_fn(tile_ids)
 
     def chromsizes(self):
@@ -51,11 +58,11 @@ class Tileset:
     @property
     def meta(self):
         return {
-            'uuid': self.uuid,
+            "uuid": self.uuid,
             #'filetype': 'bigwig',
-            'datatype': self.datatype,
-            'private': self.private,
-            'name': self.name,
+            "datatype": self.datatype,
+            "private": self.private,
+            "name": self.name,
             # 'coordSysetem': "hg19",
             # 'coordSystem2': "hg19",
         }
@@ -63,55 +70,50 @@ class Tileset:
 
 def cooler(filepath, uuid=None):
     return Tileset(
-            tileset_info=lambda: hgco.tileset_info(filepath),
-            tiles=lambda tids: hgco.tiles(filepath, tids),
-            uuid=uuid,
-            track_type='heatmap',
-            track_position='center'
-        )
+        tileset_info=lambda: hgco.tileset_info(filepath),
+        tiles=lambda tids: hgco.tiles(filepath, tids),
+        uuid=uuid,
+        track_type="heatmap",
+        track_position="center",
+    )
+
 
 def bigwig(filepath, chromsizes=None, uuid=None):
     return Tileset(
-            tileset_info=lambda: hgbi.tileset_info(filepath, chromsizes),
-            tiles=lambda tids: hgbi.tiles(filepath, tids, chromsizes=chromsizes),
-            uuid=uuid
-        )
+        tileset_info=lambda: hgbi.tileset_info(filepath, chromsizes),
+        tiles=lambda tids: hgbi.tiles(filepath, tids, chromsizes=chromsizes),
+        uuid=uuid,
+    )
+
 
 def chromsizes(filepath, uuid=None):
-    return Tileset(
-            chromsizes=lambda: hgch.get_tsv_chromsizes(filepath),
-            uuid=uuid
-        )
+    return Tileset(chromsizes=lambda: hgch.get_tsv_chromsizes(filepath), uuid=uuid)
+
 
 def mmatrix(filepath, uuid=None):
-    f = h5py.File(filepath, 'r')
+    f = h5py.File(filepath, "r")
 
     return Tileset(
         tileset_info=lambda: hgmm.tileset_info(f),
-        tiles=lambda tile_ids: hgut.tiles_wrapper_2d(tile_ids,
-                        lambda z,x,y: hgfo.format_dense_tile(
-                            hgmm.tiles(f, z, x, y)))
+        tiles=lambda tile_ids: hgut.tiles_wrapper_2d(
+            tile_ids, lambda z, x, y: hgfo.format_dense_tile(hgmm.tiles(f, z, x, y))
+        ),
     )
+
 
 import clodius.tiles.nplabels as ctnl
 import clodius.tiles.npvector as ctn
 import numpy as np
+
 
 def nplabels(labels_array, importances=None):
     if importances is None:
         importances = np.random.random(labels_array.shape)
 
     return Tileset(
-        tileset_info=lambda: ctn.tileset_info(labels_array,
-            bins_per_dimension=16),
-        tiles=lambda tids: ctnl.tiles_wrapper(labels_array,
-            tids, importances)
+        tileset_info=lambda: ctn.tileset_info(labels_array, bins_per_dimension=16),
+        tiles=lambda tids: ctnl.tiles_wrapper(labels_array, tids, importances),
     )
 
 
-by_filetype = {
-    'cooler': cooler,
-    'bigwig': bigwig,
-    'mmatrix': mmatrix,
-}
-
+by_filetype = {"cooler": cooler, "bigwig": bigwig, "mmatrix": mmatrix}

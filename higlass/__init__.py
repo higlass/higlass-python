@@ -4,8 +4,8 @@ def _jupyter_nbextension_paths():
     return [{
         'section': 'notebook',
         'src': 'static',
-        'dest': 'higlass-python',
-        'require': 'higlass-python/extension'
+        'dest': 'higlass-jupyter',
+        'require': 'higlass-jupyter/extension'
     }]
 
 from ._version import get_versions

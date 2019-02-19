@@ -44,7 +44,7 @@ class Tileset:
         if uuid is not None:
             self.uuid = uuid
         else:
-            self.uuid = slugid.nice().decode("utf-8")
+            self.uuid = slugid.nice()
 
     def tileset_info(self):
         return self.tileset_info_fn()

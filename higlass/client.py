@@ -130,7 +130,7 @@ class View:
             The uid of new view
         """
         if uid is None:
-            uid = slugid.nice().decode("utf8")
+            uid = slugid.nice()
 
         self.tracks = tracks
         self.uid = uid
@@ -203,7 +203,7 @@ class ViewConf:
         pass
 
     def add_sync(self, locks_name, views_to_sync):
-        lock_id = slugid.nice().decode("utf-8")
+        lock_id = slugid.nice()
         for view_uid in [v.uid for v in views_to_sync]:
             print("adding:", view_uid)
 

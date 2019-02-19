@@ -19,7 +19,9 @@ def display(views, location_sync=[], zoom_sync=[], server_port=None):
 
     for view in views:
         for track in view.tracks:
-            track.viewconf['server'] = server.api_address
+            if ('server' not in track.viewconf or 
+                    track.viewconf['server'] is None):
+                track.viewconf['server'] = server.api_address
 
     conf = ViewConf(views, location_sync=location_sync, zoom_sync=zoom_sync)
 

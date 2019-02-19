@@ -9,13 +9,14 @@ track_default_positions = {
     'horizontal-heatmap': 'top',
     'osm-tiles': 'center',
     'horizontal-bar': 'top',
-    'horizontal-multivec': 'top'
+    'horizontal-multivec': 'top',
+    'horizontal-chromosome-labels': 'top'
 }
 
 
 class Track:
     def __init__(self, track_type, position=None, 
-        tileset=None, api_url=None, height=None, width=None, 
+        tileset=None, height=None, width=None, 
         tileset_uuid=None, server=None, file_url=None, filetype=None,
         options={}):
 
@@ -30,8 +31,6 @@ class Track:
             One of 'top', 'bottom', 'center', 'left', 'right'
         tileset_uuid:
             The of uuid of the tileset being displayed in this track
-        api_url: string
-            The server storing the data for this track
         height: int
             The height of the track (in pixels)
         width: int
@@ -74,8 +73,6 @@ class Track:
             new_track['height'] = height
         if width is not None:
             new_track['width'] = width
-        if api_url is not None:
-            new_track['server'] = api_url
 
         if position is None:
             if track_type in track_default_positions:
@@ -220,8 +217,6 @@ class ViewConf:
     def add_sync(self, locks_name, views_to_sync):
         lock_id = slugid.nice().decode('utf-8')
         for view_uid in [v.uid for v in views_to_sync]:
-            print("adding:", view_uid)
-
             if lock_id not in self.viewconf[locks_name]['locksDict']:
                 self.viewconf[locks_name]['locksDict'][lock_id] = {}
 

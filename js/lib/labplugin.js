@@ -1,4 +1,4 @@
-var jupyter_higlass = require('./index');
+var higlassJupyter = require('./index');
 var base = require('@jupyter-widgets/base');
 
 module.exports = {
@@ -7,8 +7,8 @@ module.exports = {
   activate: function(app, widgets) {
       widgets.registerWidget({
           name: 'higlass-jupyter',
-          version: jupyter_higlass.version,
-          exports: jupyter_higlass
+          version: higlassJupyter.version,
+          exports: higlassJupyter
       });
   },
   autoStart: true

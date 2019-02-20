@@ -4,11 +4,18 @@
 [![Docs](https://img.shields.io/badge/docs-🎉-red.svg?colorB=6680ff)](https://higlass.io/docs/python_api.html)
 [![Python](https://img.shields.io/badge/python-😍-red.svg?colorB=af80ff)](https://higlass.io/docs/python_api.html)
 
-Python bindings to the HiGlass viewer.
+Python bindings to the HiGlass for tile serving, view config generation, and Jupyter Notebook + Lab integration.
+
+This package provide access to:
+- server: a lightweight flask server
+- tilesets: tileset API
+- client: an API for generating view configs
+- viewer: an API for launching HiGlass in Jupyter Notebook or Lab
 
 ### Requirements
 
-- Python >= 3.6
+- Python >= 3.7
+- [FUSE](https://github.com/libfuse/libfuse) or [MacFuse](https://osxfuse.github.io/)
 - Jupyter Notebook >= 5.7
 - Jupyter Lab >= 0.35
 
@@ -20,25 +27,24 @@ First install `higlass-python` via pip:
 pip install higlass-python
 ```
 
-If you're using **Jupyter Notebook**, open a terminal and execute the following code to activate the integrations:
+#### Jupyter notebook integration
+
+Open a terminal and execute the following code to activate the integration:
 
 ```bash
-# Only required if you have not enabled the ipywidgets nbextension yet
+# The following is only required if you have not enabled the ipywidgets nbextension yet
 jupyter nbextension enable --py --sys-prefix widgetsnbextension
-
-# For notebook
 jupyter nbextension enable --py --sys-prefix higlass
-
 ```
 
-If you're using **Jupyter Lab**, open a terminal and execute the following code to activate the integrations:
+#### Jupyter notebook integration
+
+Open a terminal and execute the following code to activate the integration:
 
 ```bash
-# Only required if you have not enabled the jupyterlab manager yet
+# The following is only required if you have not enabled the jupyterlab manager yet
 jupyter labextension install @jupyter-widgets/jupyterlab-manager
-
-# For lab
-jupyter labextension install higlass
+jupyter labextension install higlass-jupyter
 ```
 
 ### Getting started

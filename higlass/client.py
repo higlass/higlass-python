@@ -8,17 +8,28 @@ track_default_positions = {
     'heatmap': 'center',
     'horizontal-heatmap': 'top',
     'osm-tiles': 'center',
-    'horizontal-bar': 'top'
+    'horizontal-bar': 'top',
+    'horizontal-multivec': 'top',
+    'horizontal-chromosome-labels': 'top'
 }
 
 
 class Track:
-    def __init__(self, track_type, position=None, 
-        tileset=None, api_url=None, height=None, width=None, 
-        tileset_uuid=None, server=None, file_url=None, filetype=None,
-        options={}):
+    def __init__(
+        self,
+        track_type,
+        position=None,
+        tileset=None,
+        height=None,
+        width=None,
+        tileset_uuid=None,
+        server=None,
+        file_url=None,
+        filetype=None,
+        options={},
+    ):
 
-        '''
+        """
         Add a track to a position.
 
         Parameters
@@ -29,8 +40,6 @@ class Track:
             One of 'top', 'bottom', 'center', 'left', 'right'
         tileset_uuid:
             The of uuid of the tileset being displayed in this track
-        api_url: string
-            The server storing the data for this track
         height: int
             The height of the track (in pixels)
         width: int
@@ -42,39 +51,33 @@ class Track:
         filetype: string
             The type of the remote tilesets (e.g. 'bigwig' or
             'cooler')
-        options: {} 
+        options: {}
 
             The options to pass onto the track
-        '''
-        new_track = {
-            'type': track_type,
-            'options': options
-        }
+        """
+        new_track = {"type": track_type, "options": options}
 
         if tileset is not None:
-            new_track['tilesetUid'] = tileset.uuid
+            new_track["tilesetUid"] = tileset.uuid
 
-        if (server is not None
-            and tileset_uuid is not None):
+        if server is not None and tileset_uuid is not None:
             if tileset is None:
-                new_track['tilesetUid'] = tileset_uuid
-                new_track['server'] = server
+                new_track["tilesetUid"] = tileset_uuid
+                new_track["server"] = server
             else:
-                print("Both a tileset object and server and tileset_uuid " 
-                    + "were provided, using the tileset object", 
-                    file=sys.stderr)
-        if (server is not None 
-            and file_url is not None
-            and filetype is not None):
-            new_track['server'] = server
-            new_track['fileUrl'] = file_url
-            new_track['filetype'] = filetype
+                print(
+                    "Both a tileset object and server and tileset_uuid "
+                    + "were provided, using the tileset object",
+                    file=sys.stderr,
+                )
+        if server is not None and file_url is not None and filetype is not None:
+            new_track["server"] = server
+            new_track["fileUrl"] = file_url
+            new_track["filetype"] = filetype
         if height is not None:
-            new_track['height'] = height
+            new_track["height"] = height
         if width is not None:
             new_track['width'] = width
-        if api_url is not None:
-            new_track['server'] = api_url
 
         if position is None:
             if track_type in track_default_positions:
@@ -89,14 +92,18 @@ class Track:
 
 
 class View:
-    def __init__(self, tracks=[],
-                 x=0, y=0,
-                 width=12,
-                 height=6,
-                 initialXDomain=None,
-                 initialYDomain=None,
-                 uid=None):
-        '''
+    def __init__(
+        self,
+        tracks=[],
+        x=0,
+        y=0,
+        width=12,
+        height=6,
+        initialXDomain=None,
+        initialYDomain=None,
+        uid=None,
+    ):
+        """
         Add a new view
 
         Parameters
@@ -118,38 +125,26 @@ class View:
             The initial y range of the view
         uid: string
             The uid of new view
-        '''
+        """
         if uid is None:
-            uid = slugid.nice().decode('utf8')
+            uid = slugid.nice()
 
         self.tracks = tracks
         self.uid = uid
 
         self.viewconf = {
-                'uid': uid,
-                'tracks': {
-                    'top': [],
-                    'center': [],
-                    'left': [],
-                    'right': [],
-                    'bottom': []
-                },
-                "layout": {
-                    "w": width,
-                    "h": height,
-                    "x": x,
-                    "y": y
-                  },
-            }
+            "uid": uid,
+            "tracks": {"top": [], "center": [], "left": [], "right": [], "bottom": []},
+            "layout": {"w": width, "h": height, "x": x, "y": y},
+        }
 
         if initialXDomain is not None:
-            self.viewconf['initialXDomain'] = initialXDomain
+            self.viewconf["initialXDomain"] = initialXDomain
         if initialYDomain is not None:
-            self.viewconf['initialYDomain'] = initialYDomain
-
+            self.viewconf["initialYDomain"] = initialYDomain
 
     def add_track(self, *args, **kwargs):
-        '''
+        """
         Add a track to a position.
 
         Parameters
@@ -166,20 +161,22 @@ class View:
             The height of the track, if it is a top, bottom or a center track
         width: int
             The width of the track, if it is a left, right or a center track
-        '''
+        """
         new_track = Track(*args, **kwargs)
         self.tracks = self.tracks + [new_track]
 
     def to_dict(self):
-        '''
+        """
         Convert the existing track to a JSON representation.
-        '''
+        """
         viewconf = json.loads(json.dumps(self.viewconf))
 
         for track in self.tracks:
             if track.position is None:
-                raise ValueError("Track has no position: {}".format(track.viewconf['type']))
-            viewconf['tracks'][track.position] += [track.to_dict()]
+                raise ValueError(
+                    "Track has no position: {}".format(track.viewconf["type"])
+                )
+            viewconf["tracks"][track.position] += [track.to_dict()]
 
         return viewconf
 
@@ -187,26 +184,12 @@ class View:
 class ViewConf:
     def __init__(self, views=[], location_sync=[], zoom_sync=[]):
         self.viewconf = {
-        'editable': True,
-        'views': [],
-          "trackSourceServers": [
-            "http://higlass.io/api/v1"
-          ],
-          "locationLocks": {
-            "locksByViewUid": {
-
-            },
-            "locksDict": {
-            }
-          },
-          "zoomLocks": {
-            "locksByViewUid": {
-
-            },
-            "locksDict": {
-            }
-          },
-          "exportViewUrl": "http://higlass.io/api/v1/viewconfs"
+            "editable": True,
+            "views": [],
+            "trackSourceServers": ["http://higlass.io/api/v1"],
+            "locationLocks": {"locksByViewUid": {}, "locksDict": {}},
+            "zoomLocks": {"locksByViewUid": {}, "locksDict": {}},
+            "exportViewUrl": "http://higlass.io/api/v1/viewconfs",
         }
 
         self.views = views
@@ -217,25 +200,22 @@ class ViewConf:
         pass
 
     def add_sync(self, locks_name, views_to_sync):
-        lock_id = slugid.nice().decode('utf-8')
+        lock_id = slugid.nice()
         for view_uid in [v.uid for v in views_to_sync]:
-            print("adding:", view_uid)
-
             if lock_id not in self.viewconf[locks_name]['locksDict']:
                 self.viewconf[locks_name]['locksDict'][lock_id] = {}
 
-            self.viewconf[locks_name]['locksDict'][lock_id][view_uid] = (1,1,1)
-            self.viewconf[locks_name]['locksByViewUid'][view_uid] = lock_id
+            self.viewconf[locks_name]["locksDict"][lock_id][view_uid] = (1, 1, 1)
+            self.viewconf[locks_name]["locksByViewUid"][view_uid] = lock_id
 
     def add_zoom_sync(self, views_to_sync=[]):
-        self.add_sync('zoomLocks', views_to_sync)
+        self.add_sync("zoomLocks", views_to_sync)
+
     def add_location_sync(self, views_to_sync=[]):
-        self.add_sync('locationLocks', views_to_sync)
-
-
+        self.add_sync("locationLocks", views_to_sync)
 
     def add_view(self, *args, **kwargs):
-        '''
+        """
         Add a new view
 
         Parameters
@@ -255,7 +235,7 @@ class ViewConf:
             The initial x range of the view
         initialYDomain: [int, int]
             The initial y range of the view
-        '''
+        """
         new_view = View(*args, **kwargs)
 
         for view in self.views:
@@ -266,16 +246,15 @@ class ViewConf:
         return new_view
 
     def location_lock(self, view_uid1, view_uid2):
-        '''
+        """
         Add a location lock between two views.
-        '''
+        """
         pass
 
     def to_dict(self):
         viewconf = json.loads(json.dumps(self.viewconf))
 
         for view in self.views:
-            viewconf['views'] += [view.to_dict()]
+            viewconf["views"] += [view.to_dict()]
 
         return viewconf
-

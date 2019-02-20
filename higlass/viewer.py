@@ -1,7 +1,7 @@
 from .widgets import HiGlassDisplay
 
 
-def display(views, location_sync=[], zoom_sync=[]):
+def display(views, location_sync=[], zoom_sync=[], server_port=None):
     '''
     Instantiate a HiGlass display with the given views
     '''
@@ -14,16 +14,18 @@ def display(views, location_sync=[], zoom_sync=[]):
             if track.tileset:
                 tilesets += [track.tileset]
 
-    server = Server(tilesets)
+    server = Server(tilesets, port=server_port)
     server.start()
 
     for view in views:
         for track in view.tracks:
-            track.viewconf['server'] = server.api_address
+            if ('server' not in track.viewconf or 
+                    track.viewconf['server'] is None):
+                track.viewconf['server'] = server.api_address
 
     conf = ViewConf(views, location_sync=location_sync, zoom_sync=zoom_sync)
 
-    return (server, HiGlassDisplay(viewconf=conf.to_dict()))
+    return (HiGlassDisplay(viewconf=conf.to_dict()), server, conf)
 
 
 def view(tilesets):

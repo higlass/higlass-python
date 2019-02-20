@@ -31,7 +31,7 @@ var minimalConfig = {
         "right": [],
         "top": [],
         "bottom": []
-      } 
+      }
     }
   ]
 };
@@ -40,8 +40,8 @@ var HiGlassDisplayModel = widgets.DOMWidgetModel.extend({
     defaults: _.extend(_.result(this, 'widgets.DOMWidgetModel.prototype.defaults'), {
         _model_name : 'HiGlassDisplayModel',
         _view_name : 'HiGlassDisplayView',
-        _model_module : 'jupyter-higlass',
-        _view_module : 'jupyter-higlass',
+        _model_module : 'higlass-jupyter',
+        _view_module : 'higlass-jupyter',
         _model_module_version : '0.1.0',
         _view_module_version : '0.1.0'
     })
@@ -49,7 +49,7 @@ var HiGlassDisplayModel = widgets.DOMWidgetModel.extend({
 
 // Custom View. Renders the widget model.
 var HiGlassDisplayView = widgets.DOMWidgetView.extend({
-  
+
     render: function() {
         this.hgcontainer = document.createElement('div');
         // this.hgcontainer.style.margin = '1em';
@@ -90,8 +90,8 @@ var HiGlassDisplayView = widgets.DOMWidgetView.extend({
             hgOptions['bounded'] = true;
           }
         }
-        
-        
+
+
         console.log('minimalConfig:', minimalConfig);
         console.log('hgOptions:', hgOptions)
 
@@ -102,7 +102,7 @@ var HiGlassDisplayView = widgets.DOMWidgetView.extend({
             function (api) {
                 window.hgApi = api;
             }
-        );     
+        );
     }
 });
 

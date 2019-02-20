@@ -1,5 +1,6 @@
 import ipywidgets as widgets
 import json
+import os
 
 from traitlets import Unicode
 from traitlets import default
@@ -7,16 +8,20 @@ from traitlets import List
 from traitlets import Dict
 from traitlets import Int
 
-with open('../js/package.json', 'r') as f:
-    __version__ = json.load(f)['version']
+with open(
+    os.path.join(
+        os.path.dirname(os.path.relpath(__file__)), "../js/package.json"
+    ), "r"
+) as f:
+    __version__ = json.load(f)["version"]
 
 
 @widgets.register
 class HiGlassDisplay(widgets.DOMWidget):
-    _view_name = Unicode('HiGlassDisplayView').tag(sync=True)
-    _model_name = Unicode('HiGlassDisplayModel').tag(sync=True)
-    _view_module = Unicode('higlass-jupyter').tag(sync=True)
-    _model_module = Unicode('higlass-jupyter').tag(sync=True)
+    _view_name = Unicode("HiGlassDisplayView").tag(sync=True)
+    _model_name = Unicode("HiGlassDisplayModel").tag(sync=True)
+    _view_module = Unicode("higlass-jupyter").tag(sync=True)
+    _model_module = Unicode("higlass-jupyter").tag(sync=True)
     _view_module_version = Unicode(__version__).tag(sync=True)
     _model_module_version = Unicode(__version__).tag(sync=True)
 

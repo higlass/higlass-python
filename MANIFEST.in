@@ -2,6 +2,7 @@ recursive-include higlass/static *.*
 include CHANGES.md
 include README.md
 include LICENSE
+include js/package.json
 
 graft tests
 graft docs

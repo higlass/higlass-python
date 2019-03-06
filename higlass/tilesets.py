@@ -90,7 +90,7 @@ def chromsizes(filepath, uuid=None):
     return Tileset(chromsizes=lambda: hgch.get_tsv_chromsizes(filepath), uuid=uuid)
 
 
-def mmatrix(filepath, uuid=None):
+def mrmatrix(filepath, uuid=None):
     f = h5py.File(filepath, "r")
 
     return Tileset(

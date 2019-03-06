@@ -101,4 +101,4 @@ def mrmatrix(filepath, uuid=None):
     )
 
 
-by_filetype = {"cooler": cooler, "bigwig": bigwig, "mmatrix": mmatrix}
+by_filetype = {"cooler": cooler, "bigwig": bigwig, "mrmatrix": mrmatrix}

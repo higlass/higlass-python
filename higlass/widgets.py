@@ -8,12 +8,9 @@ from traitlets import List
 from traitlets import Dict
 from traitlets import Int
 
-with open(
-    os.path.join(
-        os.path.dirname(os.path.relpath(__file__)), "../js/package.json"
-    ), "r"
-) as f:
-    __version__ = json.load(f)["version"]
+from ._version import get_versions
+__version__ = get_versions()['version']
+del get_versions
 
 
 @widgets.register

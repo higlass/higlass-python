@@ -171,6 +171,7 @@ setup_args = {
     'install_requires': [
         'clodius',
         'flask',
+        'ipywidgets',
     ],
     'setup_requires': [
     ],

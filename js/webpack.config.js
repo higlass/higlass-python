@@ -60,7 +60,7 @@ module.exports = [
             filename: 'index.js',
             path: path.resolve(__dirname, 'dist'),
             libraryTarget: 'amd',
-            publicPath: 'https://unpkg.com/jupyter-higlass@' + version + '/dist/'
+            publicPath: 'https://unpkg.com/higlass-jupyter@' + version + '/dist/'
         },
         devtool: 'source-map',
         module: {

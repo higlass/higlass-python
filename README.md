@@ -34,6 +34,7 @@ Open a terminal and execute the following code to activate the integration:
 ```bash
 # The following is only required if you have not enabled the ipywidgets nbextension yet
 jupyter nbextension enable --py --sys-prefix widgetsnbextension
+jupyter nbextension install --py --sys-prefix higlass
 jupyter nbextension enable --py --sys-prefix higlass
 ```
 

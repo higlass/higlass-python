@@ -4,6 +4,7 @@ import slugid
 
 track_default_positions = {
     'top-axis': 'top',
+    'left-axis': 'left',
     'horizontal-line': 'top',
     'heatmap': 'center',
     'horizontal-heatmap': 'top',

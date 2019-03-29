@@ -4,6 +4,7 @@ import slugid
 
 track_default_positions = {
     'top-axis': 'top',
+    'left-axis': 'left',
     'horizontal-line': 'top',
     'heatmap': 'center',
     'horizontal-heatmap': 'top',
@@ -182,7 +183,10 @@ class View:
 
 
 class ViewConf:
-    def __init__(self, views=[], location_sync=[], zoom_sync=[]):
+    def __init__(self, views=[],
+        location_sync=[],
+        zoom_sync=[]):
+
         self.viewconf = {
             "editable": True,
             "views": [],
@@ -258,3 +262,32 @@ class ViewConf:
             viewconf["views"] += [view.to_dict()]
 
         return viewconf
+
+def datatype_to_tracktype(datatype):
+    '''
+    Infer a default track type from a data type. There can
+    be other track types that can display a given data type.
+
+    Parameters:
+    -----------
+    datatype: string
+        A datatype identifier (e.g. 'matrix')
+
+    Returns:
+    --------
+    string: A track type (e.g. 'heatmap')
+    '''
+    if datatype == 'matrix':
+        return ('heatmap', 'center')
+    if datatype == 'vector':
+        return ('horizontal-bar', 'top')
+    if datatype == 'gene-annotations':
+        return ('horizontal-gene-annotations', 'top')
+    if datatype == 'chromsizes':
+        return ('horizontal-chromosome-labels', 'top')
+    if datatype == '2d-rectangle-domains':
+        return ('2d-rectangle-domains', 'center')
+    if datatype == 'bedlike':
+        return ('bedlike', 'top')
+
+    return (None, None)

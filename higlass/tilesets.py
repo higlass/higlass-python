@@ -100,9 +100,28 @@ def mrmatrix(filepath, uuid=None):
         ),
     )
 
+import clodius.tiles.nplabels as ctnl
+import clodius.tiles.npvector as ctn
+import numpy as np
+
+def nplabels(labels_array, importances=None):
+    if importances is None:
+        importances = np.random.random(labels_array.shape)
+
+    return Tileset(
+        tileset_info=lambda: ctn.tileset_info(labels_array,
+            bins_per_dimension=16),
+        tiles=lambda tids: ctnl.tiles_wrapper(labels_array,
+            tids, importances)
+    )
+
+def h5labels(filename):
+    f = h5py.File(filename, 'r')
+    return nplabels(f['labels'])
 
 by_filetype = {
     "cooler": cooler,
     "bigwig": bigwig,
-    "mrmatrix": mrmatrix
+    "mrmatrix": mrmatrix,
+    "h5labels": h5labels
 }

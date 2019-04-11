@@ -33,7 +33,7 @@
     "@jupyter-widgets/base": "^1.2.3",
     "@jupyter-widgets/jupyterlab-manager": "^0.38.1",
     "css-loader": "^0.28.7",
-    "higlass": "^1.5.2",
+    "higlass": "^1.5.3",
     "higlass-multivec": "^0.2.0-alpha.3",
     "lodash": "^4.17.4",
     "react": "^16.5.1",

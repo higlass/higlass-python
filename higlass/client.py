@@ -11,9 +11,40 @@ track_default_positions = {
     'osm-tiles': 'center',
     'horizontal-bar': 'top',
     'horizontal-multivec': 'top',
-    'horizontal-chromosome-labels': 'top'
+    'horizontal-chromosome-labels': 'top',
+    'viewport-projection-center': 'center'
 }
 
+class CombinedTrack:
+    def __init__(self, tracks, position=None, height=100):
+        '''
+        The combined track contains multiple actual tracks as layers.
+
+        Parameters
+        ----------
+        tracks: list
+            A list of Tracks to add
+        '''
+        self.tracks = tracks
+        self.tileset = None
+        self.height = height
+
+        # try to get the position from a subtrack
+        self.position = position
+        if position is None:
+            for track in tracks:
+                if track.position:
+                    self.position = track.position
+                    break
+
+        self.viewconf = {
+            'type': 'combined',
+            'height': height,
+            'contents': [t.to_dict() for t in self.tracks]
+        }
+
+    def to_dict(self):
+        return self.viewconf
 
 class Track:
     def __init__(
@@ -27,6 +58,7 @@ class Track:
         server=None,
         file_url=None,
         filetype=None,
+        fromViewUid=None,
         options={},
     ):
 
@@ -79,6 +111,8 @@ class Track:
             new_track["height"] = height
         if width is not None:
             new_track['width'] = width
+        if fromViewUid is not None:
+            new_track['fromViewUid'] = fromViewUid
 
         if position is None:
             if track_type in track_default_positions:
@@ -87,6 +121,28 @@ class Track:
         self.tileset = tileset
         self.viewconf = new_track
         self.position = position
+        self.tracks = None
+
+    def change_attributes(self, **kwargs):
+        '''
+        Change an attribute of this track and return a new copy.
+        '''
+        new_track = Track(self.viewconf['type'])
+        new_track.position = self.position
+        new_track.tileset = self.tileset
+        new_track.viewconf = json.loads(json.dumps(self.viewconf))
+        new_track.viewconf = {**new_track.viewconf, **kwargs}
+
+        return new_track
+
+    def change_options(self, **kwargs):
+        '''
+        Change one of the track's options in the viewconf
+        '''
+        new_options = json.loads(json.dumps(self.viewconf['options']))
+        new_options = {**new_options, **kwargs}
+
+        return self.change_attributes(options=new_options)
 
     def to_dict(self):
         return self.viewconf

@@ -11,17 +11,30 @@ def display(views, location_sync=[], zoom_sync=[], server_port=None):
 
     for view in views:
         for track in view.tracks:
+            if track.tracks:
+                for track1 in track.tracks:
+                    if track1.tileset:
+                        tilesets += [track1.tileset]
+
             if track.tileset:
                 tilesets += [track.tileset]
+    print("tilesets:", tilesets)
 
     server = Server(tilesets, port=server_port)
     server.start()
 
     for view in views:
         for track in view.tracks:
-            if ('server' not in track.viewconf or 
-                    track.viewconf['server'] is None):
-                track.viewconf['server'] = server.api_address
+            if track.tracks:
+                for track1 in track.tracks:
+                    if ('server' not in track1.viewconf or 
+                            track1.viewconf['server'] is None):
+                        track1.viewconf['server'] = server.api_address
+            else:
+                if ('server' not in track.viewconf or 
+                        track.viewconf['server'] is None):
+                    track.viewconf['server'] = server.api_address
+
 
     conf = ViewConf(views, location_sync=location_sync, zoom_sync=zoom_sync)
 

@@ -1,7 +1,7 @@
 from .widgets import HiGlassDisplay
 
 
-def display(views, location_sync=[], zoom_sync=[], server_port=None):
+def display(views, location_syncs=[], zoom_syncs=[], server_port=None):
     '''
     Instantiate a HiGlass display with the given views
     '''
@@ -36,7 +36,8 @@ def display(views, location_sync=[], zoom_sync=[], server_port=None):
                     track.viewconf['server'] = server.api_address
 
 
-    conf = ViewConf(views, location_sync=location_sync, zoom_sync=zoom_sync)
+    conf = ViewConf(views, location_syncs=location_syncs,
+        zoom_syncs=zoom_syncs)
 
     return (HiGlassDisplay(viewconf=conf.to_dict()), server, conf)
 

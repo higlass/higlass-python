@@ -240,8 +240,8 @@ class View:
 
 class ViewConf:
     def __init__(self, views=[],
-        location_sync=[],
-        zoom_sync=[]):
+        location_syncs=[],
+        zoom_syncs=[]):
 
         self.viewconf = {
             "editable": True,
@@ -254,8 +254,10 @@ class ViewConf:
 
         self.views = views
 
-        self.add_location_sync(location_sync)
-        self.add_zoom_sync(zoom_sync)
+        for location_sync in location_syncs:
+            self.add_location_sync(location_sync)
+        for zoom_sync in zoom_syncs:
+            self.add_zoom_sync(zoom_sync)
 
         pass
 

@@ -2,6 +2,7 @@ from functools import partial
 import multiprocess as mp
 import cytoolz as toolz
 import os.path as op
+import platform
 import logging
 import socket
 import json
@@ -21,8 +22,9 @@ import sh
 
 import higlass.tilesets as hgti
 
-
 __all__ = ["Server"]
+
+OS_NAME = platform.system()
 
 
 def get_filepath(filepath):
@@ -249,15 +251,7 @@ class FuseProcess:
         if not op.exists(self.diskcache_directory):
             os.makedirs(self.diskcache_directory)
 
-        try:
-            sh.umount(self.http_directory)
-        except Exception as ex:
-            pass
-
-        try:
-            sh.umount(self.https_directory)
-        except Exception as ex:
-            pass
+        self.teardown()
 
         disk_cache_size = 2 ** 25
         disk_cache_dir = self.diskcache_directory
@@ -268,31 +262,41 @@ class FuseProcess:
             op.exists(self.diskcache_directory),
         )
 
-        def start_fuse(directory):
+        def start_fuse(directory, protocol):
             print("starting fuse")
             fuse = FUSE(
                 HttpFs(
-                    "http",
+                    protocol,
                     disk_cache_size=disk_cache_size,
                     disk_cache_dir=self.diskcache_directory,
                     lru_capacity=lru_capacity,
                 ),
                 directory,
                 foreground=False,
+                allow_other=True
             )
+        proc1 = mp.Process(target=start_fuse, args=[self.http_directory, 'http'])
+        proc1.start()
+        proc1.join()
 
-        proc = mp.Process(target=start_fuse, args=[self.http_directory])
-        proc.start()
-        proc.join()
+        proc2 = mp.Process(target=start_fuse, args=[self.https_directory, 'https'])
+        proc2.start()
+        proc2.join()
 
     def teardown(self):
         try:
-            sh.umount(self.http_directory)
+            if OS_NAME == 'Darwin':
+                sh.umount("-l", self.http_directory)
+            else:
+                sh.fusermount("-uz", self.http_directory)
         except Exception as ex:
             pass
 
         try:
-            sh.umount(self.https_directory)
+            if OS_NAME == 'Darwin':
+                sh.umount("-l", self.https_directory)
+            else:
+                sh.fusermount("-uz", self.https_directory)
         except Exception as ex:
             pass
 
@@ -386,6 +390,7 @@ class Server:
         Stop this server so that the calling process can exit
         """
         # unsetup_fuse()
+        self.fuse_process.teardown()
         for uuid in self.processes:
             self.processes[uuid].terminate()
 
@@ -444,7 +449,7 @@ class Server:
         return "http://{host}:{port}/api/v1".format(host=self.host, port=self.port)
 
 
-TMP_DIR = "/tmp/higlass-python/"
+# TMP_DIR = "/tmp/higlass-python/"
 
-fuse = FuseProcess(TMP_DIR)
-fuse.setup()
+# fuse = FuseProcess(TMP_DIR)
+# fuse.setup()

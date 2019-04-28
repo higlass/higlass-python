@@ -7,4 +7,4 @@ sh
 ipywidgets
 num2words
 slugid
-clodius>=0.10.4
+clodius>=0.10.7

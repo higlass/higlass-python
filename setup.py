@@ -170,8 +170,15 @@ setup_args = {
     ],
     'install_requires': [
         'clodius',
+        'cytoolz',
         'flask',
+        'flask-cors',
+        'fusepy',
         'ipywidgets',
+        'multiprocess',
+        'sh',
+        'simple_httpfs',
+        'slugid'
     ],
     'setup_requires': [
     ],

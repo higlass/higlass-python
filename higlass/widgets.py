@@ -1,9 +1,7 @@
 import ipywidgets as widgets
-import json
-import os
 
 from traitlets import Unicode
-from traitlets import default
+# from traitlets import default
 from traitlets import List
 from traitlets import Dict
 from traitlets import Int

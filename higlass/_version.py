@@ -11,6 +11,7 @@
 """Git implementation of _version.py."""
 
 import errno
+import json
 import os
 import re
 import subprocess
@@ -518,3 +519,24 @@ def get_versions():
     return {"version": "0+unknown", "full-revisionid": None,
             "dirty": None,
             "error": "unable to compute version", "date": None}
+
+
+def get_js_version():
+    """Get version from js/package.json"""
+
+    cfg = get_config()
+
+    try:
+        root = os.path.realpath(__file__)
+        # versionfile_source is the relative path from the top of the source
+        # tree (where the .git directory might live) to this file. Invert
+        # this to find the root from __file__.
+        for i in cfg.versionfile_source.split('/'):
+            root = os.path.dirname(root)
+    except NameError:
+        return "unable to find root of source tree"
+
+    with open(os.path.join(root, 'js', 'package.json'), 'r') as f:
+        package_json = json.load(f)
+
+    return package_json['version']

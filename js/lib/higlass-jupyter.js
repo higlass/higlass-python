@@ -2,6 +2,7 @@ var widgets = require('@jupyter-widgets/base');
 var _ = require('lodash');
 var hglib_css = require('higlass/dist/hglib.css');
 var hglib = require('higlass/dist/hglib.js');
+var packageJson = require('../package.json');
 
 var minimalConfig = {
   "trackSourceServers": [
@@ -42,8 +43,8 @@ var HiGlassDisplayModel = widgets.DOMWidgetModel.extend({
         _view_name : 'HiGlassDisplayView',
         _model_module : 'higlass-jupyter',
         _view_module : 'higlass-jupyter',
-        _model_module_version : '0.1.0',
-        _view_module_version : '0.1.0'
+        _model_module_version : packageJson.version,
+        _view_module_version : packageJson.version
     })
 });
 
@@ -68,10 +69,7 @@ var HiGlassDisplayView = widgets.DOMWidgetView.extend({
         const height = this.model.get('height');
         const hgOptions = this.model.get('hg_options');
 
-        console.log('height:', height, 'hgOptions:', hgOptions);
-
         if (height) {
-          console.log('setting div height');
           this.hgdisplay.style.height = height + 'px';
         }
 
@@ -79,21 +77,15 @@ var HiGlassDisplayView = widgets.DOMWidgetView.extend({
           // user hasn't specified a preference so we try to
           // infer whether to bound the component
           if (!height) {
-            console.log('no height, setting bounded to false');
-            // if a height hasn't been passed in to the widget, make it unbounded
+            console.warn('no height, setting bounded to false');
+            // if a height hasn't been passed in to the widget, make it
+            // unbounded
             hgOptions['bounded'] = false;
-
-            console.log('after hgOptions', hgOptions);
           } else {
-            console.log('height provided, setting bounded to true');
-
+            console.warn('height provided, setting bounded to true');
             hgOptions['bounded'] = true;
           }
         }
-
-
-        console.log('minimalConfig:', minimalConfig);
-        console.log('hgOptions:', hgOptions)
 
         hglib.viewer(
             this.hgdisplay,

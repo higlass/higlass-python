@@ -40,13 +40,16 @@ uninstall-labext:
 	cd js && jupyter labextension unlink .
 
 bump-patch:
-    cd js && npm version patch
-    echo "__version__ = \"`node -p "require('./package.json').version"`\"" > ../higlass/_version.py
+	cd js && npm version patch
+	echo "__version__ = \"`node -p "require('js/package.json').version"`\"" > higlass/_version.py
 
 bump-minor:
-    cd js && npm version minor
-    echo "__version__ = \"`node -p "require('./package.json').version"`\"" > ../higlass/_version.py
+	cd js && npm version minor
+	echo "__version__ = \"`node -p "require('js/package.json').version"`\"" > higlass/_version.py
 
 bump-major:
-    cd js && npm version major
-    echo "__version__ = \"`node -p "require('./package.json').version"`\"" > ../higlass/_version.py
+	cd js && npm version major
+	echo "__version__ = \"`node -p "require('js/package.json').version"`\"" > higlass/_version.py
+
+publish:
+	git tag -a "v`node -p "require('./js/package.json').version"`" -m "Version `node -p "require('./js/package.json').version"`"

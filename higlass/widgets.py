@@ -6,8 +6,7 @@ from traitlets import List
 from traitlets import Dict
 from traitlets import Int
 
-from ._version import get_js_version
-__js_version__ = get_js_version()
+from _version import __version__
 
 
 @widgets.register
@@ -16,8 +15,8 @@ class HiGlassDisplay(widgets.DOMWidget):
     _model_name = Unicode("HiGlassDisplayModel").tag(sync=True)
     _view_module = Unicode("higlass-jupyter").tag(sync=True)
     _model_module = Unicode("higlass-jupyter").tag(sync=True)
-    _view_module_version = Unicode(__js_version__).tag(sync=True)
-    _model_module_version = Unicode(__js_version__).tag(sync=True)
+    _view_module_version = Unicode(__version__).tag(sync=True)
+    _model_module_version = Unicode(__version__).tag(sync=True)
 
     _model_data = List([]).tag(sync=True)
     viewconf = Dict({}).tag(sync=True)

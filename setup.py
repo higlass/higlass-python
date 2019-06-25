@@ -7,7 +7,28 @@ import platform
 import sys
 import os
 import io
-import versioneer
+import re
+from distutils import log
+
+
+def _read(*parts, **kwargs):
+    filepath = os.path.join(os.path.dirname(__file__), *parts)
+    encoding = kwargs.pop('encoding', 'utf-8')
+    with io.open(filepath, encoding=encoding) as fh:
+        text = fh.read()
+    return text
+
+
+def get_version():
+    version = re.search(
+        r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
+        _read('higlass', '_version.py'),
+        re.MULTILINE).group(1)
+    return version
+
+log.set_verbosity(log.DEBUG)
+log.info('setup.py entered')
+log.info('$PATH=%s' % os.environ['PATH'])
 
 here = os.path.dirname(os.path.abspath(__file__))
 is_repo = os.path.exists(os.path.join(here, '.git'))
@@ -16,13 +37,8 @@ STATIC_DIR = os.path.join(here, 'higlass', 'static')
 NODE_ROOT = os.path.join(here, 'js')
 NPM_PATH = os.pathsep.join([
     os.path.join(NODE_ROOT, 'node_modules', '.bin'),
-                os.environ.get('PATH', os.defpath),
+    os.environ.get('PATH', os.defpath),
 ])
-
-from distutils import log
-log.set_verbosity(log.DEBUG)
-log.info('setup.py entered')
-log.info('$PATH=%s' % os.environ['PATH'])
 
 
 def read(*parts, **kwargs):
@@ -31,6 +47,7 @@ def read(*parts, **kwargs):
     with io.open(filepath, encoding=encoding) as fh:
         text = fh.read()
     return text
+
 
 def js_prerelease(command, strict=False):
     """decorator for building minified js/css prior to another command"""
@@ -86,21 +103,20 @@ class NPM(Command):
         pass
 
     def get_npm_name(self):
-        npmName = 'npm';
+        npm_name = 'npm'
         if platform.system() == 'Windows':
-            npmName = 'npm.cmd'
-        return npmName
+            npm_name = 'npm.cmd'
+        return npm_name
 
     def has_npm(self):
-        npmName = self.get_npm_name();
+        npm_name = self.get_npm_name()
         try:
-            check_call([npmName, '--version'])
+            check_call([npm_name, '--version'])
             return True
         except:
             return False
 
     def should_run_npm_install(self):
-        package_json = os.path.join(NODE_ROOT, 'package.json')
         node_modules_exists = os.path.exists(self.node_modules)
         return self.has_npm() and not node_modules_exists
 
@@ -109,24 +125,26 @@ class NPM(Command):
         if not has_npm:
             log.error(
                 "`npm` unavailable.  If you're running this command using "
-                "sudo, make sure `npm` is available to sudo")
+                "sudo, make sure `npm` is available to sudo"
+            )
 
         env = os.environ.copy()
         env['PATH'] = NPM_PATH
 
-        npmName = self.get_npm_name();
+        npm_name = self.get_npm_name()
 
         if self.should_run_npm_install():
             log.info(
                 "Installing build dependencies with npm.  "
-                "This may take a while...")
+                "This may take a while..."
+            )
             check_call(
-                [npmName, 'install'],
+                [npm_name, 'install'],
                 cwd=NODE_ROOT, stdout=sys.stdout, stderr=sys.stderr)
             os.utime(self.node_modules, None)
 
         check_call(
-            [npmName, 'run', 'build'],
+            [npm_name, 'run', 'build'],
             cwd=NODE_ROOT, stdout=sys.stdout, stderr=sys.stderr)
 
         for t in self.targets:
@@ -143,7 +161,7 @@ class NPM(Command):
 
 setup_args = {
     'name': 'higlass-python',
-    'version': versioneer.get_version(),
+    'version': get_version(),
     'packages': find_packages(),
     'license': 'MIT',
     'description': 'Python bindings for the HiGlass viewer',
@@ -167,6 +185,7 @@ setup_args = {
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
     ],
     'install_requires': [
         'clodius',

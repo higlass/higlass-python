@@ -42,9 +42,9 @@ matrix:
         - cd js
       deploy:
         provider: npm
-        email: service@lekschas.de
+        email: pkerpedjiev@gmail.com
         api_key:
-          secure: YoqbN6qlvURBrBIGxH19tbvkkq3MZvMeUpsTpgm7CI1KYITqscT9Hs9no79tWajdWUiYVZ2OtpMrn2NRhlCBRdYLgO3aQatZWaQnittSjK3GDyJgXZ8Pu6bYYAoqGGdeoUKNynX0MvV46FN85q1MfOHht3sCszpTR1Nw9Y6MQoJt87Z85XWN4looIfvfiDgymtrSEMheLxV+qsenpbtl9UfqkREX+UOKcWhGE8l/TA5G1kCSHSeX51jhXPYJ3dDnG858Cx4dF8n3bWkcQ55KWwF0s0NB2J5UVW6TBm4IZIdtJ9tnid8G0xeT+Xyl3mCp1SMpmIFPCd6WN+WwU67YV7i8P27BIBEAs4ae0vabnbFId9Yc/Hz75O8NwsDPJQF64Gyk+7c/gCZblsP2BFyI5iUFerYVkAyJjyz72xYcjMi1ZR4EdFHq0cmUDFXW6w4RPIfSQrJMgE5kxEmcoVejXGdEqtfCsdElSAKThP7CFMIKTbmA4+ruN3zUTBFMGxIHc6vloxXA5eYgs4UartmqpTxziUvFT7zY4ZCSUjwFVjy0x8450TSmtTsOiKj04kquoqh9V4SrmYM4zd6HQvF1PTP8XOAxqZo5z6k3QW83Dr42ACMyKJTa7KGBi9rDxHoLILFrXH5nbpllMh/wIu0EhJhJM9n2yIDKctu/kWGK6ps=
+          secure: gxFSh9DNZgA51xZVpr7MFLEV81ZzRhuEnmFmZ+rYZZ6eMKCwTB7qtnSdzTUHIS7V424gGzvATvG7DTj7gYlOWaRZrOQfo21ncyqbxeMRmZcAn5EyV8tl66sAjW/izv9WmcMeAYHdUKP4+8uXVfPn/aW57VwUWU+lsAr3u6eqJXjfieCML6h13QleOG3pHRPlWYe3C7QGF6CxzF+B0/pv6pM9UggMd38dIYfYHMgdbwoQs9ssYtnXpPSa0mgBQWMXUI8yi5n/HsXCtW+Ts//uR2jclpXnnlOU/o/xc7Qc70YdlQEumN+vq8xHZLX2SQO8Mg7h/dkZudOeE/n0BCLVgF+GVQhVsXICYF3u30xkpPe0VgSWs4GtSrRhi2E698s9lT11ONpQCJOqAEf+ywP5+xD0KX58rf3/sHUJUqIImE2xNLUgSsppxbADMvHbFmWsB5FVHhquUCRzjfz9+R0KBrN6mKNzXhUWEM267HglSW8oRTybXSK/UaqKK7l5nfoNgSTiOebIsEqu7d9XT92hZL8u4XAFbM3tetuh3ch8PDvsiEV50ISMUojhj+49c/CAaX07+noAQmlJ1W0SsQASbUDnQn8+cfPXU72UKxTydYaiNfO7xV2UDkmrrDWeElJwakX5cMoB9ck3RbCUWP9+hQXxDXLpy7mZB/bx0Sh/xvY=
         on:
           branch: master
           tags: true

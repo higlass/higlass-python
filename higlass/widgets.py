@@ -1,16 +1,12 @@
 import ipywidgets as widgets
-import json
-import os
 
 from traitlets import Unicode
-from traitlets import default
+# from traitlets import default
 from traitlets import List
 from traitlets import Dict
 from traitlets import Int
 
-from ._version import get_versions
-__version__ = get_versions()['version']
-del get_versions
+from _version import __version__
 
 
 @widgets.register

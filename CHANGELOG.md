@@ -1,3 +1,7 @@
+v0.1.8
+
+- Fix installation
+
 v0.1.7
 
 - Bumped higlass version to 1.5.4

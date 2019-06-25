@@ -53,3 +53,4 @@ bump-major:
 
 publish:
 	git tag -a "v`node -p "require('./js/package.json').version"`" -m "Version `node -p "require('./js/package.json').version"`"
+	git push --tags

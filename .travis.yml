@@ -1,29 +1,51 @@
-sudo: required
-language: python
-python:
-      - "3.6"
+matrix:
+  include:
+    - language: python
+      sudo: required
+      python:
+        - '3.6'
+      cache: apt
+      addons:
+        apt:
+          packages:
+            - libatlas-dev
+            - libatlas-base-dev
+            - liblapack-dev
+            - gfortran
+      before_install:
+        - wget http://repo.continuum.io/miniconda/Miniconda3-4.3.21-Linux-x86_64.sh -O miniconda.sh
+        - bash miniconda.sh -b -p $HOME/miniconda
+        - export PATH="$HOME/miniconda/bin:$PATH"
+      install:
+        - conda install --yes python=$TRAVIS_PYTHON_VERSION numpy=1.13.1
+        - pip install nose
+        - pip install -r requirements.txt
+      script:
+        - nosetests test
+      deploy:
+        provider: pypi
+        user: nvictus
+        password:
+          secure: K3V+eyTfK1xJaEgQj1Nj+kFcdsFcDiKBOYiNDSqiDL2rMbCmd/ALLDft4481fBzKEK7ZWb8izVVSuOMG9+JnoYPj1jXkj2JUuBVNYmXAiyfZHAiCJPA0D+K/ckryCyvUisXXMhgA1JAWAzayfQdf81NODZWADp05zU2I5NeRNCpMl2l38MtePFZHJXj/ixHt60Ztbw4lvrMDaznhrKQRTNVXy0LV19p+2FrtNEe/lMJVFfFITJ9egOmOY2H9NYGPpGPpZvkQ1aBk8hfeEa9eKXbVkj9xmzyxMXwBETXvr0RciAP4swJeFrbnoI9zEiK/mFOEd7ExuOpqdOnVQnQY6nf8nPUgF6dSWa9RDG6pJhZQ1ZJl5H7pvXVvvLyygeVDNXCuTYGUMEP+G9mByOyLCixkBEf1ee0UyBwaIVHXCg7Ev1Vpn4utUxDMgvZugaSXKuPj+WQKwKZMc/zeIxFEmDO7a7rQrVQXv+sgTuMxIDr4bYEO4Qr94m5VAAFtFtA9VKtZGY9Fw9K24aW+tyiQRKW0KV7RKFSa+hRS/N+Hezuv6Dry/9B6KPazVtnxKRU7hB1ztxVYJxBAGeCdyaIyaHJ4O+MNFej14tHys55DmFqdtrq6b0kX2zqvcfaojbNbgOQlxRTX7fX8AHYyh5aOBrH60Amfbh8e4lsNeE25314=
+        on:
+          tags: true
+          distributions: sdist bdist_wheel
+          repo: higlass/higlass-python
 
-cache: apt
-addons:
-  apt:
-    packages: # Since we've turned on sudo, apt-get is available, but this works, too.
-    - libatlas-dev
-    - libatlas-base-dev
-    - liblapack-dev
-    - gfortran
-
-before_install:
-  - wget http://repo.continuum.io/miniconda/Miniconda3-4.3.21-Linux-x86_64.sh -O miniconda.sh
-  - bash miniconda.sh -b -p $HOME/miniconda
-  - export PATH="$HOME/miniconda/bin:$PATH"
-  # Prefer stability to having the latest
-  #- conda update --yes conda
-
-install:
-  - conda install --yes python=$TRAVIS_PYTHON_VERSION numpy=1.13.1
-  - pip install nose
-  - pip install -r requirements.txt
-
-script:
-  - nosetests test 
-
+    - language: node_js
+      node_js:
+        - "10"
+      branches:
+        only:
+        - master
+      before_deploy:
+        - cd js
+      deploy:
+        provider: npm
+        email: service@lekschas.de
+        api_key:
+          secure: YoqbN6qlvURBrBIGxH19tbvkkq3MZvMeUpsTpgm7CI1KYITqscT9Hs9no79tWajdWUiYVZ2OtpMrn2NRhlCBRdYLgO3aQatZWaQnittSjK3GDyJgXZ8Pu6bYYAoqGGdeoUKNynX0MvV46FN85q1MfOHht3sCszpTR1Nw9Y6MQoJt87Z85XWN4looIfvfiDgymtrSEMheLxV+qsenpbtl9UfqkREX+UOKcWhGE8l/TA5G1kCSHSeX51jhXPYJ3dDnG858Cx4dF8n3bWkcQ55KWwF0s0NB2J5UVW6TBm4IZIdtJ9tnid8G0xeT+Xyl3mCp1SMpmIFPCd6WN+WwU67YV7i8P27BIBEAs4ae0vabnbFId9Yc/Hz75O8NwsDPJQF64Gyk+7c/gCZblsP2BFyI5iUFerYVkAyJjyz72xYcjMi1ZR4EdFHq0cmUDFXW6w4RPIfSQrJMgE5kxEmcoVejXGdEqtfCsdElSAKThP7CFMIKTbmA4+ruN3zUTBFMGxIHc6vloxXA5eYgs4UartmqpTxziUvFT7zY4ZCSUjwFVjy0x8450TSmtTsOiKj04kquoqh9V4SrmYM4zd6HQvF1PTP8XOAxqZo5z6k3QW83Dr42ACMyKJTa7KGBi9rDxHoLILFrXH5nbpllMh/wIu0EhJhJM9n2yIDKctu/kWGK6ps=
+        on:
+          branch: master
+          tags: true
+          repo: higlass/higlass-python

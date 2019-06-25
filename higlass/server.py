@@ -273,7 +273,7 @@ class FuseProcess:
                 ),
                 directory,
                 foreground=False,
-                allow_other=True
+                #allow_other=True
             )
         proc1 = mp.Process(target=start_fuse, args=[self.http_directory, 'http'])
         proc1.start()

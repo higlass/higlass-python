@@ -6,7 +6,7 @@ from traitlets import List
 from traitlets import Dict
 from traitlets import Int
 
-from _version import __version__
+from ._version import __version__
 
 
 @widgets.register

@@ -70,7 +70,8 @@ class Track:
         track_type: string
             The type of track to add (e.g. "heatmap", "line")
         position: string
-            One of 'top', 'bottom', 'center', 'left', 'right'
+            One of 'top', 'bottom', 'center', 'left', 'right'. Can be omitted
+            if the track has a default position (e.g. 'top-axis' -> 'top' )
         tileset_uuid:
             The of uuid of the tileset being displayed in this track
         height: int

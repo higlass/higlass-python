@@ -286,7 +286,7 @@ class FuseProcess:
     def teardown(self):
         try:
             if OS_NAME == 'Darwin':
-                sh.umount("-l", self.http_directory)
+                sh.umount(self.http_directory)
             else:
                 sh.fusermount("-uz", self.http_directory)
         except Exception as ex:
@@ -294,7 +294,7 @@ class FuseProcess:
 
         try:
             if OS_NAME == 'Darwin':
-                sh.umount("-l", self.https_directory)
+                sh.umount(self.https_directory)
             else:
                 sh.fusermount("-uz", self.https_directory)
         except Exception as ex:

@@ -11,8 +11,22 @@ import re
 from distutils import log
 
 
-def _read(*parts, **kwargs):
-    filepath = os.path.join(os.path.dirname(__file__), *parts)
+log.set_verbosity(log.DEBUG)
+log.info('setup.py entered')
+log.info('$PATH=%s' % os.environ['PATH'])
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+IS_REPO = os.path.exists(os.path.join(HERE, '.git'))
+STATIC_DIR = os.path.join(HERE, 'higlass', 'static')
+NODE_ROOT = os.path.join(HERE, 'js')
+NPM_PATH = os.pathsep.join([
+    os.path.join(NODE_ROOT, 'node_modules', '.bin'),
+    os.environ.get('PATH', os.defpath),
+])
+
+
+def read(*parts, **kwargs):
+    filepath = os.path.join(HERE, *parts)
     encoding = kwargs.pop('encoding', 'utf-8')
     with io.open(filepath, encoding=encoding) as fh:
         text = fh.read()
@@ -22,31 +36,18 @@ def _read(*parts, **kwargs):
 def get_version():
     version = re.search(
         r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
-        _read('higlass', '_version.py'),
+        read('higlass', '_version.py'),
         re.MULTILINE).group(1)
     return version
 
-log.set_verbosity(log.DEBUG)
-log.info('setup.py entered')
-log.info('$PATH=%s' % os.environ['PATH'])
 
-here = os.path.dirname(os.path.abspath(__file__))
-is_repo = os.path.exists(os.path.join(here, '.git'))
-
-STATIC_DIR = os.path.join(here, 'higlass', 'static')
-NODE_ROOT = os.path.join(here, 'js')
-NPM_PATH = os.pathsep.join([
-    os.path.join(NODE_ROOT, 'node_modules', '.bin'),
-    os.environ.get('PATH', os.defpath),
-])
-
-
-def read(*parts, **kwargs):
-    filepath = os.path.join(here, *parts)
-    encoding = kwargs.pop('encoding', 'utf-8')
-    with io.open(filepath, encoding=encoding) as fh:
-        text = fh.read()
-    return text
+def get_requirements(path):
+    content = read(path)
+    return [
+        req
+        for req in content.split("\n")
+        if req != '' and not req.startswith('#')
+    ]
 
 
 def js_prerelease(command, strict=False):
@@ -54,7 +55,7 @@ def js_prerelease(command, strict=False):
     class DecoratedCommand(command):
         def run(self):
             jsdeps = self.distribution.get_command_obj('jsdeps')
-            if not is_repo and all(os.path.exists(t) for t in jsdeps.targets):
+            if not IS_REPO and all(os.path.exists(t) for t in jsdeps.targets):
                 # sdist, nothing to do
                 command.run(self)
                 return
@@ -187,18 +188,7 @@ setup_args = {
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
     ],
-    'install_requires': [
-        'clodius',
-        'cytoolz',
-        'flask',
-        'flask-cors',
-        'fusepy',
-        'ipywidgets',
-        'multiprocess',
-        'sh',
-        'simple_httpfs',
-        'slugid>=2.0.0'
-    ],
+    'install_requires': get_requirements('requirements.txt'),
     'setup_requires': [
     ],
     'tests_require': [

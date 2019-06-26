@@ -20,6 +20,7 @@ matrix:
         - conda install --yes python=$TRAVIS_PYTHON_VERSION numpy cython
         - pip install -r requirements.txt
         - pip install -r requirements-dev.txt
+        - python setup.py install
       script:
         - pytest
       deploy:

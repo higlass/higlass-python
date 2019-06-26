@@ -197,7 +197,7 @@ setup_args = {
         'multiprocess',
         'sh',
         'simple_httpfs',
-        'slugid'
+        'slugid>=2.0.0'
     ],
     'setup_requires': [
     ],

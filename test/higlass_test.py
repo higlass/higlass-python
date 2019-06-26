@@ -1,7 +1,7 @@
 import higlass.client as hgc
 import json
 
-def test_viewconf_createion():
+def test_viewconf_creation():
     conf = hgc.ViewConf()
     view = conf.add_view()
 

@@ -2,6 +2,8 @@ recursive-include higlass/static *.*
 include CHANGELOG.md
 include README.md
 include LICENSE
+include requirements.txt
+include requirements-dev.txt
 
 graft tests
 graft docs
@@ -16,4 +18,3 @@ global-exclude *.dylib
 global-exclude .git*
 global-exclude .deps/*
 global-exclude .DS_Store
-

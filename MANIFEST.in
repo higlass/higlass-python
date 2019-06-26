@@ -1,5 +1,5 @@
 recursive-include higlass/static *.*
-include CHANGES.md
+include CHANGELOG.md
 include README.md
 include LICENSE
 
@@ -16,5 +16,4 @@ global-exclude *.dylib
 global-exclude .git*
 global-exclude .deps/*
 global-exclude .DS_Store
-include versioneer.py
-include higlass/_version.py
+

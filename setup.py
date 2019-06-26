@@ -11,21 +11,6 @@ import re
 from distutils import log
 
 
-def _read(*parts, **kwargs):
-    filepath = os.path.join(os.path.dirname(__file__), *parts)
-    encoding = kwargs.pop('encoding', 'utf-8')
-    with io.open(filepath, encoding=encoding) as fh:
-        text = fh.read()
-    return text
-
-
-def get_version():
-    version = re.search(
-        r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
-        _read('higlass', '_version.py'),
-        re.MULTILINE).group(1)
-    return version
-
 log.set_verbosity(log.DEBUG)
 log.info('setup.py entered')
 log.info('$PATH=%s' % os.environ['PATH'])
@@ -47,6 +32,14 @@ def read(*parts, **kwargs):
     with io.open(filepath, encoding=encoding) as fh:
         text = fh.read()
     return text
+
+
+def get_version():
+    version = re.search(
+        r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
+        read('higlass', '_version.py'),
+        re.MULTILINE).group(1)
+    return version
 
 
 def js_prerelease(command, strict=False):

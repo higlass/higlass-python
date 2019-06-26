@@ -3,7 +3,7 @@ matrix:
     - language: python
       sudo: required
       python:
-        - '3.6'
+        - '3.7'
       cache: apt
       addons:
         apt:
@@ -17,11 +17,11 @@ matrix:
         - bash miniconda.sh -b -p $HOME/miniconda
         - export PATH="$HOME/miniconda/bin:$PATH"
       install:
-        - conda install --yes python=$TRAVIS_PYTHON_VERSION numpy=1.13.1
-        - pip install nose
+        - conda install --yes python=$TRAVIS_PYTHON_VERSION numpy cython
         - pip install -r requirements.txt
+        - pip install -r requirements-dev.txt
       script:
-        - nosetests test
+        - pytest
       deploy:
         provider: pypi
         user: nvictus

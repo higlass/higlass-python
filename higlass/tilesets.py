@@ -99,7 +99,6 @@ def bigwig(filepath, uuid=None, chromsizes=None, **kwargs):
 
 
 def mrmatrix(filepath, uuid=None, **kwargs):
-    from clodius.tiles.format import format_dense_tile
     from clodius.tiles.mrmatrix import tileset_info, tiles
 
     f = h5py.File(filepath, "r")

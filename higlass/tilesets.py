@@ -20,8 +20,6 @@ class Tileset:
         max_zoom) for this tileset.
     tiles : callable
         A function returning tile data for this tileset.
-    chromsizes : callable, optional
-        Because everything is a genome.
     datatype : str
         Datatype identifier for the viewer
     name : str, optional
@@ -48,9 +46,6 @@ class Tileset:
     def tiles(self, tile_ids):
         return self.tiles_fn(tile_ids)
 
-    def chromsizes(self):
-        return self.chromsizes_fn()
-
     @property
     def meta(self):
         return {
@@ -63,12 +58,18 @@ class Tileset:
         }
 
 
+class ChromSizes(Tileset):
+    def __init__(self, chromsizes, **kwargs):
+        super().__init__(**kwargs)
+        self.chromsizes = chromsizes  # TODO: add validation
+
+
 def chromsizes(filepath, uuid=None, **kwargs):
     from clodius.tiles.chromsizes import get_tsv_chromsizes
 
-    return Tileset(
+    return ChromSizes(
         uuid=uuid,
-        chromsizes=lambda: get_tsv_chromsizes(filepath),
+        chromsizes=get_tsv_chromsizes(filepath),
         datatype='chromsizes',
         **kwargs)
 
@@ -99,7 +100,7 @@ def bigwig(filepath, uuid=None, chromsizes=None, **kwargs):
 
 def mrmatrix(filepath, uuid=None, **kwargs):
     from clodius.tiles.format import format_dense_tile
-    from clodius.tiles.mrmatrix import tileset_infom tiles
+    from clodius.tiles.mrmatrix import tileset_info, tiles
 
     f = h5py.File(filepath, "r")
 

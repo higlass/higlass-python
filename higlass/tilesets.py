@@ -13,22 +13,30 @@ class Tileset:
 
     Parameters
     ----------
+    uuid : str
+        Tileset uid
     tileset_info : callable
         A function returning the information (min_pos, max_pos, max_width,
         max_zoom) for this tileset.
     tiles : callable
-        A function returning tile data for this tileset
+        A function returning tile data for this tileset.
+    chromsizes : callable, optional
+        Because everything is a genome.
+    datatype : str
+        Datatype identifier for the viewer
+    name : str, optional
+        Name for the tileset. Also used as display name for the track.
 
     """
-    def __init__(self, uuid=None, name=None, datatype="unspecified",
-                 tileset_info=None, tiles=None, chromsizes=lambda: None,
+    def __init__(self, uuid=None, tileset_info=None, tiles=None,
+                 chromsizes=lambda: None, datatype="unspecified", name=None,
                  private=False):
-        self.uuid = slugid.nice() is uuid is None else uuid
+        self.uuid = slugid.nice() if uuid is None else uuid
+        self.name = name
         self.tileset_info_fn = tileset_info
         self.tiles_fn = tiles
         self.chromsizes_fn = chromsizes
         self.datatype = datatype
-        self.name = name
         self.private = private
 
     def tileset_info(self):

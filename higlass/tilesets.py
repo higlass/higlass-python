@@ -1,16 +1,9 @@
-import clodius.tiles.bigwig as hgbi
-import clodius.tiles.chromsizes as hgch
-import clodius.tiles.cooler as hgco
-import clodius.tiles.mrmatrix as hgmm
 
 import clodius.tiles.utils as hgut
-import clodius.tiles.format as hgfo
-import clodius.tiles.points as hgpo
 
 import h5py
 import pandas as pd
 import slugid
-
 
 class Tileset:
     def __init__(
@@ -71,6 +64,8 @@ class Tileset:
 
 
 def cooler(filepath, uuid=None):
+    import clodius.tiles.cooler as hgco
+
     return Tileset(
         tileset_info=lambda: hgco.tileset_info(filepath),
         tiles=lambda tids: hgco.tiles(filepath, tids),
@@ -81,6 +76,8 @@ def cooler(filepath, uuid=None):
 
 
 def bigwig(filepath, chromsizes=None, uuid=None):
+    import clodius.tiles.bigwig as hgbi
+
     return Tileset(
         tileset_info=lambda: hgbi.tileset_info(filepath, chromsizes),
         tiles=lambda tids: hgbi.tiles(filepath, tids, chromsizes=chromsizes),
@@ -89,10 +86,15 @@ def bigwig(filepath, chromsizes=None, uuid=None):
 
 
 def chromsizes(filepath, uuid=None):
+    import clodius.tiles.chromsizes as hgch
+
     return Tileset(chromsizes=lambda: hgch.get_tsv_chromsizes(filepath), uuid=uuid)
 
 
 def mrmatrix(filepath, uuid=None):
+    import clodius.tiles.format as hgfo
+    import clodius.tiles.mrmatrix as hgmm
+
     f = h5py.File(filepath, "r")
 
     return Tileset(
@@ -135,6 +137,8 @@ def dfpoints(
     --------
     A tileset capapble of serving tiles from this dataframe.
     """
+    import clodius.tiles.points as hgpo
+
     tsinfo = hgpo.tileset_info(df, x_col, y_col)
 
     return Tileset(

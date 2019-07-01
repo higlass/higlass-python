@@ -5,8 +5,10 @@ import clodius.tiles.mrmatrix as hgmm
 
 import clodius.tiles.utils as hgut
 import clodius.tiles.format as hgfo
+import clodius.tiles.points as hgpo
 
 import h5py
+import pandas as pd
 import slugid
 
 
@@ -115,6 +117,32 @@ def nplabels(labels_array, importances=None):
 def h5labels(filename):
     f = h5py.File(filename, 'r')
     return nplabels(f['labels'])
+
+def dfpoints(
+        df: pd.DataFrame,
+        x_col:str,
+        y_col:str,
+        uuid:str=None):
+    """
+    Generate a tileset that serves 2d labelled points from a pandas
+    dataframe.
+     Parameters:
+    -----------
+    df: The dataframe containining the data
+    x_col: The name of the column containing the x-coordinates
+    y_col: The name of the column containing the y-coordinates
+     Returns:
+    --------
+    A tileset capapble of serving tiles from this dataframe.
+    """
+    tsinfo = hgpo.tileset_info(df, x_col, y_col)
+
+    return Tileset(
+        tileset_info=lambda: tsinfo,
+        tiles=lambda tile_ids: hgpo.format_data(
+                    hgut.bundled_tiles_wrapper_2d(tile_ids,
+                        lambda z,x,y,width=1,height=1: hgpo.tiles(df, x_col, y_col,
+                            tsinfo, z, x, y, width, height))))
 
 by_filetype = {
     "cooler": cooler,

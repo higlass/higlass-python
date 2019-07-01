@@ -1,3 +1,7 @@
+** Next release **
+
+ - Convenience function for loading 2d labelled points from a dataframe.
+ 
 [v0.1.10](https://github.com/higlass/higlass-python/compare/v0.1.8...v0.1.10)
 
 - Synchronized Python and node package versions

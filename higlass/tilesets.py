@@ -88,7 +88,9 @@ def bigwig(filepath, chromsizes=None, uuid=None):
 def chromsizes(filepath, uuid=None):
     import clodius.tiles.chromsizes as hgch
 
-    return Tileset(chromsizes=lambda: hgch.get_tsv_chromsizes(filepath), uuid=uuid)
+    return Tileset(
+        chromsizes=lambda: hgch.get_tsv_chromsizes(filepath),
+        uuid=uuid)
 
 
 def mrmatrix(filepath, uuid=None):
@@ -98,6 +100,7 @@ def mrmatrix(filepath, uuid=None):
     f = h5py.File(filepath, "r")
 
     return Tileset(
+        uuid=uuid,
         tileset_info=lambda: hgmm.tileset_info(f),
         tiles=lambda tile_ids: hgut.tiles_wrapper_2d(
             tile_ids, lambda z, x, y: hgfo.format_dense_tile(hgmm.tiles(f, z, x, y))
@@ -109,7 +112,9 @@ import clodius.tiles.npvector as ctn
 import numpy as np
 
 def nplabels(labels_array, importances=None):
+    """1d labels"""
     return Tileset(
+        uuid=uuid,
         tileset_info=lambda: ctn.tileset_info(labels_array,
             bins_per_dimension=16),
         tiles=lambda tids: ctnl.tiles_wrapper(labels_array,
@@ -122,18 +127,19 @@ def h5labels(filename):
 
 def dfpoints(
         df: pd.DataFrame,
-        x_col:str,
-        y_col:str,
-        uuid:str=None):
+        x_col: str,
+        y_col: str,
+        uuid: str = None):
     """
     Generate a tileset that serves 2d labelled points from a pandas
     dataframe.
-     Parameters:
+    Parameters:
     -----------
     df: The dataframe containining the data
     x_col: The name of the column containing the x-coordinates
     y_col: The name of the column containing the y-coordinates
-     Returns:
+    uuid: The uuid of this tileset
+    Returns:
     --------
     A tileset capapble of serving tiles from this dataframe.
     """
@@ -142,6 +148,7 @@ def dfpoints(
     tsinfo = hgpo.tileset_info(df, x_col, y_col)
 
     return Tileset(
+        uuid=uuid,
         tileset_info=lambda: tsinfo,
         tiles=lambda tile_ids: hgpo.format_data(
                     hgut.bundled_tiles_wrapper_2d(tile_ids,

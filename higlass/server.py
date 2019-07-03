@@ -51,8 +51,6 @@ def get_filepath(filepath):
     if filepath[:8] == "https://":
         filepath = fuse.https_directory + filepath[7:] + ".."
 
-    # print("******** filepath:", filepath)
-
     return filepath
 
 
@@ -76,14 +74,18 @@ def create_app(tilesets, name, log_file, log_level, file_ids):
 
         if js["filetype"] not in hgti.by_filetype:
             return (
-                jsonify({"error": "Unknown filetype: {}".format(js["filetype"])}),
+                jsonify({
+                    "error": "Unknown filetype: {}".format(js["filetype"])
+                }),
                 400,
             )
 
         if key in remote_tilesets:
             return jsonify({"uid": remote_tilesets[key].uuid})
 
-        new_tileset = hgti.by_filetype[js["filetype"]](get_filepath(js["fileUrl"]))
+        new_tileset = hgti.by_filetype[js["filetype"]](
+            get_filepath(js["fileUrl"])
+        )
         remote_tilesets[key] = new_tileset
 
         return jsonify({"uid": new_tileset.uuid})
@@ -141,7 +143,11 @@ def create_app(tilesets, name, log_file, log_level, file_ids):
                     )
                 }
             else:
-                j = {ts.uuid: dict([(chrom, {"size": size}) for (chrom, size) in data])}
+                j = {
+                    ts.uuid: dict(
+                        [(chrom, {"size": size}) for (chrom, size) in data]
+                    )
+                }
             return jsonify(j)
 
         elif res_type == "tsv":
@@ -150,7 +156,9 @@ def create_app(tilesets, name, log_file, log_level, file_ids):
                     "{}\t{}\t{}".format(chrom, size, cum) for chrom, size, cum in data
                 )
             else:
-                return "\n".join("{}\t{}".format(chrom, size) for chrom, size in data)
+                return "\n".join(
+                    "{}\t{}".format(chrom, size) for chrom, size in data
+                )
 
         else:
             return jsonify({"error": "Unknown response type"}), 500
@@ -189,7 +197,9 @@ def create_app(tilesets, name, log_file, log_level, file_ids):
             if ts is not None:
                 info[uuid] = ts.tileset_info()
             else:
-                info[uuid] = {"error": "No such tileset with uid: {}".format(uuid)}
+                info[uuid] = {
+                    "error": "No such tileset with uid: {}".format(uuid)
+                }
 
         return jsonify(info)
 
@@ -262,17 +272,14 @@ class FuseProcess:
         self.teardown()
 
         disk_cache_size = 2 ** 25
-        disk_cache_dir = self.diskcache_directory
         lru_capacity = 400
-        # print(
-        #     "self.diskcache_directory",
-        #     self.diskcache_directory,
-        #     op.exists(self.diskcache_directory),
-        # )
 
         def start_fuse(directory, protocol):
-            # print("starting fuse")
             try:
+                # This is a bit confusing. I think `fuse` (lowercase) is used
+                # above in get_filepath() line 50 and 52. If that's not the
+                # case than this assignment is useless and get_filepath() is
+                # broken
                 fuse = FUSE(
                     HttpFs(
                         protocol,
@@ -330,7 +337,9 @@ class Server:
     processes = {}
     diskcache_directory = "/tmp/hgflask/dc"
 
-    def __init__(self, tilesets, port=None, host="localhost", tmp_dir="/tmp/hgflask"):
+    def __init__(
+        self, tilesets, port=None, host="localhost", tmp_dir="/tmp/hgflask"
+    ):
         """
         Maintain a reference to a running higlass server
 
@@ -367,7 +376,6 @@ class Server:
             What level to log at
         """
         for puid in list(self.processes.keys()):
-            # print("terminating:", puid)
             self.processes[puid].terminate()
             del self.processes[puid]
 
@@ -379,8 +387,9 @@ class Server:
             file_ids=self.file_ids,
         )
 
-        # we're going to assign a uuid to each server process so that if anything
-        # goes wrong, the variable referencing the process doesn't get lost
+        # we're going to assign a uuid to each server process so that if
+        # anything goes wrong, the variable referencing the process doesn't get
+        # lost
         uuid = slugid.nice()
         if self.port is None:
             self.port = get_open_port()
@@ -401,7 +410,7 @@ class Server:
                 r = requests.head(url)
                 if r.ok:
                     self.connected = True
-            except requests.ConnectionError as err:
+            except requests.ConnectionError:
                 time.sleep(0.2)
 
     def stop(self):
@@ -440,8 +449,6 @@ class Server:
             host=self.host, port=self.port, tile_id=tile_id
         )
 
-        # print("url:", url)
-
         req = requests.get(url)
         if req.status_code != 200:
             raise ServerError("Error fetching tile:", req.content)
@@ -465,7 +472,9 @@ class Server:
 
     @property
     def api_address(self):
-        return "http://{host}:{port}/api/v1".format(host=self.host, port=self.port)
+        return "http://{host}:{port}/api/v1".format(
+            host=self.host, port=self.port
+        )
 
 
 # TMP_DIR = "/tmp/higlass-python/"

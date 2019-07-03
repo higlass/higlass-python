@@ -1,7 +1,15 @@
+import logging
 from .widgets import HiGlassDisplay
 
 
-def display(views, location_syncs=[], zoom_syncs=[], host='localhost', server_port=None):
+def display(
+    views,
+    location_syncs=[],
+    zoom_syncs=[],
+    host='localhost',
+    server_port=None,
+    log_level=logging.ERROR
+):
     '''
     Instantiate a HiGlass display with the given views
     '''
@@ -20,22 +28,23 @@ def display(views, location_syncs=[], zoom_syncs=[], host='localhost', server_po
                 tilesets += [track.tileset]
 
     server = Server(tilesets, host=host, port=server_port)
-    server.start()
+    server.start(log_level=log_level)
 
     for view in views:
         for track in view.tracks:
             if track.tracks:
                 for track1 in track.tracks:
-                    if ('server' not in track1.viewconf or 
+                    if ('server' not in track1.viewconf or
                             track1.viewconf['server'] is None):
                         track1.viewconf['server'] = server.api_address
             else:
-                if ('server' not in track.viewconf or 
+                if ('server' not in track.viewconf or
                         track.viewconf['server'] is None):
                     track.viewconf['server'] = server.api_address
 
-
-    conf = ViewConf(views, location_syncs=location_syncs,
+    conf = ViewConf(
+        views,
+        location_syncs=location_syncs,
         zoom_syncs=zoom_syncs)
 
     return (HiGlassDisplay(viewconf=conf.to_dict()), server, conf)

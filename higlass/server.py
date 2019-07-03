@@ -26,6 +26,13 @@ __all__ = ["Server"]
 
 OS_NAME = platform.system()
 
+# Disable annoying flask logs
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
+log.disabled = True
+# The following line is also needed to turn off all debug logs
+os.environ['WERKZEUG_RUN_MAIN'] = 'true'
+
 
 def get_filepath(filepath):
     """
@@ -44,13 +51,14 @@ def get_filepath(filepath):
     if filepath[:8] == "https://":
         filepath = fuse.https_directory + filepath[7:] + ".."
 
-    print("******** filepath:", filepath)
+    # print("******** filepath:", filepath)
 
     return filepath
 
 
 def create_app(tilesets, name, log_file, log_level, file_ids):
     app = Flask(__name__)
+    app.logger.disabled = True
     CORS(app)
 
     TILESETS = tilesets
@@ -256,48 +264,59 @@ class FuseProcess:
         disk_cache_size = 2 ** 25
         disk_cache_dir = self.diskcache_directory
         lru_capacity = 400
-        print(
-            "self.diskcache_directory",
-            self.diskcache_directory,
-            op.exists(self.diskcache_directory),
-        )
+        # print(
+        #     "self.diskcache_directory",
+        #     self.diskcache_directory,
+        #     op.exists(self.diskcache_directory),
+        # )
 
         def start_fuse(directory, protocol):
-            print("starting fuse")
-            fuse = FUSE(
-                HttpFs(
-                    protocol,
-                    disk_cache_size=disk_cache_size,
-                    disk_cache_dir=self.diskcache_directory,
-                    lru_capacity=lru_capacity,
-                ),
-                directory,
-                foreground=False,
-                allow_other=True
-            )
-        proc1 = mp.Process(target=start_fuse, args=[self.http_directory, 'http'])
+            # print("starting fuse")
+            try:
+                fuse = FUSE(
+                    HttpFs(
+                        protocol,
+                        disk_cache_size=disk_cache_size,
+                        disk_cache_dir=self.diskcache_directory,
+                        lru_capacity=lru_capacity,
+                    ),
+                    directory,
+                    foreground=False,
+                    allow_other=True
+                )
+            except RuntimeError as e:
+                if str(e) != "1":
+                    raise e
+
+        proc1 = mp.Process(
+            target=start_fuse, args=[self.http_directory, 'http']
+        )
         proc1.start()
         proc1.join()
 
-        proc2 = mp.Process(target=start_fuse, args=[self.https_directory, 'https'])
+        proc2 = mp.Process(
+            target=start_fuse, args=[self.https_directory, 'https']
+        )
         proc2.start()
         proc2.join()
 
     def teardown(self):
         try:
             if OS_NAME == 'Darwin':
+                sh.umount("HttpFs")
                 sh.umount("-l", self.http_directory)
             else:
                 sh.fusermount("-uz", self.http_directory)
-        except Exception as ex:
+        except Exception:
             pass
 
         try:
             if OS_NAME == 'Darwin':
+                sh.umount("HttpFs")
                 sh.umount("-l", self.https_directory)
             else:
                 sh.fusermount("-uz", self.https_directory)
-        except Exception as ex:
+        except Exception:
             pass
 
 
@@ -348,7 +367,7 @@ class Server:
             What level to log at
         """
         for puid in list(self.processes.keys()):
-            print("terminating:", puid)
+            # print("terminating:", puid)
             self.processes[puid].terminate()
             del self.processes[puid]
 
@@ -421,7 +440,7 @@ class Server:
             host=self.host, port=self.port, tile_id=tile_id
         )
 
-        print("url:", url)
+        # print("url:", url)
 
         req = requests.get(url)
         if req.status_code != 200:

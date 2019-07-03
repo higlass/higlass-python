@@ -1,3 +1,7 @@
+v0.1.11
+
+- Remove Flask-related debugging and uninformative logs
+
 v0.1.8
 
 - Fix installation

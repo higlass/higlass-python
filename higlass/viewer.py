@@ -102,13 +102,13 @@ def view(tilesets):
     server.start(tilesets)
 
     for ts in tilesets:
-        if (ts.track_type is not None
-                and ts.track_position is not None):
-            curr_view.add_track(ts.track_type,
-                    ts.track_position,
-                    api_url=server.api_address,
-                    tileset_uuid=ts.uuid,
-                )
+        if ts.track_type is not None and ts.track_position is not None:
+            curr_view.add_track(
+                ts.track_type,
+                ts.track_position,
+                api_url=server.api_address,
+                tileset_uuid=ts.uuid,
+            )
 
     curr_view.server = server
     return curr_view

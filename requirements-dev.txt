@@ -1,0 +1,5 @@
+numpy
+ipython
+jupyter
+jupyterlab
+pytest

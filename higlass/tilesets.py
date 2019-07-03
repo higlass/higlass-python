@@ -1,14 +1,9 @@
-import clodius.tiles.bigwig as hgbi
-import clodius.tiles.chromsizes as hgch
-import clodius.tiles.cooler as hgco
-import clodius.tiles.mrmatrix as hgmm
 
 import clodius.tiles.utils as hgut
-import clodius.tiles.format as hgfo
 
 import h5py
+import pandas as pd
 import slugid
-
 
 class Tileset:
     def __init__(
@@ -69,6 +64,8 @@ class Tileset:
 
 
 def cooler(filepath, uuid=None):
+    import clodius.tiles.cooler as hgco
+
     return Tileset(
         tileset_info=lambda: hgco.tileset_info(filepath),
         tiles=lambda tids: hgco.tiles(filepath, tids),
@@ -79,6 +76,8 @@ def cooler(filepath, uuid=None):
 
 
 def bigwig(filepath, chromsizes=None, uuid=None):
+    import clodius.tiles.bigwig as hgbi
+
     return Tileset(
         tileset_info=lambda: hgbi.tileset_info(filepath, chromsizes),
         tiles=lambda tids: hgbi.tiles(filepath, tids, chromsizes=chromsizes),
@@ -87,13 +86,21 @@ def bigwig(filepath, chromsizes=None, uuid=None):
 
 
 def chromsizes(filepath, uuid=None):
-    return Tileset(chromsizes=lambda: hgch.get_tsv_chromsizes(filepath), uuid=uuid)
+    import clodius.tiles.chromsizes as hgch
+
+    return Tileset(
+        chromsizes=lambda: hgch.get_tsv_chromsizes(filepath),
+        uuid=uuid)
 
 
 def mrmatrix(filepath, uuid=None):
+    import clodius.tiles.format as hgfo
+    import clodius.tiles.mrmatrix as hgmm
+
     f = h5py.File(filepath, "r")
 
     return Tileset(
+        uuid=uuid,
         tileset_info=lambda: hgmm.tileset_info(f),
         tiles=lambda tile_ids: hgut.tiles_wrapper_2d(
             tile_ids, lambda z, x, y: hgfo.format_dense_tile(hgmm.tiles(f, z, x, y))
@@ -105,7 +112,9 @@ import clodius.tiles.npvector as ctn
 import numpy as np
 
 def nplabels(labels_array, importances=None):
+    """1d labels"""
     return Tileset(
+        uuid=uuid,
         tileset_info=lambda: ctn.tileset_info(labels_array,
             bins_per_dimension=16),
         tiles=lambda tids: ctnl.tiles_wrapper(labels_array,
@@ -115,6 +124,36 @@ def nplabels(labels_array, importances=None):
 def h5labels(filename):
     f = h5py.File(filename, 'r')
     return nplabels(f['labels'])
+
+def dfpoints(
+        df: pd.DataFrame,
+        x_col: str,
+        y_col: str,
+        uuid: str = None):
+    """
+    Generate a tileset that serves 2d labelled points from a pandas
+    dataframe.
+    Parameters:
+    -----------
+    df: The dataframe containining the data
+    x_col: The name of the column containing the x-coordinates
+    y_col: The name of the column containing the y-coordinates
+    uuid: The uuid of this tileset
+    Returns:
+    --------
+    A tileset capapble of serving tiles from this dataframe.
+    """
+    import clodius.tiles.points as hgpo
+
+    tsinfo = hgpo.tileset_info(df, x_col, y_col)
+
+    return Tileset(
+        uuid=uuid,
+        tileset_info=lambda: tsinfo,
+        tiles=lambda tile_ids: hgpo.format_data(
+                    hgut.bundled_tiles_wrapper_2d(tile_ids,
+                        lambda z,x,y,width=1,height=1: hgpo.tiles(df, x_col, y_col,
+                            tsinfo, z, x, y, width, height))))
 
 by_filetype = {
     "cooler": cooler,

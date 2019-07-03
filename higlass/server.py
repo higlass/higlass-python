@@ -289,7 +289,7 @@ class FuseProcess:
                     ),
                     directory,
                     foreground=False,
-                    allow_other=True
+                    #allow_other=True
                 )
             except RuntimeError as e:
                 if str(e) != "1":
@@ -311,7 +311,7 @@ class FuseProcess:
         try:
             if OS_NAME == 'Darwin':
                 sh.umount("HttpFs")
-                sh.umount("-l", self.http_directory)
+                sh.umount(self.http_directory)
             else:
                 sh.fusermount("-uz", self.http_directory)
         except Exception:
@@ -320,7 +320,7 @@ class FuseProcess:
         try:
             if OS_NAME == 'Darwin':
                 sh.umount("HttpFs")
-                sh.umount("-l", self.https_directory)
+                sh.umount(self.https_directory)
             else:
                 sh.fusermount("-uz", self.https_directory)
         except Exception:

@@ -1,3 +1,4 @@
+import logging
 import ipywidgets as widgets
 from traitlets import Unicode
 # from traitlets import default
@@ -34,7 +35,14 @@ class HiGlassDisplay(widgets.DOMWidget):
     #     self._model_data = js_data
 
 
-def display(views, location_syncs=[], zoom_syncs=[], host='localhost', server_port=None):
+def display(
+    views,
+    location_syncs=[],
+    zoom_syncs=[],
+    host='localhost',
+    server_port=None,
+    log_level=logging.ERROR
+):
     '''
     Instantiate a HiGlass display with the given views
     '''
@@ -53,7 +61,7 @@ def display(views, location_syncs=[], zoom_syncs=[], host='localhost', server_po
                 tilesets += [track.tileset]
 
     server = Server(tilesets, host=host, port=server_port)
-    server.start()
+    server.start(log_level=log_level)
 
     for view in views:
         for track in view.tracks:
@@ -67,8 +75,9 @@ def display(views, location_syncs=[], zoom_syncs=[], host='localhost', server_po
                         track.viewconf['server'] is None):
                     track.viewconf['server'] = server.api_address
 
-
-    conf = ViewConf(views, location_syncs=location_syncs,
+    conf = ViewConf(
+        views,
+        location_syncs=location_syncs,
         zoom_syncs=zoom_syncs)
 
     return (HiGlassDisplay(viewconf=conf.to_dict()), server, conf)
@@ -93,13 +102,13 @@ def view(tilesets):
     server.start(tilesets)
 
     for ts in tilesets:
-        if (ts.track_type is not None
-                and ts.track_position is not None):
-            curr_view.add_track(ts.track_type,
-                    ts.track_position,
-                    api_url=server.api_address,
-                    tileset_uuid=ts.uuid,
-                )
+        if ts.track_type is not None and ts.track_position is not None:
+            curr_view.add_track(
+                ts.track_type,
+                ts.track_position,
+                api_url=server.api_address,
+                tileset_uuid=ts.uuid,
+            )
 
     curr_view.server = server
     return curr_view

@@ -25,9 +25,17 @@ __all__ = ["Server"]
 
 OS_NAME = platform.system()
 
+# Disable annoying flask logs
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
+log.disabled = True
+# The following line is also needed to turn off all debug logs
+os.environ['WERKZEUG_RUN_MAIN'] = 'true'
+
 
 def create_app(tilesets, name, log_file, log_level, file_ids, fuse=None):
     app = Flask(__name__)
+    app.logger.disabled = True
     CORS(app)
 
     remote_tilesets = {}
@@ -160,7 +168,9 @@ def create_app(tilesets, name, log_file, log_level, file_ids, fuse=None):
             if ts is not None:
                 info[uuid] = ts.tileset_info()
             else:
-                info[uuid] = {"error": "No such tileset with uid: {}".format(uuid)}
+                info[uuid] = {
+                    "error": "No such tileset with uid: {}".format(uuid)
+                }
 
         return jsonify(info)
 
@@ -235,50 +245,58 @@ class FuseProcess:
         self.teardown()
 
         disk_cache_size = 2 ** 25
-        disk_cache_dir = self.diskcache_directory
         lru_capacity = 400
-        print(
-            "self.diskcache_directory",
-            self.diskcache_directory,
-            op.exists(self.diskcache_directory),
-        )
 
         def start_fuse(directory, protocol):
-            print("starting fuse")
-            fuse = FUSE(
-                HttpFs(
-                    protocol,
-                    disk_cache_size=disk_cache_size,
-                    disk_cache_dir=self.diskcache_directory,
-                    lru_capacity=lru_capacity,
-                ),
-                directory,
-                foreground=False,
-                #allow_other=True
-            )
-        proc1 = mp.Process(target=start_fuse, args=[self.http_directory, 'http'])
+            try:
+                # This is a bit confusing. I think `fuse` (lowercase) is used
+                # above in get_filepath() line 50 and 52. If that's not the
+                # case than this assignment is useless and get_filepath() is
+                # broken
+                fuse = FUSE(
+                    HttpFs(
+                        protocol,
+                        disk_cache_size=disk_cache_size,
+                        disk_cache_dir=self.diskcache_directory,
+                        lru_capacity=lru_capacity,
+                    ),
+                    directory,
+                    foreground=False,
+                    #allow_other=True
+                )
+            except RuntimeError as e:
+                if str(e) != "1":
+                    raise e
+
+        proc1 = mp.Process(
+            target=start_fuse, args=[self.http_directory, 'http']
+        )
         proc1.start()
         proc1.join()
 
-        proc2 = mp.Process(target=start_fuse, args=[self.https_directory, 'https'])
+        proc2 = mp.Process(
+            target=start_fuse, args=[self.https_directory, 'https']
+        )
         proc2.start()
         proc2.join()
 
     def teardown(self):
         try:
             if OS_NAME == 'Darwin':
+                sh.umount("HttpFs")
                 sh.umount(self.http_directory)
             else:
                 sh.fusermount("-uz", self.http_directory)
-        except Exception as ex:
+        except Exception:
             pass
 
         try:
             if OS_NAME == 'Darwin':
+                sh.umount("HttpFs")
                 sh.umount(self.https_directory)
             else:
                 sh.fusermount("-uz", self.https_directory)
-        except Exception as ex:
+        except Exception:
             pass
 
     def get_filepath(self, url):
@@ -304,7 +322,9 @@ class Server:
     processes = {}
     diskcache_directory = "/tmp/hgflask/dc"
 
-    def __init__(self, tilesets, port=None, host="localhost", tmp_dir="/tmp/hgflask"):
+    def __init__(
+        self, tilesets, port=None, host="localhost", tmp_dir="/tmp/hgflask"
+    ):
         """
         Maintain a reference to a running higlass server
 
@@ -340,7 +360,6 @@ class Server:
             What level to log at
         """
         for puid in list(self.processes.keys()):
-            print("terminating:", puid)
             self.processes[puid].terminate()
             del self.processes[puid]
 
@@ -353,8 +372,9 @@ class Server:
             fuse=self.fuse_process
         )
 
-        # we're going to assign a uuid to each server process so that if anything
-        # goes wrong, the variable referencing the process doesn't get lost
+        # we're going to assign a uuid to each server process so that if
+        # anything goes wrong, the variable referencing the process doesn't get
+        # lost
         uuid = slugid.nice()
         if self.port is None:
             self.port = get_open_port()
@@ -375,7 +395,7 @@ class Server:
                 r = requests.head(url)
                 if r.ok:
                     self.connected = True
-            except requests.ConnectionError as err:
+            except requests.ConnectionError:
                 time.sleep(0.2)
 
     def stop(self):
@@ -413,8 +433,6 @@ class Server:
         url = "http://{host}:{port}/api/v1/tiles/?d={tile_id}".format(
             host=self.host, port=self.port, tile_id=tile_id
         )
-
-        print("url:", url)
 
         req = requests.get(url)
         if req.status_code != 200:

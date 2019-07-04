@@ -1,7 +1,8 @@
 ** Next release **
 
- - Convenience function for loading 2d labelled points from a dataframe.
- 
+- Convenience function for loading 2d labelled points from a dataframe.
+- Remove Flask-related debugging and uninformative logs
+
 [v0.1.10](https://github.com/higlass/higlass-python/compare/v0.1.8...v0.1.10)
 
 - Synchronized Python and node package versions
@@ -16,6 +17,6 @@
 - Added CombinedTrack
 - Added change_atributes and change_options functions
 
-[v0.1.1](https://github.com/higlass/higlass-python/releases/tag/v0.1.1) 
+[v0.1.1](https://github.com/higlass/higlass-python/releases/tag/v0.1.1)
 
 - First release

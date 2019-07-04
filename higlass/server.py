@@ -281,26 +281,17 @@ class FuseProcess:
         except Exception as ex:
             pass
 
-    def get_filepath(self, filepath):
+    def get_filepath(self, url):
         """
-        Get the filepath from a tileset definition
-
-        Parameters
-        ----------
-        tileset_def: { 'filepath': ..., 'uid': ..., 'filetype': ...}
-            The tileset definition
-
-        Returns
-        -------
-        str
-            The filepath, either as specified in the tileset_def or
-            None
+        Get the httpfs mount filepath from a url
 
         """
-        if filepath[:7] == "http://":
-            return self.http_directory + filepath[6:] + ".."
-        if filepath[:8] == "https://":
-            return self.https_directory + filepath[7:] + ".."
+        if url[:7] == "http://":
+            return self.http_directory + url[6:] + ".."
+        elif url[:8] == "https://":
+            return self.https_directory + url[7:] + ".."
+        else:
+            raise ValueError("Unsupported URL protocol")
 
 
 class Server:

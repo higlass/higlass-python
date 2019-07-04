@@ -20,40 +20,15 @@ import requests
 import slugid
 import sh
 
-import higlass.tilesets as hgti
 
 __all__ = ["Server"]
 
 OS_NAME = platform.system()
 
 
-def get_filepath(filepath):
-    """
-    Get the filepath from a tileset definition
-    Parameters
-    ----------
-    tileset_def: { 'filepath': ..., 'uid': ..., 'filetype': ...}
-        The tileset definition
-    returns: string
-        The filepath, either as specified in the tileset_def or
-        None
-    """
-
-    if filepath[:7] == "http://":
-        filepath = fuse.http_directory + filepath[6:] + ".."
-    if filepath[:8] == "https://":
-        filepath = fuse.https_directory + filepath[7:] + ".."
-
-    print("******** filepath:", filepath)
-
-    return filepath
-
-
-def create_app(tilesets, name, log_file, log_level, file_ids):
+def create_app(tilesets, name, log_file, log_level, file_ids, fuse=None):
     app = Flask(__name__)
     CORS(app)
-
-    TILESETS = tilesets
 
     remote_tilesets = {}
 
@@ -63,22 +38,25 @@ def create_app(tilesets, name, log_file, log_level, file_ids):
 
     @app.route("/api/v1/register_url/", methods=["POST"])
     def register_url():
+        from higlass.tilesets import by_filetype
         js = request.json
-        key = (js["fileUrl"], js["filetype"])
-
-        if js["filetype"] not in hgti.by_filetype:
+        if js["filetype"] not in by_filetype:
             return (
-                jsonify({"error": "Unknown filetype: {}".format(js["filetype"])}),
+                jsonify({"error":
+                    "Unknown filetype: {}".format(js["filetype"])}),
                 400,
             )
+        if fuse is None:
+            return jsonify({"error": "httpfs is not available."})
 
+        key = (js["fileUrl"], js["filetype"])
         if key in remote_tilesets:
-            return jsonify({"uid": remote_tilesets[key].uuid})
-
-        new_tileset = hgti.by_filetype[js["filetype"]](get_filepath(js["fileUrl"]))
-        remote_tilesets[key] = new_tileset
-
-        return jsonify({"uid": new_tileset.uuid})
+            ts = remote_tilesets[key]
+        else:
+            factory = by_filetype[js["filetype"]]
+            ts = factory(fuse.get_filepath(js["fileUrl"]))
+            remote_tilesets[key] = ts
+        return jsonify({"uid": ts.uuid})
 
     @app.route("/api/v1/chrom-sizes/", methods=["GET"])
     def chrom_sizes():
@@ -99,51 +77,49 @@ def create_app(tilesets, name, log_file, log_level, file_ids):
         res_type = request.args.get("type", "tsv")
         incl_cum = request.args.get("cum", False)
 
-        ts = next((ts for ts in list_tilesets() if ts.uuid == uuid), None)
-
+        # filter for tileset
+        ts = next(
+            (ts for ts in _list_tilesets() if ts.uuid == uuid),
+            None)
         if ts is None:
             return jsonify({"error": "Not found"}), 404
+        if not hasattr(ts, 'chromsizes'):
+            return jsonify({"error": "Tileset does not have chrom sizes."})
 
-        data = ts.chromsizes()
-
-        new_data = []
-
+        # list of tuples (chrom, size)
+        data = ts.chromsizes
         if incl_cum:
-            cum = 0
-            for (chrom, size) in data:
-                new_data += [(chrom, size, cum)]
+            data, _data, cum = [], data, 0
+            for chrom, size in _data:
                 cum += size
-
-            for chrom in data.keys():  # dictionaries in py3.6+ are ordered!
-                data[chrom]["offset"] = cum
-                cum += data[chrom]["size"]
+                data.append((chrom, size, cum))
 
         if res_type == "json":
-            # should return
-            # { uuid: {
-            #   'chr1': {'size': 2343, 'offset': 0},
-            #
             if incl_cum:
                 j = {
-                    ts.uuid: dict(
-                        [
-                            (chrom, {"size": size, "offset": offset})
-                            for (chrom, size, offset) in data
-                        ]
-                    )
+                    ts.uuid: {
+                        chrom: {'size': size, 'offset': offset}
+                            for chrom, size, offset in data
+                    }
                 }
             else:
-                j = {ts.uuid: dict([(chrom, {"size": size}) for (chrom, size) in data])}
+                j = {
+                    ts.uuid: {
+                        chrom: {"size": size}
+                            for chrom, size in data
+                    }
+                }
             return jsonify(j)
-
         elif res_type == "tsv":
             if incl_cum:
                 return "\n".join(
-                    "{}\t{}\t{}".format(chrom, size, cum) for chrom, size, cum in data
+                    "{}\t{}\t{}".format(chrom, size, offset)
+                        for chrom, size, offset in data
                 )
             else:
-                return "\n".join("{}\t{}".format(chrom, size) for chrom, size in data)
-
+                return "\n".join("{}\t{}".format(chrom, size)
+                        for chrom, size in data
+                )
         else:
             return jsonify({"error": "Unknown response type"}), 500
 
@@ -151,24 +127,25 @@ def create_app(tilesets, name, log_file, log_level, file_ids):
     def uids_by_filename():
         return jsonify(
             {
-                "count": len(TILESETS),
-                "results": {i: TILESETS[i] for i in range(len(TILESETS))},
+                "count": len(tilesets),
+                "results": {i: tilesets[i] for i in range(len(tilesets))},
             }
         )
+
+    def _list_tilesets():
+        return tilesets + list(remote_tilesets.values())
 
     @app.route("/api/v1/tilesets/", methods=["GET"])
-    def tilesets():
+    def list_tilesets():
+        tsets = _list_tilesets()
         return jsonify(
             {
-                "count": len(TILESETS),
+                "count": len(tsets),
                 "next": None,
                 "previous": None,
-                "results": [ts.meta for ts in TILESETS],
+                "results": [ts.meta for ts in tsets],
             }
         )
-
-    def list_tilesets():
-        return TILESETS + list(remote_tilesets.values())
 
     @app.route("/api/v1/tileset_info/", methods=["GET"])
     def tileset_info():
@@ -176,7 +153,9 @@ def create_app(tilesets, name, log_file, log_level, file_ids):
 
         info = {}
         for uuid in uuids:
-            ts = next((ts for ts in list_tilesets() if ts.uuid == uuid), None)
+            ts = next(
+                (ts for ts in _list_tilesets() if ts.uuid == uuid),
+                None)
 
             if ts is not None:
                 info[uuid] = ts.tileset_info()
@@ -197,7 +176,9 @@ def create_app(tilesets, name, log_file, log_level, file_ids):
 
         tiles = []
         for uuid, tids in uuids_to_tids.items():
-            ts = next((ts for ts in list_tilesets() if ts.uuid == uuid), None)
+            ts = next(
+                (ts for ts in _list_tilesets() if ts.uuid == uuid),
+                None)
             tiles.extend(ts.tiles(tids))
         data = {tid: tval for tid, tval in tiles}
         return jsonify(data)
@@ -300,6 +281,27 @@ class FuseProcess:
         except Exception as ex:
             pass
 
+    def get_filepath(self, filepath):
+        """
+        Get the filepath from a tileset definition
+
+        Parameters
+        ----------
+        tileset_def: { 'filepath': ..., 'uid': ..., 'filetype': ...}
+            The tileset definition
+
+        Returns
+        -------
+        str
+            The filepath, either as specified in the tileset_def or
+            None
+
+        """
+        if filepath[:7] == "http://":
+            return self.http_directory + filepath[6:] + ".."
+        if filepath[:8] == "https://":
+            return self.https_directory + filepath[7:] + ".."
+
 
 class Server:
     """
@@ -332,7 +334,6 @@ class Server:
         self.port = port
         self.tmp_dir = tmp_dir
         self.file_ids = dict()
-
         self.fuse_process = FuseProcess(tmp_dir)
         self.fuse_process.setup()
 
@@ -358,6 +359,7 @@ class Server:
             log_file=log_file,
             log_level=log_level,
             file_ids=self.file_ids,
+            fuse=self.fuse_process
         )
 
         # we're going to assign a uuid to each server process so that if anything
@@ -447,9 +449,3 @@ class Server:
     @property
     def api_address(self):
         return "http://{host}:{port}/api/v1".format(host=self.host, port=self.port)
-
-
-# TMP_DIR = "/tmp/higlass-python/"
-
-# fuse = FuseProcess(TMP_DIR)
-# fuse.setup()

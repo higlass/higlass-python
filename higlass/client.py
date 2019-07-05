@@ -1,5 +1,6 @@
 import json
 import slugid
+import sys
 
 
 track_default_positions = {
@@ -14,6 +15,7 @@ track_default_positions = {
     'horizontal-chromosome-labels': 'top',
     'viewport-projection-center': 'center'
 }
+
 
 class CombinedTrack:
     def __init__(self, tracks, position=None, height=100):
@@ -45,6 +47,7 @@ class CombinedTrack:
 
     def to_dict(self):
         return self.viewconf
+
 
 class Track:
     def __init__(
@@ -99,8 +102,8 @@ class Track:
                 new_track["server"] = server
             else:
                 print(
-                    "Both a tileset object and server and tileset_uuid "
-                    + "were provided, using the tileset object",
+                    "Both a tileset object and server and tileset_uuid " +
+                    "were provided, using the tileset object",
                     file=sys.stderr,
                 )
         if server is not None and file_url is not None and filetype is not None:
@@ -239,9 +242,7 @@ class View:
 
 
 class ViewConf:
-    def __init__(self, views=[],
-        location_syncs=[],
-        zoom_syncs=[]):
+    def __init__(self, views=[], location_syncs=[], zoom_syncs=[]):
 
         self.viewconf = {
             "editable": True,
@@ -260,6 +261,9 @@ class ViewConf:
             self.add_zoom_sync(zoom_sync)
 
         pass
+
+    def __repr__(self):
+        return json.dumps(self.to_dict(), indent=2)
 
     def add_sync(self, locks_name, views_to_sync):
         lock_id = slugid.nice()
@@ -320,6 +324,7 @@ class ViewConf:
             viewconf["views"] += [view.to_dict()]
 
         return viewconf
+
 
 def datatype_to_tracktype(datatype):
     '''

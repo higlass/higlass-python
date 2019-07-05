@@ -1,5 +1,7 @@
 ** Next release **
 
+## [v0.1.11](https://github.com/higlass/higlass-python/compare/v0.1.10...v0.1.11)
+
 - Convenience function for loading 2d labelled points from a dataframe.
 - Remove Flask-related debugging and uninformative logs
 - Add `__repr__` to `ViewConf` for convenience

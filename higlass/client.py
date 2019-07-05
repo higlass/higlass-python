@@ -1,19 +1,36 @@
+import warnings
 import json
 import slugid
 import sys
 
 
-track_default_positions = {
-    'top-axis': 'top',
-    'left-axis': 'left',
-    'horizontal-line': 'top',
-    'heatmap': 'center',
-    'horizontal-heatmap': 'top',
-    'osm-tiles': 'center',
+__all__ = ['Track', 'CombinedTrack', 'View', 'ViewConf']
+
+
+_track_default_position = {
+    '2d-rectangle-domains': 'center',
+    'bedlike': 'top',
     'horizontal-bar': 'top',
-    'horizontal-multivec': 'top',
     'horizontal-chromosome-labels': 'top',
-    'viewport-projection-center': 'center'
+    'horizontal-gene-annotations': 'top',
+    'horizontal-heatmap': 'top',
+    'horizontal-line': 'top',
+    'horizontal-multivec': 'top',
+    'heatmap': 'center',
+    'left-axis': 'left',
+    'osm-tiles': 'center',
+    'top-axis': 'top',
+    'viewport-projection-center': 'center',
+}
+
+
+_datatype_default_track = {
+    '2d-rectangle-domains': '2d-rectangle-domains',
+    'bedlike': 'bedlike',
+    'chromsizes': 'horizontal-chromosome-labels',
+    'gene-annotations': 'horizontal-gene-annotations',
+    'matrix': 'heatmap',
+    'vector': 'horizontal-bar',
 }
 
 
@@ -64,7 +81,6 @@ class Track:
         fromViewUid=None,
         options={},
     ):
-
         """
         Add a track to a position.
 
@@ -101,11 +117,9 @@ class Track:
                 new_track["tilesetUid"] = tileset_uuid
                 new_track["server"] = server
             else:
-                print(
-                    "Both a tileset object and server and tileset_uuid " +
-                    "were provided, using the tileset object",
-                    file=sys.stderr,
-                )
+                warnings.warn(
+                    "Both a tileset object and server and tileset_uuid "
+                    "were provided, using the tileset object")
         if server is not None and file_url is not None and filetype is not None:
             new_track["server"] = server
             new_track["fileUrl"] = file_url
@@ -118,8 +132,8 @@ class Track:
             new_track['fromViewUid'] = fromViewUid
 
         if position is None:
-            if track_type in track_default_positions:
-                position = track_default_positions[track_type]
+            if track_type in _track_default_position:
+                position = _track_default_position[track_type]
 
         self.tileset = tileset
         self.viewconf = new_track
@@ -260,8 +274,6 @@ class ViewConf:
         for zoom_sync in zoom_syncs:
             self.add_zoom_sync(zoom_sync)
 
-        pass
-
     def __repr__(self):
         return json.dumps(self.to_dict(), indent=2)
 
@@ -271,7 +283,8 @@ class ViewConf:
             if lock_id not in self.viewconf[locks_name]['locksDict']:
                 self.viewconf[locks_name]['locksDict'][lock_id] = {}
 
-            self.viewconf[locks_name]["locksDict"][lock_id][view_uid] = (1, 1, 1)
+            self.viewconf[locks_name]["locksDict"][lock_id][view_uid] = (
+                1, 1, 1)
             self.viewconf[locks_name]["locksByViewUid"][view_uid] = lock_id
 
     def add_zoom_sync(self, views_to_sync=[]):
@@ -315,7 +328,7 @@ class ViewConf:
         """
         Add a location lock between two views.
         """
-        pass
+        raise NotImplementedError
 
     def to_dict(self):
         viewconf = json.loads(json.dumps(self.viewconf))
@@ -331,26 +344,17 @@ def datatype_to_tracktype(datatype):
     Infer a default track type from a data type. There can
     be other track types that can display a given data type.
 
-    Parameters:
-    -----------
-    datatype: string
+    Parameters
+    ----------
+    datatype: str
         A datatype identifier (e.g. 'matrix')
 
-    Returns:
-    --------
-    string: A track type (e.g. 'heatmap')
-    '''
-    if datatype == 'matrix':
-        return ('heatmap', 'center')
-    if datatype == 'vector':
-        return ('horizontal-bar', 'top')
-    if datatype == 'gene-annotations':
-        return ('horizontal-gene-annotations', 'top')
-    if datatype == 'chromsizes':
-        return ('horizontal-chromosome-labels', 'top')
-    if datatype == '2d-rectangle-domains':
-        return ('2d-rectangle-domains', 'center')
-    if datatype == 'bedlike':
-        return ('bedlike', 'top')
+    Returns
+    -------
+    str, str:
+        A track type (e.g. 'heatmap') and position (e.g. 'top')
 
-    return (None, None)
+    '''
+    track_type = _datatype_default_track.get(datatype, None)
+    position = _track_default_position.get(track_type, None)
+    return track_type, position

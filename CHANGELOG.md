@@ -1,5 +1,7 @@
 ** Next release **
 
+- Expose dark mode in `higlass.display(dark_mode=True)`
+
 ## [v0.1.11](https://github.com/higlass/higlass-python/compare/v0.1.10...v0.1.11)
 
 - Convenience function for loading 2d labelled points from a dataframe.

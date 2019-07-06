@@ -14,6 +14,7 @@ _track_default_position = {
     'horizontal-chromosome-labels': 'top',
     'horizontal-gene-annotations': 'top',
     'horizontal-heatmap': 'top',
+    'horizontal-1d-heatmap': 'top',
     'horizontal-line': 'top',
     'horizontal-multivec': 'top',
     'heatmap': 'center',

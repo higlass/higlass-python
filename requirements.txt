@@ -5,6 +5,7 @@ flask-cors
 fusepy
 ipywidgets
 multiprocess
+requests
 sh
 simple-httpfs
 slugid>=2.0.0

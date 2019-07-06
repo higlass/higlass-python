@@ -338,17 +338,45 @@ class ViewConf(Component):
         return view
 
     @classmethod
-    def from_dict(cls, dct):
+    def from_link(cls, url):
+
+        from urllib.parse import urlsplit, urlunsplit, parse_qs
+        import requests
+
+        # parts: 'scheme://netloc/path?query#fragment'
+        parts = urlsplit(url)
+        query = parse_qs(parts.query)
+        if parts.path.strip('/') == 'app':
+            if 'config' not in query:
+                raise ValueError('Viewconf ID not found in query')
+            conf_id = query['config'][0]
+        elif parts.path.strip('/') in ('api/v1/viewconfs', 'l', 'link'):
+            if 'd' not in query:
+                raise ValueError('Viewconf ID not found in query')
+            conf_id = query['d'][0]
+        else:
+            raise ValueError('Not a valid viewconf server')
+
+        endpoint = urlunsplit((
+            parts.scheme, parts.netloc,
+            'api/v1/viewconfs', 'd=' + conf_id, ''))
+
+        conf = requests.get(endpoint).json()
+
+        return cls.from_dict(conf)
+
+    @classmethod
+    def from_dict(cls, conf):
         self = cls()
 
-        for view_dct in dct.get('views', []):
+        for view_dct in conf.get('views', []):
             self.add_view(View.from_dict(view_dct))
 
-        locks = dct.get('locationLocks', {}).get('locksDict', {})
+        locks = conf.get('locationLocks', {}).get('locksDict', {})
         for lock_id, attrs in locks.items():
             self._add_sync('locationLocks', lock_id, attrs.keys())
 
-        locks = dct.get('zoomLocks', {}).get('locksDict', {})
+        locks = conf.get('zoomLocks', {}).get('locksDict', {})
         for lock, attrs in locks.items():
             self._add_sync('zoomLocks', lock_id, attrs.keys())
 

@@ -21,6 +21,12 @@ var HiGlassDisplayModel = widgets.DOMWidgetModel.extend({
 // Custom View. Renders the widget model.
 var HiGlassDisplayView = widgets.DOMWidgetView.extend({
   render: function() {
+    var viewConfig = this.model.get('viewconf');
+    var height = this.model.get('height');
+    var hgOptions = this.model.get('hg_options');
+
+    var borderColor = hgOptions.isDarkTheme ? '#333333' : '#dddddd'
+
     this.hgcontainer = document.createElement('div');
     this.hgdisplay = document.createElement('div');
     this.hgdisplay.style.border = '1px solid #dddddd';
@@ -28,10 +34,6 @@ var HiGlassDisplayView = widgets.DOMWidgetView.extend({
 
     this.hgcontainer.appendChild(this.hgdisplay);
     this.el.appendChild(this.hgcontainer);
-
-    var viewConfig = this.model.get('viewconf');
-    var height = this.model.get('height');
-    var hgOptions = this.model.get('hg_options');
 
     if (height) {
       this.hgdisplay.style.height = height + 'px';

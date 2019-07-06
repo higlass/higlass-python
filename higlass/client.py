@@ -111,9 +111,9 @@ class Track(Component):
         '''
         Change one of the track's options in the viewconf
         '''
-        new_options = self.conf['options'].copy()
-        new_options.update(kwargs)
-        return self.change_attributes(options=new_options)
+        options = self.conf['options'].copy()
+        options.update(kwargs)
+        return self.change_attributes(options=options)
 
     @classmethod
     def from_dict(cls, conf):
@@ -159,7 +159,6 @@ class CombinedTrack(Track):
         else:
             tracks = []
         return cls(tracks, **conf)
-
 
 
 class View(Component):
@@ -218,18 +217,13 @@ class View(Component):
 
         Parameters
         ----------
-        track_type: string
-            The type of track to add (e.g. "heatmap", "line")
+        track : :class:`Track`
+            Track to add.
         position : {'top', 'bottom', 'center', 'left', 'right'}
-            Location for the track within the view
-        tileset: hgflask.tilesets.Tileset
-            The tileset to be plotted in this track
-        server: string
-            The server serving this track
-        height: int
-            The height of the track, if it is a top, bottom or a center track
-        width: int
-            The width of the track, if it is a left, right or a center track
+            Location of track on the view. If not provided, we look for an
+            assigned ``position`` attribute in ``track``. If it does not exist,
+            we fall back on a default position if the track type has one.
+
         """
         track_type = track.conf['type']
         if position is None:
@@ -238,8 +232,18 @@ class View(Component):
             elif track_type in _track_default_position:
                 position = _track_default_position[track_type]
             else:
-                raise ValueError('Track position is required.')
+                raise ValueError('A track position is required.')
         self._track_position[track] = position
+
+    def create_track(self, track_type, **kwargs):
+        if track_type == 'combined':
+            klass = CombinedTrack
+        else:
+            klass = Track
+        position = kwargs.pop('position', None)
+        track = klass(track_type=track_type, **kwargs)
+        self.add_track(track, position)
+        return track
 
     @classmethod
     def from_dict(cls, conf):
@@ -317,27 +321,18 @@ class ViewConf(Component):
 
         Parameters
         ----------
-        uid: string
-            The uid of new view
-        width: int
-            The width of this of view on a 12 unit grid
-        height: int
-            The height of the this view. The height is proportional
-            to the height of all the views present.
-        x: int
-            The position of this view on the grid
-        y: int
-            The position of this view on the grid
-        initialXDoamin: [int, int]
-            The initial x range of the view
-        initialYDomain: [int, int]
-            The initial y range of the view
+        view: :class:`View`
+            View object to add
 
         """
         for uid in self.views.keys():
             if uid == view.uid:
                 raise ValueError("View with this uid already exists")
         self.views[view.uid] = view
+
+    def create_view(self, *args, **kwargs):
+        view = View(*args, **kwargs)
+        self.add_view(view)
         return view
 
     @classmethod

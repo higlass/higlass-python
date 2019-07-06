@@ -155,8 +155,9 @@ class CombinedTrack(Track):
     @classmethod
     def from_dict(cls, conf):
         if 'contents' in conf:
-            tracks = [Track.from_dict(track_conf)
-                      for track_conf in conf.copy().pop('contents')]
+            conf = conf.copy()
+            contents = conf.pop('contents')
+            tracks = [Track.from_dict(track_conf) for track_conf in contents]
         else:
             tracks = []
         return cls(tracks, **conf)

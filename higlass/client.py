@@ -149,7 +149,6 @@ class CombinedTrack(Track):
         self.conf = {
             'type': 'combined',
             'height': height,
-            'contents': [t.to_dict() for t in self.tracks]
         }
 
     @classmethod
@@ -161,6 +160,11 @@ class CombinedTrack(Track):
         else:
             tracks = []
         return cls(tracks, **conf)
+
+    def to_dict(self):
+        conf = self.conf.copy()
+        conf['contents'] = [t.to_dict() for t in self.tracks]
+        return conf
 
 
 class View(Component):

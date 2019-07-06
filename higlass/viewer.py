@@ -83,13 +83,13 @@ def display(
 
     return (
         HiGlassDisplay(
-            viewconf=conf.to_dict(),
+            viewconf=viewconf.to_dict(),
             hg_options={
                 'isDarkTheme': dark_mode
             }
         ),
         server,
-        conf
+        viewconf
     )
 
 

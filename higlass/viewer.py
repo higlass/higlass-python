@@ -41,6 +41,7 @@ def display(
     zoom_syncs=[],
     host='localhost',
     server_port=None,
+    dark_mode=False,
     log_level=logging.ERROR
 ):
     '''
@@ -80,7 +81,16 @@ def display(
         location_syncs=location_syncs,
         zoom_syncs=zoom_syncs)
 
-    return HiGlassDisplay(viewconf=viewconf.to_dict()), server, viewconf
+    return (
+        HiGlassDisplay(
+            viewconf=conf.to_dict(),
+            hg_options={
+                'isDarkTheme': dark_mode
+            }
+        ),
+        server,
+        conf
+    )
 
 
 def view(tilesets):

@@ -48,7 +48,7 @@ def display(
     Instantiate a HiGlass display with the given views
     '''
     from .server import Server
-    from .client import View, ViewConf
+    from .client import CombinedTrack, View, ViewConf
     tilesets = []
 
     for view in views:
@@ -68,7 +68,7 @@ def display(
 
     for view in cloned_views:
         for track in view.tracks:
-            if hasattr(track, 'tracks'):
+            if isinstance(track, CombinedTrack):
                 for track1 in track.tracks:
                     if ('server' not in track1.conf or
                             track1.conf['server'] is None):

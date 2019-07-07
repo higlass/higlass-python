@@ -265,8 +265,12 @@ class View(Component):
         )
         for position in conf.get('tracks', {}):
             for track_conf in conf['tracks'][position]:
+                if track_conf['type'] == 'combined':
+                    klass = CombinedTrack
+                else:
+                    klass = Track
                 self.add_track(
-                    track=Track.from_dict(track_conf),
+                    track=klass.from_dict(track_conf),
                     position=position)
         return self
 

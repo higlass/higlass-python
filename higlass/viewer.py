@@ -48,7 +48,7 @@ def display(
     Instantiate a HiGlass display with the given views
     '''
     from .server import Server
-    from .client import ViewConf
+    from .client import View, ViewConf
     tilesets = []
 
     for view in views:
@@ -64,7 +64,9 @@ def display(
     server = Server(tilesets, host=host, port=server_port)
     server.start(log_level=log_level)
 
-    for view in views:
+    cloned_views = [View.from_dict(view.to_dict()) for view in views]
+
+    for view in cloned_views:
         for track in view.tracks:
             if hasattr(track, 'tracks'):
                 for track1 in track.tracks:
@@ -77,7 +79,7 @@ def display(
                     track.conf['server'] = server.api_address
 
     viewconf = ViewConf(
-        views,
+        cloned_views,
         location_syncs=location_syncs,
         zoom_syncs=zoom_syncs)
 

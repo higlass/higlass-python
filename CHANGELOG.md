@@ -1,10 +1,11 @@
 ** Next release **
 
 - Expose dark mode in `higlass.display(dark_mode=True)`
+- Do not mutate track objects in `higlass.display()` for reusability
 
 ## [v0.1.11](https://github.com/higlass/higlass-python/compare/v0.1.10...v0.1.11)
 
-- Convenience function for loading 2d labelled points from a dataframe.
+- Convenience function for loading 2d labeled points from a dataframe.
 - Remove Flask-related debugging and uninformative logs
 - Add `__repr__` to `ViewConf` for convenience
 

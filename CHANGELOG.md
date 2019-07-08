@@ -1,7 +1,10 @@
 ** Next release **
 
+## [v0.1.12](https://github.com/higlass/higlass-python/compare/v0.1.11...v0.1.12)
+
 - Expose dark mode in `higlass.display(dark_mode=True)`
 - Do not mutate track objects in `higlass.display()` for reusability
+- Further API cleaning. `ViewConf.views` is a list of views now
 
 ## [v0.1.11](https://github.com/higlass/higlass-python/compare/v0.1.10...v0.1.11)
 

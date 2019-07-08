@@ -3,7 +3,7 @@ cytoolz
 flask
 flask-cors
 fusepy
-ipywidgets
+ipywidgets==7.4.2
 multiprocess
 requests
 sh

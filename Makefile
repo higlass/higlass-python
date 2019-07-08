@@ -16,10 +16,11 @@ build:
 
 clean-py:
 	rm -rf build/
+	rm -rf dist/
 
 clean-js:
-	rm -rf higlass/static/
 	rm -rf js/dist/
+	rm -rf higlass/static/
 
 clean-npm:
 	rm -rf js/node_modules/

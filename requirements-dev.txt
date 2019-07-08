@@ -1,5 +1,6 @@
+-r requirements.txt
 numpy
 ipython
 jupyter
-jupyterlab
+jupyterlab<1.0
 pytest

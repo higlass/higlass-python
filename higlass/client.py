@@ -1,3 +1,4 @@
+from copy import deepcopy
 import warnings
 import json
 import slugid
@@ -55,8 +56,8 @@ class Track(Component):
     ----------
     track_type : str
         The type of track (e.g. 'heatmap', 'line')
-    tileset : uuid or :class:`Tileset`
-        The of uuid of the tileset being displayed in this track
+    tileset : :class:`Tileset`
+        A Tileset being displayed in this track
     file_url: str
         An http accessible tileset file
     filetype : str
@@ -72,7 +73,7 @@ class Track(Component):
 
     """
     def __init__(self, track_type=None, position=None, tileset=None,
-                 file_url=None, filetype=None, **kwargs):
+                 file_url=None, filetype=None, options=None, **kwargs):
         if track_type is None:
             if 'type' in kwargs:
                 track_type = kwargs.pop('type')
@@ -83,17 +84,19 @@ class Track(Component):
         self.tileset = tileset
 
         # populate the actual config
-        self.conf = {"type": track_type, "options": {}}
+        self.conf = {"type": track_type}
         if tileset is not None:
-            if isinstance(tileset, str):
-                self.conf["tilesetUid"] = tileset
-            else:
-                self.conf["tilesetUid"] = tileset.uuid
+            self.conf["tilesetUid"] = tileset.uuid
         elif 'tileset_uuid' in kwargs:
             self.conf['tilesetUid'] = kwargs.pop('tileset_uuid')
         elif file_url is not None and filetype is not None:
             self.conf["fileUrl"] = file_url
             self.conf["filetype"] = filetype
+
+        if options is None:
+            options = {}
+        else:
+            self.conf['options'] = deepcopy(options)
 
         self.conf.update(kwargs)
 
@@ -298,7 +301,8 @@ class ViewConf(Component):
             "exportViewUrl": "http://higlass.io/api/v1/viewconfs",
         }
 
-        self.views = {}
+        self._views_by_id = {}
+
         for view in views:
             self.add_view(view)
 
@@ -307,6 +311,10 @@ class ViewConf(Component):
 
         for zoom_sync in zoom_syncs:
             self.add_zoom_sync(zoom_sync)
+
+    @property
+    def views(self):
+        return list(self._views_by_id.values())
 
     def _add_sync(self, lock_group, lock_id, view_uids):
         for view_uid in view_uids:
@@ -335,10 +343,10 @@ class ViewConf(Component):
             View object to add
 
         """
-        for uid in self.views.keys():
+        for uid in self._views_by_id.keys():
             if uid == view.uid:
                 raise ValueError("View with this uid already exists")
-        self.views[view.uid] = view
+        self._views_by_id[view.uid] = view
 
     def create_view(self, *args, **kwargs):
         view = View(*args, **kwargs)
@@ -392,7 +400,7 @@ class ViewConf(Component):
 
     def to_dict(self):
         conf = json.loads(json.dumps(self.conf))
-        for view in self.views.values():
+        for view in self.views:
             conf["views"].append(view.to_dict())
         return conf
 

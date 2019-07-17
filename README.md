@@ -39,7 +39,7 @@ jupyter nbextension install --py --sys-prefix higlass
 jupyter nbextension enable --py --sys-prefix higlass
 ```
 
-#### Jupyter notebook integration
+#### JupyterLab integration
 
 Open a terminal and execute the following code to activate the integration:
 

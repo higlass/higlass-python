@@ -82,3 +82,7 @@ Take a look at [notebooks/Examples.ipynb](notebooks/Examples.ipynb) on how to ge
    ```bash
    cd js && jupyter labextension link .
    ```
+
+### Trouble Shooting
+
+- If you are running JupyterLab `v1.x` and ipywidgets `v7.5` and the HiGlass widget is not being displayed! Then you might have an incompatible widget installed that makes all other widgets fail. Try to deinstall all other widgets to test HiGlass separately before submitting a ticket. For more information see https://github.com/jupyter-widgets/ipywidgets/issues/2483#issuecomment-508643088

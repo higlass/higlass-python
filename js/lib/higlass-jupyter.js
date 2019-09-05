@@ -20,16 +20,15 @@ var HiGlassDisplayModel = widgets.DOMWidgetModel.extend({
 
 // Custom View. Renders the widget model.
 var HiGlassDisplayView = widgets.DOMWidgetView.extend({
-  render: function() {
+  render: function render() {
     var viewConfig = this.model.get('viewconf');
     var height = this.model.get('height');
     var hgOptions = this.model.get('hg_options');
 
-    var borderColor = hgOptions.isDarkTheme ? '#333333' : '#dddddd'
-
     this.hgcontainer = document.createElement('div');
     this.hgdisplay = document.createElement('div');
-    this.hgdisplay.style.border = '1px solid #dddddd';
+    this.hgdisplay.style.border = hgOptions.theme === 'dark'
+      ? '#333333' : '#dddddd';
     this.hgdisplay.style.borderRadius = '2px';
 
     this.hgcontainer.appendChild(this.hgdisplay);
@@ -46,14 +45,47 @@ var HiGlassDisplayView = widgets.DOMWidgetView.extend({
       }
     }
 
-    hglib.viewer(
-      this.hgdisplay,
-      viewConfig,
-      hgOptions,
-      function (api) {
-        window.hgApi = api;
+    var sendMsgToPython = this.send.bind(this);
+
+    function forwardEvent(eventName) {
+      return function sendMessage() {
+        // This is the same as using ES6's ...args
+        var args = Array.prototype.slice.call(arguments);
+        if (eventName === 'selection') console.log('selected', args);
+        sendMsgToPython({
+          type: eventName,
+          data: args
+        })
+      };
+    }
+
+    this.hg = hglib.viewer(this.hgdisplay, viewConfig, hgOptions);
+
+    window.hgApi = this.hg;
+
+    this.hg.on('location', forwardEvent('location'));
+    this.hg.on('cursorLocation', forwardEvent('cursor_location'));
+    this.hg.on('rangeSelection', forwardEvent('selection'));
+
+    // Listen to messages from the Python world
+    this.model.on("change:select_mode", this.handleChange, this)
+  },
+
+  handleChange: function () {
+    var self = this;
+    var changes = this.model.changedAttributes();
+    Object.keys(changes).forEach(function (key) {
+      var value = changes[key];
+      switch (key) {
+        case 'select_mode':
+          self.hg.activateTool(value && 'select');
+          break;
+
+        default:
+          console.warn('Unknown attribute', key);
+          break;
       }
-    );
+    });
   }
 });
 

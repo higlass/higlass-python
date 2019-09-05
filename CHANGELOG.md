@@ -1,9 +1,13 @@
 ** Next release **
 
-## [v0.1.13](https://github.com/higlass/higlass-python/compare/v0.1.12...v0.1.13)
+## [v0.1.14](https://github.com/higlass/higlass-python/compare/v0.1.13...v0.1.14)
 
 - Add compatibility with JupyterLab `v1` and ipywidgets `v7.5`
 - Bumped HiGlass to `v1.6`
+
+## [v0.1.13](https://github.com/higlass/higlass-python/compare/v0.1.12...v0.1.13)
+
+- Added top-level exports of `view`, `display`, `Tileset`, `Server`, `Track`, `CombinedTrack`, `View`, and `ViewConf`
 
 ## [v0.1.12](https://github.com/higlass/higlass-python/compare/v0.1.11...v0.1.12)
 

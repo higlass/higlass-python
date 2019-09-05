@@ -1,5 +1,12 @@
 ** Next release **
 
+## [v0.2.0](https://github.com/higlass/higlass-python/compare/v0.1.13...v0.2.0)
+
+- Python > JS via traitlets
+  - currently only `select_mode` is implemented
+- JS > Python via event handlers inspired by QGrid. Add an event listener using `widget.on(eventName, handler)` and remove it with `widget.off(eventName)`
+  - `location`, `cursor_location`, and `selection` are supported which correlate to `location`, `cursorLocation`, and `rangeSelection` in the JS world.
+
 ## [v0.1.13](https://github.com/higlass/higlass-python/compare/v0.1.12...v0.1.13)
 
 - Add compatibility with JupyterLab `v1` and ipywidgets `v7.5`

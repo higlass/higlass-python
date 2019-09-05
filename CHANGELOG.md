@@ -1,5 +1,10 @@
 ** Next release **
 
+## [v0.1.13](https://github.com/higlass/higlass-python/compare/v0.1.12...v0.1.13)
+
+- Add compatibility with JupyterLab `v1` and ipywidgets `v7.5`
+- Bumped HiGlass to `v1.6`
+
 ## [v0.1.12](https://github.com/higlass/higlass-python/compare/v0.1.11...v0.1.12)
 
 - Expose dark mode in `higlass.display(dark_mode=True)`
@@ -22,7 +27,7 @@
 
 ## [v0.1.7](https://github.com/higlass/higlass-python/compare/v0.1.1...v0.1.7)
 
-- Bumped higlass version to 1.5.4
+- Bumped higlass version to `v1.5`
 - Added CombinedTrack
 - Added change_atributes and change_options functions
 

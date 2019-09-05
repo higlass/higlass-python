@@ -1,6 +1,6 @@
 {
   "name": "higlass-jupyter",
-  "version": "0.1.13",
+  "version": "0.1.14",
   "description": "HiGlass integration for Jupyter Notebook and Lab",
   "author": "Nezar Abdennur, Peter Kerpedjiev",
   "main": "lib/index.js",

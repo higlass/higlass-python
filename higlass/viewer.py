@@ -50,12 +50,27 @@ class HiGlassDisplay(widgets.DOMWidget):
     _model_module = Unicode("higlass-jupyter").tag(sync=True)
     _view_module_version = Unicode(__version__).tag(sync=True)
     _model_module_version = Unicode(__version__).tag(sync=True)
-
     _model_data = List([]).tag(sync=True)
+
     viewconf = Dict({}).tag(sync=True)
-    hg_options = Dict({}).tag(sync=True)
     height = Int().tag(sync=True)
+
+    # Read-only properties that get updated by HiGlass exclusively
+    location = List([], read_only=True).tag(sync=True)
+    cursor_location = List([], read_only=True).tag(sync=True)
+    selection = List([], read_only=True).tag(sync=True)
+
+    # Short-hand options
+    auth_token = Unicode().tag(sync=True)
+    bounded = Bool(None, allow_none=True).tag(sync=True)
+    default_track_options = Dict({}).tag(sync=True)
+    dark_mode = Bool(False).tag(sync=True)
+    renderer = Unicode().tag(sync=True)
     select_mode = Bool(False).tag(sync=True)
+    selection_on_alt = Bool(False).tag(sync=True)
+    # For any kind of options. Note that whatever is defined in options will
+    # be overwritten by the short-hand options
+    options = Dict({}).tag(sync=True)
 
     def __init__(self, **kwargs):
         self._initialized = False

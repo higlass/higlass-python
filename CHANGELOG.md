@@ -2,10 +2,7 @@
 
 ## [v0.2.0](https://github.com/higlass/higlass-python/compare/v0.1.13...v0.2.0)
 
-- Python > JS via traitlets
-  - currently only `select_mode` is implemented. E.g., `widget.select_mode = True` will enable brushing in HiGlass.
-- JS > Python via event handlers inspired by QGrid. Add an event listener using `widget.on(eventName, handler)` and remove it with `widget.off(eventName)`
-  - `location`, `cursor_location`, and `selection` are supported which correlate to `location`, `cursorLocation`, and `rangeSelection` in the JS world.
+- Implement two-way data bindings via traitlets. See [notebooks/two-way-data-binding.ipynb](notebooks/two-way-data-binding.ipynb) for an example
 
 ## [v0.1.14](https://github.com/higlass/higlass-python/compare/v0.1.13...v0.1.14)
 

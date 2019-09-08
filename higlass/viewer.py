@@ -1,14 +1,11 @@
 import logging
 import ipywidgets as widgets
-from itertools import chain
 from traitlets import (
     Unicode,
     Bool,
     Int,
     Dict,
-    List,
-    All,
-    parse_notifier_name
+    List
 )
 
 from ._version import __version__

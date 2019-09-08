@@ -14,34 +14,6 @@ from traitlets import (
 from ._version import __version__
 
 
-class _EventHandlers(object):
-
-    def __init__(self):
-        self._listeners = {}
-
-    def on(self, names, handler):
-        names = parse_notifier_name(names)
-        for n in names:
-            self._listeners.setdefault(n, []).append(handler)
-
-    def off(self, names, handler):
-        names = parse_notifier_name(names)
-        for n in names:
-            try:
-                if handler is None:
-                    del self._listeners[n]
-                else:
-                    self._listeners[n].remove(handler)
-            except KeyError:
-                pass
-
-    def notify_listeners(self, event, widget):
-        event_listeners = self._listeners.get(event['type'], [])
-        all_listeners = self._listeners.get(All, [])
-        for listener in chain(event_listeners, all_listeners):
-            listener(event, widget)
-
-
 @widgets.register
 class HiGlassDisplay(widgets.DOMWidget):
     _view_name = Unicode("HiGlassDisplayView").tag(sync=True)
@@ -73,72 +45,7 @@ class HiGlassDisplay(widgets.DOMWidget):
     options = Dict({}).tag(sync=True)
 
     def __init__(self, **kwargs):
-        self._initialized = False
         super(HiGlassDisplay, self).__init__(**kwargs)
-        self._handlers = _EventHandlers()
-        self.on_msg(self._handle_higlass_msg)
-        self._initialized = True
-
-    def _handle_higlass_msg(self, widget, content, buffers=None):
-        try:
-            self._handle_higlass_msg_content(content)
-        except Exception as e:
-            self.log.error(e)
-            self.log.exception("Unhandled exception while handling msg")
-
-    def _handle_higlass_msg_content(self, data):
-        """Handle incoming messages from the HiGlass view"""
-        if not self._initialized or 'type' not in data:
-            return
-
-        self._handlers.notify_listeners(data, self)
-
-    def on(self, names, handler):
-        """
-        Setup a handler to be called when a user interacts with the current
-        instance.
-        Parameters
-        ----------
-        names : list, str, All
-            If names is All, the handler will apply to all events.  If a list
-            of str, handler will apply to all events named in the list.  If a
-            str, the handler will apply just the event with that name.
-        handler : callable
-            A callable that is called when the event occurs. Its
-            signature should be ``handler(event, widget)``, where
-            ``event`` is a dictionary and ``widget`` is the HiGlass widget
-            instance that fired the event. The ``event`` dictionary at least
-            holds a ``name`` key which specifies the name of the event that
-            occurred.
-        Notes
-        -----
-        Here's the list of events that you can listen to on QgridWidget
-        instances via the ``on`` method::
-            [
-                'location',
-                'cursor_location',
-                'selection',
-            ]
-        For details about the events please see
-        https://docs.higlass.io/javascript_api.html#public.on
-        """
-        self._handlers.on(names, handler)
-
-    def off(self, names, handler):
-        """
-        Remove an event handler that was registered with the current
-        instance's ``on`` method.
-        Parameters
-        ----------
-        names : list, str, All (default: All)
-            The names of the events for which the specified handler should be
-            uninstalled. If names is All, the specified handler is uninstalled
-            from the list of notifiers corresponding to all events.
-        handler : callable
-            A callable that was previously registered with the current
-            instance's ``on`` method.
-        """
-        self._handlers.off(names, handler)
 
 
 def display(

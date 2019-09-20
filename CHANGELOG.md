@@ -3,6 +3,7 @@
 ## [v0.2.0](https://github.com/higlass/higlass-python/compare/v0.1.13...v0.2.0)
 
 - Implement two-way data bindings via traitlets. See [notebooks/two-way-data-binding.ipynb](notebooks/two-way-data-binding.ipynb) for an example
+- Add `overlays` to `display` and `ViewConf` to be able to define overlays
 
 ## [v0.1.14](https://github.com/higlass/higlass-python/compare/v0.1.13...v0.1.14)
 

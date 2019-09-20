@@ -1,10 +1,14 @@
 import logging
 import ipywidgets as widgets
-from traitlets import Unicode
-# from traitlets import default
-from traitlets import List
-from traitlets import Dict
-from traitlets import Int
+from traitlets import (
+    Bool,
+    Dict,
+    Float,
+    Int,
+    List,
+    Unicode,
+    Union,
+)
 
 from ._version import __version__
 
@@ -17,28 +21,39 @@ class HiGlassDisplay(widgets.DOMWidget):
     _model_module = Unicode("higlass-jupyter").tag(sync=True)
     _view_module_version = Unicode(__version__).tag(sync=True)
     _model_module_version = Unicode(__version__).tag(sync=True)
-
     _model_data = List([]).tag(sync=True)
+
     viewconf = Dict({}).tag(sync=True)
-    hg_options = Dict({}).tag(sync=True)
     height = Int().tag(sync=True)
 
+    dom_element_id = Unicode(read_only=True).tag(sync=True)
+
+    # Read-only properties that get updated by HiGlass exclusively
+    location = List(Union([Float(), List()]), read_only=True).tag(sync=True)
+    cursor_location = List([], read_only=True).tag(sync=True)
+    selection = List([], read_only=True).tag(sync=True)
+
+    # Short-hand options
+    auth_token = Unicode().tag(sync=True)
+    bounded = Bool(None, allow_none=True).tag(sync=True)
+    default_track_options = Dict({}).tag(sync=True)
+    dark_mode = Bool(False).tag(sync=True)
+    renderer = Unicode().tag(sync=True)
+    select_mode = Bool(False).tag(sync=True)
+    selection_on_alt = Bool(False).tag(sync=True)
+    # For any kind of options. Note that whatever is defined in options will
+    # be overwritten by the short-hand options
+    options = Dict({}).tag(sync=True)
+
     def __init__(self, **kwargs):
-        # self.viewconf = viewconf
         super(HiGlassDisplay, self).__init__(**kwargs)
-
-    # @default('layout')
-    # def _default_layout(self):
-    #     return widgets.Layout(height='600px', align_self='stretch')
-
-    # def set_data(self, js_data):
-    #     self._model_data = js_data
 
 
 def display(
     views,
     location_syncs=[],
     zoom_syncs=[],
+    overlays=[],
     host='localhost',
     server_port=None,
     dark_mode=False,
@@ -81,13 +96,14 @@ def display(
     viewconf = ViewConf(
         cloned_views,
         location_syncs=location_syncs,
-        zoom_syncs=zoom_syncs)
+        zoom_syncs=zoom_syncs,
+        overlays=overlays)
 
     return (
         HiGlassDisplay(
             viewconf=viewconf.to_dict(),
             hg_options={
-                'isDarkTheme': dark_mode
+                'theme': 'dark' if dark_mode else 'light'
             }
         ),
         server,

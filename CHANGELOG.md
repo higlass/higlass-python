@@ -1,5 +1,11 @@
 ** Next release **
 
+## [v0.2.0](https://github.com/higlass/higlass-python/compare/v0.1.13...v0.2.0)
+
+- Implement two-way data bindings via traitlets. See [notebooks/two-way-data-binding.ipynb](notebooks/two-way-data-binding.ipynb) for an example
+- Add `overlays` to `display` and `ViewConf` to be able to define overlays
+- Store HiGlass' JavaScript API on the widget's root container. This container can be found via a random ID that is stored in `widget.dom_element_id`
+
 ## [v0.1.14](https://github.com/higlass/higlass-python/compare/v0.1.13...v0.1.14)
 
 - Add compatibility with JupyterLab `v1` and ipywidgets `v7.5`

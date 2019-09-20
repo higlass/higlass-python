@@ -290,7 +290,7 @@ class View(Component):
 class ViewConf(Component):
     """Configure a dashboard"""
 
-    def __init__(self, views=[], location_syncs=[], zoom_syncs=[]):
+    def __init__(self, views=[], location_syncs=[], zoom_syncs=[], overlays=[]):
 
         self.conf = {
             "editable": True,
@@ -312,6 +312,9 @@ class ViewConf(Component):
         for zoom_sync in zoom_syncs:
             self.add_zoom_sync(zoom_sync)
 
+        for overlay in overlays:
+            self.add_overlay(overlay)
+
     @property
     def views(self):
         return list(self._views_by_id.values())
@@ -332,6 +335,22 @@ class ViewConf(Component):
         lock_id = slugid.nice()
         # TODO: check that view already exists in viewconf
         self._add_sync("locationLocks", lock_id, [v.uid for v in views_to_sync])
+
+    def add_overlay(self, overlay):
+        if "overlays" not in self.conf:
+            self.conf["overlays"] = []
+
+        try:
+            self.conf['overlays'].append({
+                "uid": "overlay",
+                "includes": overlay["includes"],
+                "type": "",
+                "options": {
+                    "extent": overlay["extent"]
+                }
+            })
+        except KeyError:
+            pass
 
     def add_view(self, view):
         """

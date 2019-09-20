@@ -49,6 +49,7 @@ def display(
     views,
     location_syncs=[],
     zoom_syncs=[],
+    overlays=[],
     host='localhost',
     server_port=None,
     dark_mode=False,
@@ -91,7 +92,8 @@ def display(
     viewconf = ViewConf(
         cloned_views,
         location_syncs=location_syncs,
-        zoom_syncs=zoom_syncs)
+        zoom_syncs=zoom_syncs,
+        overlays=overlays)
 
     return (
         HiGlassDisplay(

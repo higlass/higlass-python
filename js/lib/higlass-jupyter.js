@@ -32,7 +32,16 @@ var HiGlassDisplayView = widgets.DOMWidgetView.extend({
     this.selectionOnAlt = this.model.get('selection_on_alt');
     this.options = this.model.get('options');
 
+    // Create a random 6-letter string
+    // From https://gist.github.com/6174/6062387
+    var randomStr = (
+      Math.random().toString(36).substring(2, 5) +
+      Math.random().toString(36).substring(2, 5)
+    );
+    this.model.set('dom_element_id', randomStr);
+
     this.hgContainer = document.createElement('div');
+    this.hgContainer.setAttribute('id', randomStr);
     this.hgDisplay = document.createElement('div');
     this.hgDisplay.style.border = this.options.theme === 'dark'
       ? '#333333' : '#dddddd';
@@ -43,13 +52,15 @@ var HiGlassDisplayView = widgets.DOMWidgetView.extend({
 
     this.hg = hglib.viewer(this.hgDisplay, this.viewConfig, this.getOptions());
 
-    window.hgApi = this.hg;
+    this.hgContainer.api = this.hg;
 
     // Listen to events from the JavaScript world
-    this.hg.on('location', this.setLocation.bind(this));
     this.hg.on('cursorLocation', this.setCursorLocation.bind(this));
     this.hg.on('rangeSelection', this.setSelection.bind(this));
     this.hg.on('viewConfig', this.setViewConfig.bind(this));
+
+    this.locationListeners = [];
+    this.setupLocationListeners();
 
     // Listen to messages from the Python world
     this.model.on("change:height", this.handleChange, this);
@@ -78,6 +89,23 @@ var HiGlassDisplayView = widgets.DOMWidgetView.extend({
     });
   },
 
+  setupLocationListeners: function() {
+    function removeLocationListener(locationListener) {
+      this.hg.off('location', locationListener);
+    }
+    this.locationListeners.forEach(removeLocationListener.bind(this));
+    this.locationListeners = [];
+    function addLocationListener(view, index) {
+      this.locationListeners.push(this.hg.on(
+        'location',
+        this.setLocation(index, this.viewConfig.views.length === 1),
+        view.uid
+      ));
+    }
+    this.viewConfig.views.forEach(addLocationListener.bind(this))
+
+  },
+
   setCursorLocation: function (cursorLocation) {
     this.model.set('cursor_location', [
       cursorLocation.dataX,
@@ -86,16 +114,24 @@ var HiGlassDisplayView = widgets.DOMWidgetView.extend({
     this.model.save_changes();
   },
 
-  setLocation: function (location) {
-    var loc = [
-      location.xDomain[0],
-      location.xDomain[1],
-      location.yDomain[0],
-      location.yDomain[1]
-    ];
-    this.model.set('location', loc);
-    this.model.save_changes();
-  },
+  setLocation: function (index, onlyOneView) {
+    function setLocation(location) {
+      var loc = [
+        location.xDomain[0],
+        location.xDomain[1],
+        location.yDomain[0],
+        location.yDomain[1]
+      ];
+      if (!onlyOneView) {
+        var currentLocations = this.model.get('location').slice();
+        currentLocations[index] = loc;
+        loc = currentLocations;
+      }
+      this.model.set('location', loc);
+      this.model.save_changes();
+    }
+    return setLocation.bind(this);
+   },
 
   setSelection: function (selection) {
     this.model.set('selection', [

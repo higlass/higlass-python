@@ -1,11 +1,13 @@
 import logging
 import ipywidgets as widgets
 from traitlets import (
-    Unicode,
     Bool,
-    Int,
     Dict,
-    List
+    Float,
+    Int,
+    List,
+    Unicode,
+    Union,
 )
 
 from ._version import __version__
@@ -24,8 +26,10 @@ class HiGlassDisplay(widgets.DOMWidget):
     viewconf = Dict({}).tag(sync=True)
     height = Int().tag(sync=True)
 
+    dom_element_id = Unicode(read_only=True).tag(sync=True)
+
     # Read-only properties that get updated by HiGlass exclusively
-    location = List([], read_only=True).tag(sync=True)
+    location = List(Union([Float(), List()]), read_only=True).tag(sync=True)
     cursor_location = List([], read_only=True).tag(sync=True)
     selection = List([], read_only=True).tag(sync=True)
 

@@ -196,7 +196,8 @@ class View(Component):
 
     """
     def __init__(self, tracks=[], x=0, y=0, width=12, height=6,
-                 initialXDomain=None, initialYDomain=None, uid=None):
+                 initialXDomain=None, initialYDomain=None, uid=None,
+                 overlays=[]):
         if uid is None:
             uid = slugid.nice()
         self.uid = uid
@@ -215,6 +216,9 @@ class View(Component):
         self._track_position = {}
         for track in tracks:
             self.add_track(track)
+
+        for overlay in overlays:
+            self.add_overlay(overlay)
 
     @property
     def tracks(self):
@@ -265,6 +269,7 @@ class View(Component):
             initialXDomain=conf.get('initialXDomain', None),
             initialYDomain=conf.get('initialYDomain', None),
             uid=conf.get('uid', None),
+            overlays=conf.get('overlays', []),
         )
         for position in conf.get('tracks', {}):
             for track_conf in conf['tracks'][position]:
@@ -286,11 +291,30 @@ class View(Component):
             conf["tracks"][position].append(track.to_dict())
         return conf
 
+    def add_overlay(self, overlay):
+        if "overlays" not in self.conf:
+            self.conf["overlays"] = []
+
+        try:
+            options = overlay.get("options", {})
+            overlay_conf = {
+                "uid": "overlay",
+                "includes": overlay["includes"],
+                "type": "",
+                "options": {
+                    "extent": overlay.get("extent", [])
+                }
+            }
+            overlay_conf['options'].update(options)
+            self.conf['overlays'].append(overlay_conf)
+        except KeyError:
+            pass
+
 
 class ViewConf(Component):
     """Configure a dashboard"""
 
-    def __init__(self, views=[], location_syncs=[], zoom_syncs=[], overlays=[]):
+    def __init__(self, views=[], location_syncs=[], zoom_syncs=[]):
 
         self.conf = {
             "editable": True,
@@ -312,9 +336,6 @@ class ViewConf(Component):
         for zoom_sync in zoom_syncs:
             self.add_zoom_sync(zoom_sync)
 
-        for overlay in overlays:
-            self.add_overlay(overlay)
-
     @property
     def views(self):
         return list(self._views_by_id.values())
@@ -335,22 +356,6 @@ class ViewConf(Component):
         lock_id = slugid.nice()
         # TODO: check that view already exists in viewconf
         self._add_sync("locationLocks", lock_id, [v.uid for v in views_to_sync])
-
-    def add_overlay(self, overlay):
-        if "overlays" not in self.conf:
-            self.conf["overlays"] = []
-
-        try:
-            self.conf['overlays'].append({
-                "uid": "overlay",
-                "includes": overlay["includes"],
-                "type": "",
-                "options": {
-                    "extent": overlay["extent"]
-                }
-            })
-        except KeyError:
-            pass
 
     def add_view(self, view):
         """

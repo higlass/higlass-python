@@ -1,9 +1,14 @@
 ** Next release **
 
+## [v0.2.1](https://github.com/higlass/higlass-python/compare/v0.2.0...v0.2.1)
+
+- Fixed #30: Example working again
+- Fixed `overlay` property by making it a property of `Views`. Also updated HiGlass to v1.6.11 to properly render overlays.
+
 ## [v0.2.0](https://github.com/higlass/higlass-python/compare/v0.1.13...v0.2.0)
 
 - Implement two-way data bindings via traitlets. See [notebooks/two-way-data-binding.ipynb](notebooks/two-way-data-binding.ipynb) for an example
-- Add `overlays` to `Views` to be able to define overlays
+- Add `overlays` to `display` and `ViewConf` to be able to define overlays
 - Store HiGlass' JavaScript API on the widget's root container. This container can be found via a random ID that is stored in `widget.dom_element_id`
 
 ## [v0.1.14](https://github.com/higlass/higlass-python/compare/v0.1.13...v0.1.14)

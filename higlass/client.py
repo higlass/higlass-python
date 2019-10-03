@@ -217,7 +217,10 @@ class View(Component):
         for track in tracks:
             self.add_track(track)
 
-        for overlay in overlays:
+        for i, overlay in enumerate(overlays):
+            # The uids need to be unique so if no uid is available we need to
+            # define a unique uid before calling `self.add_overlay`.
+            overlay["uid"] = overlay.get("uid", "overlay-{}".format(i))
             self.add_overlay(overlay)
 
     @property
@@ -298,9 +301,9 @@ class View(Component):
         try:
             options = overlay.get("options", {})
             overlay_conf = {
-                "uid": "overlay",
-                "includes": overlay["includes"],
-                "type": "",
+                "uid": overlay.get("uid", "overlay"),
+                "includes": overlay.get("includes", []),
+                "type": overlay.get("type", ""),
                 "options": {
                     "extent": overlay.get("extent", [])
                 }

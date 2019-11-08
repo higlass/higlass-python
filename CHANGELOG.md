@@ -1,8 +1,11 @@
 ** Next release **
 
-## [v0.2.2](https://github.com/higlass/higlass-python/compare/v0.2.1...v0.2.2)
+## [v0.3.0](https://github.com/higlass/higlass-python/compare/v0.2.1...v0.3.0)
 
 - Support multiple overlays and allow to set the `uid` and `type` options manually
+- Add support for value locks via the new `value_scale_syncs` argument of `display()` and `ViewConf`
+- Allow not starting FUSE by passing `no_fuse=True` to `display()`
+- Update the HiGlass JavaScript library to `v1.7`
 
 ## [v0.2.1](https://github.com/higlass/higlass-python/compare/v0.2.0...v0.2.1)
 

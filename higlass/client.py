@@ -1,3 +1,4 @@
+import collections
 from copy import deepcopy
 import warnings
 import json
@@ -317,13 +318,14 @@ class View(Component):
 class ViewConf(Component):
     """Configure a dashboard"""
 
-    def __init__(self, views=[], location_syncs=[], zoom_syncs=[]):
+    def __init__(self, views=[], location_syncs=[], value_scale_syncs=[], zoom_syncs=[]):
 
         self.conf = {
             "editable": True,
             "views": [],
             "trackSourceServers": ["http://higlass.io/api/v1"],
             "locationLocks": {"locksByViewUid": {}, "locksDict": {}},
+            "valueScaleLocks": {"locksByViewUid": {}, "locksDict": {}},
             "zoomLocks": {"locksByViewUid": {}, "locksDict": {}},
             "exportViewUrl": "http://higlass.io/api/v1/viewconfs",
         }
@@ -336,12 +338,54 @@ class ViewConf(Component):
         for location_sync in location_syncs:
             self.add_location_sync(location_sync)
 
+        for value_scale_sync in value_scale_syncs:
+            self.add_value_scale_sync(value_scale_sync)
+
         for zoom_sync in zoom_syncs:
             self.add_zoom_sync(zoom_sync)
 
     @property
     def views(self):
         return list(self._views_by_id.values())
+
+    @property
+    def default_view(self):
+        if len(self.views) == 1:
+            return self.views[0]
+        return None
+
+    def _combine_view_track_uid(self, view_uid, track_uid):
+        return f"{view_uid}.{track_uid}"
+
+    def _extract_view_track_uids(self, definition):
+        if isinstance(definition, collections.Mapping):
+            track_uid = definition["track"]
+            if "view" in definition:
+                view_uid = definition["view_uid"]
+        else:
+            uids = definition.split(".")
+            if len(uids) == 2:
+                view_uid, track_uid = uids
+            else:
+                track_uid = uids[0]
+
+        if self.default_view is not None:
+            view_uid = self.default_view.uid
+
+        return view_uid, track_uid
+
+    def _add_value_sync(self, lock_group, lock_id, definitions):
+        for definition in definitions:
+            v_uid, t_uid = self._extract_view_track_uids(definition)
+            vt_uid = self._combine_view_track_uid(v_uid, t_uid)
+
+            if lock_id not in self.conf[lock_group]['locksDict']:
+                self.conf[lock_group]['locksDict'][lock_id] = {}
+            self.conf[lock_group]["locksDict"][lock_id][vt_uid] = {
+                "view": v_uid,
+                "track": t_uid,
+            }
+            self.conf[lock_group]["locksByViewUid"][vt_uid] = lock_id
 
     def _add_sync(self, lock_group, lock_id, view_uids):
         for view_uid in view_uids:
@@ -359,6 +403,9 @@ class ViewConf(Component):
         lock_id = slugid.nice()
         # TODO: check that view already exists in viewconf
         self._add_sync("locationLocks", lock_id, [v.uid for v in views_to_sync])
+
+    def add_value_scale_sync(self, tracks_to_sync):
+        self._add_value_sync("valueScaleLocks", slugid.nice(), tracks_to_sync)
 
     def add_view(self, view):
         """
@@ -418,6 +465,10 @@ class ViewConf(Component):
         locks = conf.get('locationLocks', {}).get('locksDict', {})
         for lock_id, attrs in locks.items():
             self._add_sync('locationLocks', lock_id, attrs.keys())
+
+        locks = conf.get('valueScaleLocks', {}).get('locksDict', {})
+        for lock_id, attrs in locks.items():
+            self._add_sync('valueScaleLocks', lock_id, attrs.keys())
 
         locks = conf.get('zoomLocks', {}).get('locksDict', {})
         for lock, attrs in locks.items():

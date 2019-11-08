@@ -52,11 +52,13 @@ class HiGlassDisplay(widgets.DOMWidget):
 def display(
     views,
     location_syncs=[],
+    value_scale_syncs=[],
     zoom_syncs=[],
     host='localhost',
     server_port=None,
     dark_mode=False,
-    log_level=logging.ERROR
+    log_level=logging.ERROR,
+    no_fuse=False
 ):
     '''
     Instantiate a HiGlass display with the given views
@@ -75,7 +77,7 @@ def display(
             if track.tileset:
                 tilesets += [track.tileset]
 
-    server = Server(tilesets, host=host, port=server_port)
+    server = Server(tilesets, host=host, port=server_port, no_fuse=no_fuse)
     server.start(log_level=log_level)
 
     cloned_views = [View.from_dict(view.to_dict()) for view in views]
@@ -95,7 +97,9 @@ def display(
     viewconf = ViewConf(
         cloned_views,
         location_syncs=location_syncs,
-        zoom_syncs=zoom_syncs)
+        value_scale_syncs=value_scale_syncs,
+        zoom_syncs=zoom_syncs
+    )
 
     return (
         HiGlassDisplay(

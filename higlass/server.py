@@ -387,7 +387,7 @@ class Server:
             self.app.run,
             threaded=True,
             debug=True,
-            host="0.0.0.0",
+            host=self.host,
             port=self.port,
             use_reloader=False,
         )

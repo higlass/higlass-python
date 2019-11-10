@@ -101,6 +101,21 @@ class Track(Component):
 
         self.conf.update(kwargs)
 
+        if "uid" not in self.conf:
+            self.conf["uid"] = slugid.nice()
+
+    @property
+    def uid(self):
+        return self.conf["uid"]
+
+    @property
+    def options(self):
+        return self.conf["options"]
+
+    @property
+    def type(self):
+        return self.conf["type"]
+
     def change_attributes(self, **kwargs):
         '''
         Change an attribute of this track and return a new copy.
@@ -242,12 +257,11 @@ class View(Component):
             we fall back on a default position if the track type has one.
 
         """
-        track_type = track.conf['type']
         if position is None:
             if track.position is not None:
                 position = track.position
-            elif track_type in _track_default_position:
-                position = _track_default_position[track_type]
+            elif track.type in _track_default_position:
+                position = _track_default_position[track.type]
             else:
                 raise ValueError('A track position is required.')
         self._track_position[track] = position
@@ -350,6 +364,13 @@ class ViewConf(Component):
 
     @property
     def default_view(self):
+        """Default view of the view config
+
+        The default view equals the first view if only one view exist.
+
+        Returns:
+            View -- View instance or ``None`` if more than one view exists.
+        """
         if len(self.views) == 1:
             return self.views[0]
         return None
@@ -358,11 +379,19 @@ class ViewConf(Component):
         return f"{view_uid}.{track_uid}"
 
     def _extract_view_track_uids(self, definition):
-        if isinstance(definition, collections.Mapping):
-            track_uid = definition["track"]
-            if "view" in definition:
-                view_uid = definition["view_uid"]
+        track_uid = None
+        view_uid = None
+
+        if isinstance(definition, tuple):
+            # definition is a tuple of a view and a track instance
+            view_uid = definition[0].uid
+            track_uid = definition[1].uid
+        elif isinstance(definition, Track):
+            # definition is a track instance which assumes that only one view
+            # exists
+            track_uid = definition.uid
         else:
+            # definition is a string
             uids = definition.split(".")
             if len(uids) == 2:
                 view_uid, track_uid = uids
@@ -373,19 +402,6 @@ class ViewConf(Component):
             view_uid = self.default_view.uid
 
         return view_uid, track_uid
-
-    def _add_value_sync(self, lock_group, lock_id, definitions):
-        for definition in definitions:
-            v_uid, t_uid = self._extract_view_track_uids(definition)
-            vt_uid = self._combine_view_track_uid(v_uid, t_uid)
-
-            if lock_id not in self.conf[lock_group]['locksDict']:
-                self.conf[lock_group]['locksDict'][lock_id] = {}
-            self.conf[lock_group]["locksDict"][lock_id][vt_uid] = {
-                "view": v_uid,
-                "track": t_uid,
-            }
-            self.conf[lock_group]["locksByViewUid"][vt_uid] = lock_id
 
     def _add_sync(self, lock_group, lock_id, view_uids):
         for view_uid in view_uids:
@@ -405,7 +421,24 @@ class ViewConf(Component):
         self._add_sync("locationLocks", lock_id, [v.uid for v in views_to_sync])
 
     def add_value_scale_sync(self, tracks_to_sync):
-        self._add_value_sync("valueScaleLocks", slugid.nice(), tracks_to_sync)
+        locks_map = self.conf["valueScaleLocks"]["locksByViewUid"]
+        locks_dict = self.conf["valueScaleLocks"]["locksDict"]
+        lock_id = slugid.nice()
+
+        for definition in tracks_to_sync:
+            v_uid, t_uid = self._extract_view_track_uids(definition)
+
+            if v_uid is None:
+                # If no view UID is found the definition seems to be broken
+                continue
+
+            vt_uid = self._combine_view_track_uid(v_uid, t_uid)
+
+            if lock_id not in locks_dict:
+                locks_dict[lock_id] = {}
+
+            locks_dict[lock_id][vt_uid] = { "view": v_uid, "track": t_uid }
+            locks_map[vt_uid] = lock_id
 
     def add_view(self, view):
         """

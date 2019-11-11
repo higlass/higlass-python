@@ -1,9 +1,20 @@
-import collections
 from copy import deepcopy
-import warnings
 import json
 import slugid
-import sys
+import logging
+import os
+
+
+logger = logging.getLogger()
+fhandler = logging.FileHandler(filename='higlass-python.log', mode='a')
+formatter = logging.Formatter('[%(asctime)s] %(levelname)s in %(module)s: %(message)s')
+fhandler.setFormatter(formatter)
+logger.addHandler(fhandler)
+
+if 'HIGLASS_PYTHON_DEBUG' in os.environ and os.environ['HIGLASS_PYTHON_DEBUG']:
+    logger.setLevel(logging.DEBUG)
+else:
+    logger.setLevel(logging.ERROR)
 
 
 __all__ = ['Track', 'CombinedTrack', 'View', 'ViewConf']
@@ -379,9 +390,6 @@ class ViewConf(Component):
         return f"{view_uid}.{track_uid}"
 
     def _extract_view_track_uids(self, definition):
-        track_uid = None
-        view_uid = None
-
         if isinstance(definition, tuple):
             # definition is a tuple of a view and a track instance
             view_uid = definition[0].uid
@@ -390,15 +398,20 @@ class ViewConf(Component):
             # definition is a track instance which assumes that only one view
             # exists
             track_uid = definition.uid
-        else:
+        elif isinstance(definition, str):
             # definition is a string
             uids = definition.split(".")
             if len(uids) == 2:
                 view_uid, track_uid = uids
             else:
                 track_uid = uids[0]
+        else:
+            logger.warning("Could not extract view and track UID")
+            track_uid = None
+            view_uid = None
 
         if self.default_view is not None:
+            logger.info("Default view is used")
             view_uid = self.default_view.uid
 
         return view_uid, track_uid
@@ -428,8 +441,9 @@ class ViewConf(Component):
         for definition in tracks_to_sync:
             v_uid, t_uid = self._extract_view_track_uids(definition)
 
-            if v_uid is None:
+            if v_uid is None or t_uid is None:
                 # If no view UID is found the definition seems to be broken
+                logger.warning("View or track definition is broken")
                 continue
 
             vt_uid = self._combine_view_track_uid(v_uid, t_uid)

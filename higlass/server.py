@@ -353,7 +353,7 @@ class Server:
             self.fuse_process = FuseProcess(tmp_dir)
             self.fuse_process.setup()
 
-    def start(self, log_file="/tmp/hgserver.log", log_level=logging.INFO):
+    def start(self, log_file="higlass-python.log", log_level=logging.INFO):
         """
         Start a lightweight higlass server.
 

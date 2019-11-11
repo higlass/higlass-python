@@ -323,7 +323,8 @@ class Server:
     diskcache_directory = "/tmp/hgflask/dc"
 
     def __init__(
-        self, tilesets, port=None, host="localhost", tmp_dir="/tmp/hgflask"
+        self, tilesets, port=None, host="localhost", tmp_dir="/tmp/hgflask",
+        no_fuse: bool = False
     ):
         """
         Maintain a reference to a running higlass server
@@ -345,10 +346,14 @@ class Server:
         self.port = port
         self.tmp_dir = tmp_dir
         self.file_ids = dict()
-        self.fuse_process = FuseProcess(tmp_dir)
-        self.fuse_process.setup()
 
-    def start(self, log_file="/tmp/hgserver.log", log_level=logging.INFO):
+        if no_fuse:
+            self.fuse_process = None
+        else:
+            self.fuse_process = FuseProcess(tmp_dir)
+            self.fuse_process.setup()
+
+    def start(self, log_file="higlass-python.log", log_level=logging.INFO):
         """
         Start a lightweight higlass server.
 
@@ -382,7 +387,7 @@ class Server:
             self.app.run,
             threaded=True,
             debug=True,
-            host="0.0.0.0",
+            host=self.host,
             port=self.port,
             use_reloader=False,
         )

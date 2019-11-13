@@ -20,8 +20,7 @@ This package provide access to:
 - Python >= 3.7
 - [FUSE](https://github.com/libfuse/libfuse) or [MacFuse](https://osxfuse.github.io/)
 - Jupyter Notebook >= 5.7
-- Jupyter Lab >= 0.35 & < 1.0
-- ipywidgets <= 7.4.2
+- Jupyter Lab >= 0.35
 
 #### Install package
 

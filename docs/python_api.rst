@@ -1,9 +1,14 @@
-Python API 
+Python API
 ##########
 
-The HiGlass python API provides a functionality for starting a 
+The HiGlass python API provides a functionality for starting a
 lightweight server, creating viewconfs and displaying a HiGlass
 component within Jupyter.
+
+higlass
+*******
+
+.. automethod:: higlass.viewer.display
 
 higlass.server
 **************
@@ -14,6 +19,8 @@ higlass.server
 higlass.client
 **************
 
-.. automethod:: higlass.client.View.__init__
+.. autoclass:: higlass.client.View
+    :members: __init__
 
-.. automethod:: higlass.client.Track.__init__
+.. autoclass:: higlass.client.Track
+    :members: __init__

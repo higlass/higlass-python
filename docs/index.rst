@@ -1,15 +1,16 @@
-=======================================================================
-HiGlass Python: Python Bindings for the HiGlass Multiscale Data Browser
-=======================================================================
+=======================================================
+HiGlass Python
+=======================================================
 
-`HiGlass <http://higlass.io/>`_ is a viewer for multi-scale data, originally designed to handle massive genomic data sets.
-HiGlass is built on a framework inspired by genome browsers and modern online maps (so-called `slippy maps
-<http://wiki.openstreetmap.org/wiki/Slippy_Map>`_) to form a fast, extensible
-and responsive viewer for diverse types of multi-scale data.
+`higlass-python <https://github.com/higlass/higlass-python>`_ is a Python
+library for interacting with the `HiGlass <https://higlass.io` data viewer. It
+provides functionality for composing views and creating Jupyter widgets. See
+the `Getting Started section </getting_started.html>`_ for a quick overview of
+the provided functionality.
 
 .. toctree::
     :hidden:
     :glob:
 
-    jupyter
+    getting_started
     python_api

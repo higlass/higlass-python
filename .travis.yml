@@ -3,7 +3,7 @@ matrix:
     - language: python
       sudo: required
       python:
-        - "3.7"
+        - '3.7'
       cache: apt
       addons:
         apt:
@@ -13,7 +13,8 @@ matrix:
             - liblapack-dev
             - gfortran
       before_install:
-        - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+        - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O
+          miniconda.sh
         - bash miniconda.sh -b -p $HOME/miniconda
         - export PATH="$HOME/miniconda/bin:$PATH"
       install:
@@ -32,13 +33,12 @@ matrix:
           tags: true
           distributions: sdist bdist_wheel
           repo: higlass/higlass-python
-
     - language: node_js
       node_js:
-        - "10"
+        - '10'
       branches:
         only:
-        - master
+          - master
       before_deploy:
         - cd js
       deploy:
@@ -50,3 +50,22 @@ matrix:
           branch: master
           tags: true
           repo: higlass/higlass-python
+deploy:
+  - &s3
+    provider: s3
+    skip_cleanup: true
+    access_key_id: AKIAJ3ZNDMBX5LXM33DQ
+    secret_access_key:
+      secure: VgWmVIrjLad1XXSM2zpOtBN4ne4EsOw8EPtDgcepUzazkWCbiqFej4D3ZrO5H7jIorfDqYM+JR0CFQX8UUlgJhG22qyoDlP7OjyNCriwESA2OKEzuwk22ehjckAYfQbtTdAzWKdeee3M9eOR8gYChrznxQl8tQJ5nDrGB4ISGdQOvoOkf9EU3mSScfOG8cliNhwRIxKUizbD4kNzHo7AlJ6mIcmvfVmugNzqmghlSpeb8ukWN4eB8Bafh0g21e6DVGrixCE5DRRYkKrmt1eqAYv1WUVrFehjMZGRbJmJ4Eqm7aCqCA4vhLbRfhx9CxXlsCKaSwv5EpVOojv1k6KTFU5zzmNwCpUf6KaaS6rFkLGdY2H0ll2uFjq8MjNm4WtdHvbnuPmFkZ2RvJ3ymZ7y7bjiJTi8mXA3qRPjhKMkdCZCzHHH0kF6CWdjewULR+ehvPPqaOYpTL1FAQzbil/FqL3h+dIMrXTV9FXF8u8ZRUv+W3DigaHqPejIy6U+BPpKtHblQD5KiSJwYsMBe4R1tMHx0KgRqFGf0tU4Su2NmqlWxecZFkHaLtlGwK1maFHYPQxyRsgW9w0fdT2tPl1bSUm8T71W1Ql5KwrWHD4tvnNNTpir+qOL8iP7mbslvm5GvHrUFjqRdusPhSJ1eoyGrI6J1R2WG/+BWQLyXNyuN1Y=
+    bucket: docs-python.higlass.io
+    local-dir: docs/_build/html
+    acl: public_read
+    on:
+      branch: master
+  - <<: *s3
+    bucket: docs-python-develop.higlass.io
+    on:
+      branch: develop
+  - <<: *s3
+    bucket: docs-python-latest.higlass.io
+    on:

@@ -1,5 +1,8 @@
 ** Next release **
 
+- Automatically create the genome position search box if there is a chromosome labels track.
+
+
 ## [v0.3.0](https://github.com/higlass/higlass-python/compare/v0.2.1...v0.3.0)
 
 - Support multiple overlays and allow to set the `uid` and `type` options manually

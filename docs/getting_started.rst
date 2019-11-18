@@ -34,8 +34,40 @@ Uninstalling
 
     jupyter nbextension uninstall --py --sys-prefix higlass
 
-Examples
---------
+View extent
+-----------
+
+The extent of a view can be set using the ``initialXDomain`` parameter:
+
+.. code-block:: python
+
+    view1 = View([
+        Track(type='top-axis'),
+    ], initialXDomain=[0,1e7])
+
+Synchronization
+---------------
+
+Views and track can be synchronized by location, zoom level and values scales.
+
+Zoom and Location locks
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Location locks ensure that when one view is panned, all synchronized views pan
+with it. Zoom locks do the same with zoom level. Both can be instantiated by
+passing lists of views to lock to ``higlass.display``. Each set of locked
+views will scroll or zoom (or both) together:
+
+.. code-block:: python
+
+  display, server, viewconf = higlass.display(
+    [view1, view2],
+    location_syncs=[[view1, view2]],
+    zoom_syncs=[[view1, view2]])
+
+
+Other Examples
+--------------
 
 The examples below demonstrate how to use the HiGlass Python API to view
 data locally in a Jupyter notebook or a browser-based HiGlass instance.

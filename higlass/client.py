@@ -241,8 +241,11 @@ class View(Component):
             self.conf["initialYDomain"] = initialYDomain
 
         self._track_position = {}
+
         for track in tracks:
             self.add_track(track)
+
+            print('track.type:', track.type)
 
         for i, overlay in enumerate(overlays):
             # The uids need to be unique so if no uid is available we need to
@@ -275,6 +278,13 @@ class View(Component):
                 position = _track_default_position[track.type]
             else:
                 raise ValueError('A track position is required.')
+
+        if track.type == 'horizontal-chromosome-labels':
+            self.add_chrominfo(track)
+
+        if track.type == 'horizontal-gene-annotations':
+            self.add_autocomplete(track)
+
         self._track_position[track] = position
 
     def create_track(self, track_type, **kwargs):
@@ -306,9 +316,12 @@ class View(Component):
                     klass = CombinedTrack
                 else:
                     klass = Track
+
                 self.add_track(
                     track=klass.from_dict(track_conf),
                     position=position)
+
+
         return self
 
     def to_dict(self):
@@ -318,6 +331,7 @@ class View(Component):
         conf = json.loads(json.dumps(self.conf))
         for track, position in self._track_position.items():
             conf["tracks"][position].append(track.to_dict())
+
         return conf
 
     def add_overlay(self, overlay):
@@ -338,6 +352,36 @@ class View(Component):
             self.conf['overlays'].append(overlay_conf)
         except KeyError:
             pass
+
+    def add_autocomplete(self, track):
+        self.conf["genomePositionSearchBoxVisible"] = True
+
+        if 'genomePositionSearchBox' in self.conf:
+            gpsb = self.conf['genomePositionSearchBox']
+        else:
+            gpsb = {}
+
+        gpsb['autocompleteServer'] = track.conf['server']
+        gpsb['autocompleteId'] = track.conf['tilesetUid']
+        gpsb['visible'] = True
+
+        self.conf['genomePositionSearchBox'] = gpsb
+
+
+    def add_chrominfo(self, track):
+        self.conf["genomePositionSearchBoxVisible"] = True
+
+        if 'genomePositionSearchBox' in self.conf:
+            gpsb = self.conf['genomePositionSearchBox']
+        else:
+            gpsb = {}
+
+
+        gpsb['chromInfoId'] = track.conf['tilesetUid']
+        gpsb['chromInfoServer'] = track.conf['server']
+        gpsb['visible'] = True
+
+        self.conf['genomePositionSearchBox'] = gpsb
 
 
 class ViewConf(Component):

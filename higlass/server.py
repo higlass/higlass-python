@@ -26,11 +26,11 @@ __all__ = ["Server"]
 OS_NAME = platform.system()
 
 # Disable annoying flask logs
-log = logging.getLogger('werkzeug')
+log = logging.getLogger("werkzeug")
 log.setLevel(logging.ERROR)
 log.disabled = True
 # The following line is also needed to turn off all debug logs
-os.environ['WERKZEUG_RUN_MAIN'] = 'true'
+os.environ["WERKZEUG_RUN_MAIN"] = "true"
 
 
 def create_app(tilesets, name, log_file, log_level, file_ids, fuse=None):
@@ -47,11 +47,11 @@ def create_app(tilesets, name, log_file, log_level, file_ids, fuse=None):
     @app.route("/api/v1/register_url/", methods=["POST"])
     def register_url():
         from higlass.tilesets import by_filetype
+
         js = request.json
         if js["filetype"] not in by_filetype:
             return (
-                jsonify({"error":
-                    "Unknown filetype: {}".format(js["filetype"])}),
+                jsonify({"error": "Unknown filetype: {}".format(js["filetype"])}),
                 400,
             )
         if fuse is None:
@@ -86,12 +86,10 @@ def create_app(tilesets, name, log_file, log_level, file_ids, fuse=None):
         incl_cum = request.args.get("cum", False)
 
         # filter for tileset
-        ts = next(
-            (ts for ts in _list_tilesets() if ts.uuid == uuid),
-            None)
+        ts = next((ts for ts in _list_tilesets() if ts.uuid == uuid), None)
         if ts is None:
             return jsonify({"error": "Not found"}), 404
-        if not hasattr(ts, 'chromsizes'):
+        if not hasattr(ts, "chromsizes"):
             return jsonify({"error": "Tileset does not have chrom sizes."})
 
         # list of tuples (chrom, size)
@@ -106,28 +104,21 @@ def create_app(tilesets, name, log_file, log_level, file_ids, fuse=None):
             if incl_cum:
                 j = {
                     ts.uuid: {
-                        chrom: {'size': size, 'offset': offset}
-                            for chrom, size, offset in data
+                        chrom: {"size": size, "offset": offset}
+                        for chrom, size, offset in data
                     }
                 }
             else:
-                j = {
-                    ts.uuid: {
-                        chrom: {"size": size}
-                            for chrom, size in data
-                    }
-                }
+                j = {ts.uuid: {chrom: {"size": size} for chrom, size in data}}
             return jsonify(j)
         elif res_type == "tsv":
             if incl_cum:
                 return "\n".join(
                     "{}\t{}\t{}".format(chrom, size, offset)
-                        for chrom, size, offset in data
+                    for chrom, size, offset in data
                 )
             else:
-                return "\n".join("{}\t{}".format(chrom, size)
-                        for chrom, size in data
-                )
+                return "\n".join("{}\t{}".format(chrom, size) for chrom, size in data)
         else:
             return jsonify({"error": "Unknown response type"}), 500
 
@@ -161,16 +152,12 @@ def create_app(tilesets, name, log_file, log_level, file_ids, fuse=None):
 
         info = {}
         for uuid in uuids:
-            ts = next(
-                (ts for ts in _list_tilesets() if ts.uuid == uuid),
-                None)
+            ts = next((ts for ts in _list_tilesets() if ts.uuid == uuid), None)
 
             if ts is not None:
                 info[uuid] = ts.tileset_info()
             else:
-                info[uuid] = {
-                    "error": "No such tileset with uid: {}".format(uuid)
-                }
+                info[uuid] = {"error": "No such tileset with uid: {}".format(uuid)}
 
         return jsonify(info)
 
@@ -186,9 +173,7 @@ def create_app(tilesets, name, log_file, log_level, file_ids, fuse=None):
 
         tiles = []
         for uuid, tids in uuids_to_tids.items():
-            ts = next(
-                (ts for ts in _list_tilesets() if ts.uuid == uuid),
-                None)
+            ts = next((ts for ts in _list_tilesets() if ts.uuid == uuid), None)
             tiles.extend(ts.tiles(tids))
         data = {tid: tval for tid, tval in tiles}
         return jsonify(data)
@@ -262,27 +247,23 @@ class FuseProcess:
                     ),
                     directory,
                     foreground=False,
-                    #allow_other=True
+                    # allow_other=True
                 )
             except RuntimeError as e:
                 if str(e) != "1":
                     raise e
 
-        proc1 = mp.Process(
-            target=start_fuse, args=[self.http_directory, 'http']
-        )
+        proc1 = mp.Process(target=start_fuse, args=[self.http_directory, "http"])
         proc1.start()
         proc1.join()
 
-        proc2 = mp.Process(
-            target=start_fuse, args=[self.https_directory, 'https']
-        )
+        proc2 = mp.Process(target=start_fuse, args=[self.https_directory, "https"])
         proc2.start()
         proc2.join()
 
     def teardown(self):
         try:
-            if OS_NAME == 'Darwin':
+            if OS_NAME == "Darwin":
                 sh.umount("HttpFs")
                 sh.umount(self.http_directory)
             else:
@@ -291,7 +272,7 @@ class FuseProcess:
             pass
 
         try:
-            if OS_NAME == 'Darwin':
+            if OS_NAME == "Darwin":
                 sh.umount("HttpFs")
                 sh.umount(self.https_directory)
             else:
@@ -323,8 +304,12 @@ class Server:
     diskcache_directory = "/tmp/hgflask/dc"
 
     def __init__(
-        self, tilesets, port=None, host="localhost", tmp_dir="/tmp/hgflask",
-        no_fuse: bool = False
+        self,
+        tilesets,
+        port=None,
+        host="localhost",
+        tmp_dir="/tmp/hgflask",
+        no_fuse: bool = False,
     ):
         """
         Maintain a reference to a running higlass server
@@ -333,7 +318,7 @@ class Server:
         ----------
         port: int
             The port that this server will run on
-        tileset: []
+        tilesets: []
             A list of tilesets to serve (see higlass.tilesets)
         host: string
             The host this server is running on.  Usually just localhost
@@ -374,7 +359,7 @@ class Server:
             log_file=log_file,
             log_level=log_level,
             file_ids=self.file_ids,
-            fuse=self.fuse_process
+            fuse=self.fuse_process,
         )
 
         # we're going to assign a uuid to each server process so that if

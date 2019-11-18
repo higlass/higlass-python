@@ -24,6 +24,9 @@ matrix:
         - python setup.py install
       script:
         - pytest
+      before_deploy:
+        - pip install --user -r docs/requirements.txt
+        - cd docs; ./build.sh; cd -
       deploy:
         - &s3
           provider: s3

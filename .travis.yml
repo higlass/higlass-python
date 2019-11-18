@@ -25,14 +25,32 @@ matrix:
       script:
         - pytest
       deploy:
-        provider: pypi
-        user: nvictus
-        password:
-          secure: K3V+eyTfK1xJaEgQj1Nj+kFcdsFcDiKBOYiNDSqiDL2rMbCmd/ALLDft4481fBzKEK7ZWb8izVVSuOMG9+JnoYPj1jXkj2JUuBVNYmXAiyfZHAiCJPA0D+K/ckryCyvUisXXMhgA1JAWAzayfQdf81NODZWADp05zU2I5NeRNCpMl2l38MtePFZHJXj/ixHt60Ztbw4lvrMDaznhrKQRTNVXy0LV19p+2FrtNEe/lMJVFfFITJ9egOmOY2H9NYGPpGPpZvkQ1aBk8hfeEa9eKXbVkj9xmzyxMXwBETXvr0RciAP4swJeFrbnoI9zEiK/mFOEd7ExuOpqdOnVQnQY6nf8nPUgF6dSWa9RDG6pJhZQ1ZJl5H7pvXVvvLyygeVDNXCuTYGUMEP+G9mByOyLCixkBEf1ee0UyBwaIVHXCg7Ev1Vpn4utUxDMgvZugaSXKuPj+WQKwKZMc/zeIxFEmDO7a7rQrVQXv+sgTuMxIDr4bYEO4Qr94m5VAAFtFtA9VKtZGY9Fw9K24aW+tyiQRKW0KV7RKFSa+hRS/N+Hezuv6Dry/9B6KPazVtnxKRU7hB1ztxVYJxBAGeCdyaIyaHJ4O+MNFej14tHys55DmFqdtrq6b0kX2zqvcfaojbNbgOQlxRTX7fX8AHYyh5aOBrH60Amfbh8e4lsNeE25314=
-        on:
-          tags: true
-          distributions: sdist bdist_wheel
-          repo: higlass/higlass-python
+        - &s3
+          provider: s3
+          skip_cleanup: true
+          access_key_id: AKIAJ3ZNDMBX5LXM33DQ
+          secret_access_key:
+            secure: VgWmVIrjLad1XXSM2zpOtBN4ne4EsOw8EPtDgcepUzazkWCbiqFej4D3ZrO5H7jIorfDqYM+JR0CFQX8UUlgJhG22qyoDlP7OjyNCriwESA2OKEzuwk22ehjckAYfQbtTdAzWKdeee3M9eOR8gYChrznxQl8tQJ5nDrGB4ISGdQOvoOkf9EU3mSScfOG8cliNhwRIxKUizbD4kNzHo7AlJ6mIcmvfVmugNzqmghlSpeb8ukWN4eB8Bafh0g21e6DVGrixCE5DRRYkKrmt1eqAYv1WUVrFehjMZGRbJmJ4Eqm7aCqCA4vhLbRfhx9CxXlsCKaSwv5EpVOojv1k6KTFU5zzmNwCpUf6KaaS6rFkLGdY2H0ll2uFjq8MjNm4WtdHvbnuPmFkZ2RvJ3ymZ7y7bjiJTi8mXA3qRPjhKMkdCZCzHHH0kF6CWdjewULR+ehvPPqaOYpTL1FAQzbil/FqL3h+dIMrXTV9FXF8u8ZRUv+W3DigaHqPejIy6U+BPpKtHblQD5KiSJwYsMBe4R1tMHx0KgRqFGf0tU4Su2NmqlWxecZFkHaLtlGwK1maFHYPQxyRsgW9w0fdT2tPl1bSUm8T71W1Ql5KwrWHD4tvnNNTpir+qOL8iP7mbslvm5GvHrUFjqRdusPhSJ1eoyGrI6J1R2WG/+BWQLyXNyuN1Y=
+          bucket: docs-python.higlass.io
+          local-dir: docs/_build/html
+          acl: public_read
+          on:
+            branch: master
+        - <<: *s3
+          bucket: docs-python-develop.higlass.io
+          on:
+            branch: develop
+        - <<: *s3
+          bucket: docs-python-latest.higlass.io
+          on:
+        - provider: pypi
+          user: nvictus
+          password:
+            secure: K3V+eyTfK1xJaEgQj1Nj+kFcdsFcDiKBOYiNDSqiDL2rMbCmd/ALLDft4481fBzKEK7ZWb8izVVSuOMG9+JnoYPj1jXkj2JUuBVNYmXAiyfZHAiCJPA0D+K/ckryCyvUisXXMhgA1JAWAzayfQdf81NODZWADp05zU2I5NeRNCpMl2l38MtePFZHJXj/ixHt60Ztbw4lvrMDaznhrKQRTNVXy0LV19p+2FrtNEe/lMJVFfFITJ9egOmOY2H9NYGPpGPpZvkQ1aBk8hfeEa9eKXbVkj9xmzyxMXwBETXvr0RciAP4swJeFrbnoI9zEiK/mFOEd7ExuOpqdOnVQnQY6nf8nPUgF6dSWa9RDG6pJhZQ1ZJl5H7pvXVvvLyygeVDNXCuTYGUMEP+G9mByOyLCixkBEf1ee0UyBwaIVHXCg7Ev1Vpn4utUxDMgvZugaSXKuPj+WQKwKZMc/zeIxFEmDO7a7rQrVQXv+sgTuMxIDr4bYEO4Qr94m5VAAFtFtA9VKtZGY9Fw9K24aW+tyiQRKW0KV7RKFSa+hRS/N+Hezuv6Dry/9B6KPazVtnxKRU7hB1ztxVYJxBAGeCdyaIyaHJ4O+MNFej14tHys55DmFqdtrq6b0kX2zqvcfaojbNbgOQlxRTX7fX8AHYyh5aOBrH60Amfbh8e4lsNeE25314=
+          on:
+            tags: true
+            distributions: sdist bdist_wheel
+            repo: higlass/higlass-python
     - language: node_js
       node_js:
         - '10'
@@ -51,21 +69,4 @@ matrix:
           tags: true
           repo: higlass/higlass-python
 deploy:
-  - &s3
-    provider: s3
-    skip_cleanup: true
-    access_key_id: AKIAJ3ZNDMBX5LXM33DQ
-    secret_access_key:
-      secure: VgWmVIrjLad1XXSM2zpOtBN4ne4EsOw8EPtDgcepUzazkWCbiqFej4D3ZrO5H7jIorfDqYM+JR0CFQX8UUlgJhG22qyoDlP7OjyNCriwESA2OKEzuwk22ehjckAYfQbtTdAzWKdeee3M9eOR8gYChrznxQl8tQJ5nDrGB4ISGdQOvoOkf9EU3mSScfOG8cliNhwRIxKUizbD4kNzHo7AlJ6mIcmvfVmugNzqmghlSpeb8ukWN4eB8Bafh0g21e6DVGrixCE5DRRYkKrmt1eqAYv1WUVrFehjMZGRbJmJ4Eqm7aCqCA4vhLbRfhx9CxXlsCKaSwv5EpVOojv1k6KTFU5zzmNwCpUf6KaaS6rFkLGdY2H0ll2uFjq8MjNm4WtdHvbnuPmFkZ2RvJ3ymZ7y7bjiJTi8mXA3qRPjhKMkdCZCzHHH0kF6CWdjewULR+ehvPPqaOYpTL1FAQzbil/FqL3h+dIMrXTV9FXF8u8ZRUv+W3DigaHqPejIy6U+BPpKtHblQD5KiSJwYsMBe4R1tMHx0KgRqFGf0tU4Su2NmqlWxecZFkHaLtlGwK1maFHYPQxyRsgW9w0fdT2tPl1bSUm8T71W1Ql5KwrWHD4tvnNNTpir+qOL8iP7mbslvm5GvHrUFjqRdusPhSJ1eoyGrI6J1R2WG/+BWQLyXNyuN1Y=
-    bucket: docs-python.higlass.io
-    local-dir: docs/_build/html
-    acl: public_read
-    on:
-      branch: master
-  - <<: *s3
-    bucket: docs-python-develop.higlass.io
-    on:
-      branch: develop
-  - <<: *s3
-    bucket: docs-python-latest.higlass.io
-    on:
+

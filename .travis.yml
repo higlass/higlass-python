@@ -31,9 +31,9 @@ matrix:
         - &s3
           provider: s3
           skip_cleanup: true
-          access_key_id: AKIAJ3ZNDMBX5LXM33DQ
+          access_key_id: AKIAZLS5EJLSGCJTLQIB
           secret_access_key:
-            secure: gxFSh9DNZgA51xZVpr7MFLEV81ZzRhuEnmFmZ+rYZZ6eMKCwTB7qtnSdzTUHIS7V424gGzvATvG7DTj7gYlOWaRZrOQfo21ncyqbxeMRmZcAn5EyV8tl66sAjW/izv9WmcMeAYHdUKP4+8uXVfPn/aW57VwUWU+lsAr3u6eqJXjfieCML6h13QleOG3pHRPlWYe3C7QGF6CxzF+B0/pv6pM9UggMd38dIYfYHMgdbwoQs9ssYtnXpPSa0mgBQWMXUI8yi5n/HsXCtW+Ts//uR2jclpXnnlOU/o/xc7Qc70YdlQEumN+vq8xHZLX2SQO8Mg7h/dkZudOeE/n0BCLVgF+GVQhVsXICYF3u30xkpPe0VgSWs4GtSrRhi2E698s9lT11ONpQCJOqAEf+ywP5+xD0KX58rf3/sHUJUqIImE2xNLUgSsppxbADMvHbFmWsB5FVHhquUCRzjfz9+R0KBrN6mKNzXhUWEM267HglSW8oRTybXSK/UaqKK7l5nfoNgSTiOebIsEqu7d9XT92hZL8u4XAFbM3tetuh3ch8PDvsiEV50ISMUojhj+49c/CAaX07+noAQmlJ1W0SsQASbUDnQn8+cfPXU72UKxTydYaiNfO7xV2UDkmrrDWeElJwakX5cMoB9ck3RbCUWP9+hQXxDXLpy7mZB/bx0Sh/xvY=
+            secure: ZXeYlmS65EyjLWLV3wEfCXGNxCP9Jd5B+4WiOWbhehdBB8O02ugo/F4+K0MJuKfN8HfNU4GyL7uw6fZZECQWIqDkqGd+W4SnFigNFMfp0qfjVmklT0c9FEsV5jOwJBj4v0YN/H+q05iN0VUIWCR5VtvFfIez6Mzgbs18wA2XONMyrBs5lszm3UQzhuXoMNZ4w8WHqYxAjKCVmjt/KuXKBaOCVCGDYDTSdY4u3yGJ+UuprMEVNCIA3snPoWnMu2iTwMJL7b9xEnWaQd/UnQll1ApZUfDbzSnJS3X4u8X18m+61UIvVUZh1YdY6wML+vIxWQRVFSVsiJOkUuJg6sbAfH0MwqYcZ4PzrSqyVXqGy/PnfDHwassRta31eTolsL0lhGMqmQ7XWm/2pOhqXHGRW7LqAZjNuCsNq3x+FItgp//73lUsvsMWzgLzyImFBcvRVCNmKkporpwMAxabmUN8OoVB5ENsHHDBkXUVXcpxMxiiKi3WRArCsDgi0Et6gSLNyZ/aXM9ssWJ+UA2yVGu4Y/VKDZzfBb55Np+QDgAHiomAs7lPlk0tiLfl8nIkb+1Bs+3VLqum5w1xd2Zp4MSaZSwJE1xVrgIDyM+kndmwAdmUE9jvyeA0nVo0qcIxS9t+UqihQP3IgG12K0Ani25hW0XCJn3aVEa8U7aCwlXoyZ0=
           bucket: docs-python.higlass.io
           local-dir: docs/_build/html
           acl: public_read

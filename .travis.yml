@@ -33,7 +33,7 @@ matrix:
           skip_cleanup: true
           access_key_id: AKIAJ3ZNDMBX5LXM33DQ
           secret_access_key:
-            secure: VgWmVIrjLad1XXSM2zpOtBN4ne4EsOw8EPtDgcepUzazkWCbiqFej4D3ZrO5H7jIorfDqYM+JR0CFQX8UUlgJhG22qyoDlP7OjyNCriwESA2OKEzuwk22ehjckAYfQbtTdAzWKdeee3M9eOR8gYChrznxQl8tQJ5nDrGB4ISGdQOvoOkf9EU3mSScfOG8cliNhwRIxKUizbD4kNzHo7AlJ6mIcmvfVmugNzqmghlSpeb8ukWN4eB8Bafh0g21e6DVGrixCE5DRRYkKrmt1eqAYv1WUVrFehjMZGRbJmJ4Eqm7aCqCA4vhLbRfhx9CxXlsCKaSwv5EpVOojv1k6KTFU5zzmNwCpUf6KaaS6rFkLGdY2H0ll2uFjq8MjNm4WtdHvbnuPmFkZ2RvJ3ymZ7y7bjiJTi8mXA3qRPjhKMkdCZCzHHH0kF6CWdjewULR+ehvPPqaOYpTL1FAQzbil/FqL3h+dIMrXTV9FXF8u8ZRUv+W3DigaHqPejIy6U+BPpKtHblQD5KiSJwYsMBe4R1tMHx0KgRqFGf0tU4Su2NmqlWxecZFkHaLtlGwK1maFHYPQxyRsgW9w0fdT2tPl1bSUm8T71W1Ql5KwrWHD4tvnNNTpir+qOL8iP7mbslvm5GvHrUFjqRdusPhSJ1eoyGrI6J1R2WG/+BWQLyXNyuN1Y=
+            secure: gxFSh9DNZgA51xZVpr7MFLEV81ZzRhuEnmFmZ+rYZZ6eMKCwTB7qtnSdzTUHIS7V424gGzvATvG7DTj7gYlOWaRZrOQfo21ncyqbxeMRmZcAn5EyV8tl66sAjW/izv9WmcMeAYHdUKP4+8uXVfPn/aW57VwUWU+lsAr3u6eqJXjfieCML6h13QleOG3pHRPlWYe3C7QGF6CxzF+B0/pv6pM9UggMd38dIYfYHMgdbwoQs9ssYtnXpPSa0mgBQWMXUI8yi5n/HsXCtW+Ts//uR2jclpXnnlOU/o/xc7Qc70YdlQEumN+vq8xHZLX2SQO8Mg7h/dkZudOeE/n0BCLVgF+GVQhVsXICYF3u30xkpPe0VgSWs4GtSrRhi2E698s9lT11ONpQCJOqAEf+ywP5+xD0KX58rf3/sHUJUqIImE2xNLUgSsppxbADMvHbFmWsB5FVHhquUCRzjfz9+R0KBrN6mKNzXhUWEM267HglSW8oRTybXSK/UaqKK7l5nfoNgSTiOebIsEqu7d9XT92hZL8u4XAFbM3tetuh3ch8PDvsiEV50ISMUojhj+49c/CAaX07+noAQmlJ1W0SsQASbUDnQn8+cfPXU72UKxTydYaiNfO7xV2UDkmrrDWeElJwakX5cMoB9ck3RbCUWP9+hQXxDXLpy7mZB/bx0Sh/xvY=
           bucket: docs-python.higlass.io
           local-dir: docs/_build/html
           acl: public_read
@@ -71,5 +71,4 @@ matrix:
           branch: master
           tags: true
           repo: higlass/higlass-python
-deploy:
 

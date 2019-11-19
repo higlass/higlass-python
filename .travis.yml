@@ -39,13 +39,6 @@ matrix:
           acl: public_read
           on:
             branch: master
-        - <<: *s3
-          bucket: docs-python-develop.higlass.io
-          on:
-            branch: develop
-        - <<: *s3
-          bucket: docs-python-latest.higlass.io
-          on:
         - provider: pypi
           user: nvictus
           password:

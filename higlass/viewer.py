@@ -13,6 +13,15 @@ from traitlets import (
 from ._version import __version__
 
 
+def save_b64_image_to_png(filename, b64str):
+    """Save a base64 encoded image to a file."""
+    import base64
+
+    imgdata = base64.b64decode(b64str.split(",")[1])
+    with open(filename, "wb") as f:
+        f.write(imgdata)
+
+
 @widgets.register
 class HiGlassDisplay(widgets.DOMWidget):
     _view_name = Unicode("HiGlassDisplayView").tag(sync=True)
@@ -48,28 +57,50 @@ class HiGlassDisplay(widgets.DOMWidget):
     def __init__(self, **kwargs):
         super(HiGlassDisplay, self).__init__(**kwargs)
 
+    def save_as_png(self, filename):
+        """Save the currently visible plot to a png file"""
+        from IPython.display import Javascript
+
+        js = Javascript(
+            f"""
+            let d = document.getElementById('{self.dom_element_id}');
+            d.api.exportAsPngBlobPromise().then(blob => {{
+             let reader = new FileReader();
+             reader.readAsDataURL(blob);
+             reader.onloadend = function() {{
+                 let base64data = reader.result;
+                 let kernel = IPython.notebook.kernel;
+                 let command = `from higlass.viewer import save_b64_image_to_png; save_b64_image_to_png('{filename}', '''${{base64data}}''')`
+                 let ex = kernel.execute(command);
+             }}
+            }})
+        """
+        )
+        return js
+
 
 def display(
     views,
     location_syncs=[],
     value_scale_syncs=[],
     zoom_syncs=[],
-    host='localhost',
+    host="localhost",
     server_port=None,
     dark_mode=False,
     log_level=logging.ERROR,
-    no_fuse=False
+    no_fuse=False,
 ):
-    '''
+    """
     Instantiate a HiGlass display with the given views
-    '''
+    """
     from .server import Server
     from .client import CombinedTrack, View, ViewConf
+
     tilesets = []
 
     for view in views:
         for track in view.tracks:
-            if hasattr(track, 'tracks'):
+            if hasattr(track, "tracks"):
                 for track1 in track.tracks:
                     if track1.tileset:
                         tilesets += [track1.tileset]
@@ -86,35 +117,31 @@ def display(
         for track in view.tracks:
             if isinstance(track, CombinedTrack):
                 for track1 in track.tracks:
-                    if ('server' not in track1.conf or
-                            track1.conf['server'] is None):
-                        track1.conf['server'] = server.api_address
+                    if "server" not in track1.conf or track1.conf["server"] is None:
+                        track1.conf["server"] = server.api_address
             else:
-                if ('server' not in track.conf or
-                        track.conf['server'] is None):
-                    track.conf['server'] = server.api_address
+                if "server" not in track.conf or track.conf["server"] is None:
+                    track.conf["server"] = server.api_address
 
     viewconf = ViewConf(
         cloned_views,
         location_syncs=location_syncs,
         value_scale_syncs=value_scale_syncs,
-        zoom_syncs=zoom_syncs
+        zoom_syncs=zoom_syncs,
     )
 
     return (
         HiGlassDisplay(
             viewconf=viewconf.to_dict(),
-            hg_options={
-                'theme': 'dark' if dark_mode else 'light'
-            }
+            hg_options={"theme": "dark" if dark_mode else "light"},
         ),
         server,
-        viewconf
+        viewconf,
     )
 
 
 def view(tilesets):
-    '''
+    """
     Create a higlass viewer that displays the specified tilesets
 
     Parameters:
@@ -123,7 +150,7 @@ def view(tilesets):
     Returns
     -------
         Nothing
-    '''
+    """
     from .server import Server
     from .client import View
 

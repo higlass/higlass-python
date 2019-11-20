@@ -34,6 +34,45 @@ Uninstalling
 
     jupyter nbextension uninstall --py --sys-prefix higlass
 
+Using HiGlass in Jupyter
+------------------------
+
+To instantiate a HiGlass component within a Jupyter notebook, we first need
+to specify which data should be loaded. This can be accomplished with the
+help of the ``higlass.client`` module:
+
+.. code-block:: python
+
+    from higlass.client import View, Track
+    import higlass
+
+
+    view1 = View([
+        Track(track_type='top-axis', position='top'),
+        Track(track_type='heatmap', position='center',
+              tileset_uuid='CQMd6V_cRw6iCI_-Unl3PQ',
+              server="http://higlass.io/api/v1/",
+              height=250,
+              options={ 'valueScaleMax': 0.5 }),
+    ])
+
+    display, server, viewconf = higlass.display([view1])
+    display
+
+The result is a fully interactive HiGlass view direcly embedded in the Jupyter
+notebook.
+
+.. image:: img/remote-hic.png
+
+Saving the view
+^^^^^^^^^^^^^^^
+
+The currently visible HiGlass view can be downloaded to a file:
+
+.. code-block:: python
+
+  display.save_as_png('/tmp/my_view.png')
+
 View extent
 -----------
 
@@ -70,39 +109,8 @@ Other Examples
 --------------
 
 The examples below demonstrate how to use the HiGlass Python API to view
-data locally in a Jupyter notebook or a browser-based HiGlass instance.
+data locally in a Jupyter notebook.
 
-For a fYou can find the demos from the talk at `github.com/higlass/scipy19 <https://github.com/higlass/scipy19>`_.
-
-Jupyter HiGlass Component
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
-To instantiate a HiGlass component within a Jupyter notebook, we first need
-to specify which data should be loaded. This can be accomplished with the
-help of the ``higlass.client`` module:
-
-.. code-block:: python
-
-    from higlass.client import View, Track
-    import higlass
-
-
-    view1 = View([
-        Track(track_type='top-axis', position='top'),
-        Track(track_type='heatmap', position='center',
-              tileset_uuid='CQMd6V_cRw6iCI_-Unl3PQ',
-              server="http://higlass.io/api/v1/",
-              height=250,
-              options={ 'valueScaleMax': 0.5 }),
-    ])
-
-    display, server, viewconf = higlass.display([view1])
-    display
-
-The result is a fully interactive HiGlass view direcly embedded in the Jupyter
-notebook.
-
-.. image:: img/remote-hic.png
 
 Remote bigWig Files
 ^^^^^^^^^^^^^^^^^^^

@@ -6,9 +6,11 @@ from .client import Track, CombinedTrack, View, ViewConf
 
 
 def _jupyter_nbextension_paths():
-    return [{
-        'section': 'notebook',
-        'src': 'static',
-        'dest': 'higlass-jupyter',
-        'require': 'higlass-jupyter/extension'
-    }]
+    return [
+        {
+            "section": "notebook",
+            "src": "static",
+            "dest": "higlass-jupyter",
+            "require": "higlass-jupyter/extension",
+        }
+    ]

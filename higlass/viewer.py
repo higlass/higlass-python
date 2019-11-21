@@ -1,14 +1,6 @@
 import logging
 import ipywidgets as widgets
-from traitlets import (
-    Bool,
-    Dict,
-    Float,
-    Int,
-    List,
-    Unicode,
-    Union,
-)
+from traitlets import Bool, Dict, Float, Int, List, Unicode, Union
 
 from ._version import __version__
 
@@ -54,22 +46,23 @@ def display(
     location_syncs=[],
     value_scale_syncs=[],
     zoom_syncs=[],
-    host='localhost',
+    host="localhost",
     server_port=None,
     dark_mode=False,
     log_level=logging.ERROR,
-    no_fuse=False
+    no_fuse=False,
 ):
-    '''
+    """
     Instantiate a HiGlass display with the given views
-    '''
+    """
     from .server import Server
     from .client import CombinedTrack, View, ViewConf
+
     tilesets = []
 
     for view in views:
         for track in view.tracks:
-            if hasattr(track, 'tracks'):
+            if hasattr(track, "tracks"):
                 for track1 in track.tracks:
                     if track1.tileset:
                         tilesets += [track1.tileset]
@@ -86,35 +79,31 @@ def display(
         for track in view.tracks:
             if isinstance(track, CombinedTrack):
                 for track1 in track.tracks:
-                    if ('server' not in track1.conf or
-                            track1.conf['server'] is None):
-                        track1.conf['server'] = server.api_address
+                    if "server" not in track1.conf or track1.conf["server"] is None:
+                        track1.conf["server"] = server.api_address
             else:
-                if ('server' not in track.conf or
-                        track.conf['server'] is None):
-                    track.conf['server'] = server.api_address
+                if "server" not in track.conf or track.conf["server"] is None:
+                    track.conf["server"] = server.api_address
 
     viewconf = ViewConf(
         cloned_views,
         location_syncs=location_syncs,
         value_scale_syncs=value_scale_syncs,
-        zoom_syncs=zoom_syncs
+        zoom_syncs=zoom_syncs,
     )
 
     return (
         HiGlassDisplay(
             viewconf=viewconf.to_dict(),
-            hg_options={
-                'theme': 'dark' if dark_mode else 'light'
-            }
+            hg_options={"theme": "dark" if dark_mode else "light"},
         ),
         server,
-        viewconf
+        viewconf,
     )
 
 
 def view(tilesets):
-    '''
+    """
     Create a higlass viewer that displays the specified tilesets
 
     Parameters:
@@ -123,7 +112,7 @@ def view(tilesets):
     Returns
     -------
         Nothing
-    '''
+    """
     from .server import Server
     from .client import View
 

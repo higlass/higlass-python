@@ -1,3 +1,4 @@
+import json
 import logging
 import ipywidgets as widgets
 from traitlets import (
@@ -10,7 +11,12 @@ from traitlets import (
     Union,
 )
 
+import slugid
 from ._version import __version__
+
+import os
+import threading
+import time
 
 
 def save_b64_image_to_png(filename, b64str):
@@ -55,28 +61,47 @@ class HiGlassDisplay(widgets.DOMWidget):
     options = Dict({}).tag(sync=True)
 
     def __init__(self, **kwargs):
+        self.on_msg(self._handle_js_events)
+        self.callbacks = {}
+
         super(HiGlassDisplay, self).__init__(**kwargs)
 
-    def save_as_png(self, filename):
-        """Save the currently visible plot to a png file"""
-        from IPython.display import Javascript
+    def get_base64_img(self, callback):
+        uuid = slugid.nice()
 
-        js = Javascript(
-            f"""
-            let d = document.getElementById('{self.dom_element_id}');
-            d.api.exportAsPngBlobPromise().then(blob => {{
-             let reader = new FileReader();
-             reader.readAsDataURL(blob);
-             reader.onloadend = function() {{
-                 let base64data = reader.result;
-                 let kernel = IPython.notebook.kernel;
-                 let command = `from higlass.viewer import save_b64_image_to_png; save_b64_image_to_png('{filename}', '''${{base64data}}''')`
-                 let ex = kernel.execute(command);
-             }}
-            }})
-        """
-        )
-        return js
+        self.callbacks[uuid] = callback
+
+        self.send(json.dumps({"request": "save_as_png", "params": {"uuid": uuid},}))
+
+    def _handle_js_events(self, widget, content, buffers=None):
+        try:
+            if self.callbacks[content["params"]["uuid"]]:
+                self.callbacks[content["params"]["uuid"]](content["imgData"])
+                del self.callbacks[content["params"]["uuid"]]
+        except Exception as e:
+            self.log.error(e)
+            self.log.exception("Unhandled exception while handling msg")
+
+    # def save_as_png(self, filename):
+    #     """Save the currently visible plot to a png file"""
+    #     from IPython.display import Javascript
+
+    #     js = Javascript(
+    #         f"""
+    #         let d = document.getElementById('{self.dom_element_id}');
+    # d.api.exportAsPngBlobPromise().then(blob => {{
+    #  let reader = new FileReader();
+    #  reader.readAsDataURL(blob);
+    #  reader.onloadend = function() {{
+    #      let base64data = reader.result;
+    #      let kernel = IPython.notebook.kernel;
+    #      let command = `from higlass.viewer import save_b64_image_to_png; save_b64_image_to_png('{filename}', '''${{base64data}}''')`
+    #      let ex = kernel.execute(command);
+    #  }}
+    # }})
+    #     """
+    #     )
+    #     return js
 
 
 def display(

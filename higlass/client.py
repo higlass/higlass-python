@@ -6,45 +6,45 @@ import os
 
 
 logger = logging.getLogger()
-fhandler = logging.FileHandler(filename='higlass-python.log', mode='a')
-formatter = logging.Formatter('[%(asctime)s] %(levelname)s in %(module)s: %(message)s')
+fhandler = logging.FileHandler(filename="higlass-python.log", mode="a")
+formatter = logging.Formatter("[%(asctime)s] %(levelname)s in %(module)s: %(message)s")
 fhandler.setFormatter(formatter)
 logger.addHandler(fhandler)
 
-if 'HIGLASS_PYTHON_DEBUG' in os.environ and os.environ['HIGLASS_PYTHON_DEBUG']:
+if "HIGLASS_PYTHON_DEBUG" in os.environ and os.environ["HIGLASS_PYTHON_DEBUG"]:
     logger.setLevel(logging.DEBUG)
 else:
     logger.setLevel(logging.ERROR)
 
 
-__all__ = ['Track', 'CombinedTrack', 'View', 'ViewConf']
+__all__ = ["Track", "CombinedTrack", "View", "ViewConf"]
 
 
 _track_default_position = {
-    '2d-rectangle-domains': 'center',
-    'bedlike': 'top',
-    'horizontal-bar': 'top',
-    'horizontal-chromosome-labels': 'top',
-    'horizontal-gene-annotations': 'top',
-    'horizontal-heatmap': 'top',
-    'horizontal-1d-heatmap': 'top',
-    'horizontal-line': 'top',
-    'horizontal-multivec': 'top',
-    'heatmap': 'center',
-    'left-axis': 'left',
-    'osm-tiles': 'center',
-    'top-axis': 'top',
-    'viewport-projection-center': 'center',
+    "2d-rectangle-domains": "center",
+    "bedlike": "top",
+    "horizontal-bar": "top",
+    "horizontal-chromosome-labels": "top",
+    "horizontal-gene-annotations": "top",
+    "horizontal-heatmap": "top",
+    "horizontal-1d-heatmap": "top",
+    "horizontal-line": "top",
+    "horizontal-multivec": "top",
+    "heatmap": "center",
+    "left-axis": "left",
+    "osm-tiles": "center",
+    "top-axis": "top",
+    "viewport-projection-center": "center",
 }
 
 
 _datatype_default_track = {
-    '2d-rectangle-domains': '2d-rectangle-domains',
-    'bedlike': 'bedlike',
-    'chromsizes': 'horizontal-chromosome-labels',
-    'gene-annotations': 'horizontal-gene-annotations',
-    'matrix': 'heatmap',
-    'vector': 'horizontal-bar',
+    "2d-rectangle-domains": "2d-rectangle-domains",
+    "bedlike": "bedlike",
+    "chromsizes": "horizontal-chromosome-labels",
+    "gene-annotations": "horizontal-gene-annotations",
+    "matrix": "heatmap",
+    "vector": "horizontal-bar",
 }
 
 
@@ -84,13 +84,22 @@ class Track(Component):
         The options to pass onto the track
 
     """
-    def __init__(self, track_type=None, position=None, tileset=None,
-                 file_url=None, filetype=None, options=None, **kwargs):
+
+    def __init__(
+        self,
+        track_type=None,
+        position=None,
+        tileset=None,
+        file_url=None,
+        filetype=None,
+        options=None,
+        **kwargs,
+    ):
         if track_type is None:
-            if 'type' in kwargs:
-                track_type = kwargs.pop('type')
+            if "type" in kwargs:
+                track_type = kwargs.pop("type")
             else:
-                raise ValueError('Track type is required.')
+                raise ValueError("Track type is required.")
 
         self.position = position
         self.tileset = tileset
@@ -99,8 +108,8 @@ class Track(Component):
         self.conf = {"type": track_type}
         if tileset is not None:
             self.conf["tilesetUid"] = tileset.uuid
-        elif 'tileset_uuid' in kwargs:
-            self.conf['tilesetUid'] = kwargs.pop('tileset_uuid')
+        elif "tileset_uuid" in kwargs:
+            self.conf["tilesetUid"] = kwargs.pop("tileset_uuid")
         elif file_url is not None and filetype is not None:
             self.conf["fileUrl"] = file_url
             self.conf["filetype"] = filetype
@@ -108,7 +117,7 @@ class Track(Component):
         if options is None:
             options = {}
         else:
-            self.conf['options'] = deepcopy(options)
+            self.conf["options"] = deepcopy(options)
 
         self.conf.update(kwargs)
 
@@ -128,21 +137,20 @@ class Track(Component):
         return self.conf["type"]
 
     def change_attributes(self, **kwargs):
-        '''
+        """
         Change an attribute of this track and return a new copy.
-        '''
+        """
         conf = self.conf.copy()
         conf.update(kwargs)
-        return self.__class__(conf['type'],
-                              position=self.position,
-                              tileset=self.tileset,
-                              **conf)
+        return self.__class__(
+            conf["type"], position=self.position, tileset=self.tileset, **conf
+        )
 
     def change_options(self, **kwargs):
-        '''
+        """
         Change one of the track's options in the viewconf
-        '''
-        options = self.conf['options'].copy()
+        """
+        options = self.conf["options"].copy()
         options.update(kwargs)
         return self.change_attributes(options=options)
 
@@ -156,14 +164,14 @@ class Track(Component):
 
 class CombinedTrack(Track):
     def __init__(self, tracks, position=None, height=100, **kwargs):
-        '''
+        """
         The combined track contains multiple actual tracks as layers.
 
         Parameters
         ----------
         tracks: list
             A list of Tracks to add
-        '''
+        """
         self.tracks = tracks
         self.tileset = None
 
@@ -177,15 +185,15 @@ class CombinedTrack(Track):
 
         self.height = height
         self.conf = {
-            'type': 'combined',
-            'height': height,
+            "type": "combined",
+            "height": height,
         }
 
     @classmethod
     def from_dict(cls, conf):
-        if 'contents' in conf:
+        if "contents" in conf:
             conf = conf.copy()
-            contents = conf.pop('contents')
+            contents = conf.pop("contents")
             tracks = [Track.from_dict(track_conf) for track_conf in contents]
         else:
             tracks = []
@@ -193,7 +201,7 @@ class CombinedTrack(Track):
 
     def to_dict(self):
         conf = self.conf.copy()
-        conf['contents'] = [t.to_dict() for t in self.tracks]
+        conf["contents"] = [t.to_dict() for t in self.tracks]
         return conf
 
 
@@ -222,17 +230,26 @@ class View(Component):
         The uid of new view
 
     """
-    def __init__(self, tracks=[], x=0, y=0, width=12, height=6,
-                 initialXDomain=None, initialYDomain=None, uid=None,
-                 overlays=[]):
+
+    def __init__(
+        self,
+        tracks=[],
+        x=0,
+        y=0,
+        width=12,
+        height=6,
+        initialXDomain=None,
+        initialYDomain=None,
+        uid=None,
+        overlays=[],
+    ):
         if uid is None:
             uid = slugid.nice()
         self.uid = uid
 
         self.conf = {
             "uid": uid,
-            "tracks": {"top": [], "center": [], "left": [],
-                       "right": [], "bottom": []},
+            "tracks": {"top": [], "center": [], "left": [], "right": [], "bottom": []},
             "layout": {"w": width, "h": height, "x": x, "y": y},
         }
         if initialXDomain is not None:
@@ -274,41 +291,39 @@ class View(Component):
             elif track.type in _track_default_position:
                 position = _track_default_position[track.type]
             else:
-                raise ValueError('A track position is required.')
+                raise ValueError("A track position is required.")
         self._track_position[track] = position
 
     def create_track(self, track_type, **kwargs):
-        if track_type == 'combined':
+        if track_type == "combined":
             klass = CombinedTrack
         else:
             klass = Track
-        position = kwargs.pop('position', None)
+        position = kwargs.pop("position", None)
         track = klass(track_type=track_type, **kwargs)
         self.add_track(track, position)
         return track
 
     @classmethod
     def from_dict(cls, conf):
-        layout = conf.get('layout', {})
+        layout = conf.get("layout", {})
         self = cls(
-            x=layout.get('x', 0),
-            y=layout.get('y', 0),
-            width=layout.get('w', 12),
-            height=layout.get('h', 6),
-            initialXDomain=conf.get('initialXDomain', None),
-            initialYDomain=conf.get('initialYDomain', None),
-            uid=conf.get('uid', None),
-            overlays=conf.get('overlays', []),
+            x=layout.get("x", 0),
+            y=layout.get("y", 0),
+            width=layout.get("w", 12),
+            height=layout.get("h", 6),
+            initialXDomain=conf.get("initialXDomain", None),
+            initialYDomain=conf.get("initialYDomain", None),
+            uid=conf.get("uid", None),
+            overlays=conf.get("overlays", []),
         )
-        for position in conf.get('tracks', {}):
-            for track_conf in conf['tracks'][position]:
-                if track_conf['type'] == 'combined':
+        for position in conf.get("tracks", {}):
+            for track_conf in conf["tracks"][position]:
+                if track_conf["type"] == "combined":
                     klass = CombinedTrack
                 else:
                     klass = Track
-                self.add_track(
-                    track=klass.from_dict(track_conf),
-                    position=position)
+                self.add_track(track=klass.from_dict(track_conf), position=position)
         return self
 
     def to_dict(self):
@@ -330,12 +345,10 @@ class View(Component):
                 "uid": overlay.get("uid", "overlay"),
                 "includes": overlay.get("includes", []),
                 "type": overlay.get("type", ""),
-                "options": {
-                    "extent": overlay.get("extent", [])
-                }
+                "options": {"extent": overlay.get("extent", [])},
             }
-            overlay_conf['options'].update(options)
-            self.conf['overlays'].append(overlay_conf)
+            overlay_conf["options"].update(options)
+            self.conf["overlays"].append(overlay_conf)
         except KeyError:
             pass
 
@@ -343,7 +356,9 @@ class View(Component):
 class ViewConf(Component):
     """Configure a dashboard"""
 
-    def __init__(self, views=[], location_syncs=[], value_scale_syncs=[], zoom_syncs=[]):
+    def __init__(
+        self, views=[], location_syncs=[], value_scale_syncs=[], zoom_syncs=[]
+    ):
 
         self.conf = {
             "editable": True,
@@ -418,8 +433,8 @@ class ViewConf(Component):
 
     def _add_sync(self, lock_group, lock_id, view_uids):
         for view_uid in view_uids:
-            if lock_id not in self.conf[lock_group]['locksDict']:
-                self.conf[lock_group]['locksDict'][lock_id] = {}
+            if lock_id not in self.conf[lock_group]["locksDict"]:
+                self.conf[lock_group]["locksDict"][lock_id] = {}
             self.conf[lock_group]["locksDict"][lock_id][view_uid] = (1, 1, 1)
             self.conf[lock_group]["locksByViewUid"][view_uid] = lock_id
 
@@ -451,7 +466,7 @@ class ViewConf(Component):
             if lock_id not in locks_dict:
                 locks_dict[lock_id] = {}
 
-            locks_dict[lock_id][vt_uid] = { "view": v_uid, "track": t_uid }
+            locks_dict[lock_id][vt_uid] = {"view": v_uid, "track": t_uid}
             locks_map[vt_uid] = lock_id
 
     def add_view(self, view):
@@ -483,20 +498,20 @@ class ViewConf(Component):
         # parts: 'scheme://netloc/path?query#fragment'
         parts = urlsplit(url)
         query = parse_qs(parts.query)
-        if parts.path.strip('/') == 'app':
-            if 'config' not in query:
-                raise ValueError('Viewconf ID not found in query')
-            conf_id = query['config'][0]
-        elif parts.path.strip('/') in ('api/v1/viewconfs', 'l', 'link'):
-            if 'd' not in query:
-                raise ValueError('Viewconf ID not found in query')
-            conf_id = query['d'][0]
+        if parts.path.strip("/") == "app":
+            if "config" not in query:
+                raise ValueError("Viewconf ID not found in query")
+            conf_id = query["config"][0]
+        elif parts.path.strip("/") in ("api/v1/viewconfs", "l", "link"):
+            if "d" not in query:
+                raise ValueError("Viewconf ID not found in query")
+            conf_id = query["d"][0]
         else:
-            raise ValueError('Not a valid viewconf server')
+            raise ValueError("Not a valid viewconf server")
 
-        endpoint = urlunsplit((
-            parts.scheme, parts.netloc,
-            'api/v1/viewconfs', 'd=' + conf_id, ''))
+        endpoint = urlunsplit(
+            (parts.scheme, parts.netloc, "api/v1/viewconfs", "d=" + conf_id, "")
+        )
 
         conf = requests.get(endpoint).json()
 
@@ -506,20 +521,20 @@ class ViewConf(Component):
     def from_dict(cls, conf):
         self = cls()
 
-        for view_dct in conf.get('views', []):
+        for view_dct in conf.get("views", []):
             self.add_view(View.from_dict(view_dct))
 
-        locks = conf.get('locationLocks', {}).get('locksDict', {})
+        locks = conf.get("locationLocks", {}).get("locksDict", {})
         for lock_id, attrs in locks.items():
-            self._add_sync('locationLocks', lock_id, attrs.keys())
+            self._add_sync("locationLocks", lock_id, attrs.keys())
 
-        locks = conf.get('valueScaleLocks', {}).get('locksDict', {})
+        locks = conf.get("valueScaleLocks", {}).get("locksDict", {})
         for lock_id, attrs in locks.items():
-            self._add_sync('valueScaleLocks', lock_id, attrs.keys())
+            self._add_sync("valueScaleLocks", lock_id, attrs.keys())
 
-        locks = conf.get('zoomLocks', {}).get('locksDict', {})
+        locks = conf.get("zoomLocks", {}).get("locksDict", {})
         for lock, attrs in locks.items():
-            self._add_sync('zoomLocks', lock_id, attrs.keys())
+            self._add_sync("zoomLocks", lock_id, attrs.keys())
 
         return self
 
@@ -530,8 +545,32 @@ class ViewConf(Component):
         return conf
 
 
+def tracktype_default_position(tracktype: str):
+    """
+    Get the default track position for a track type.
+
+    For example, default position for a heatmap is 'center'.
+    If the provided track type has no known default position
+    return None.
+
+    Parameters
+    ----------
+    tracktype: str
+        The track type to check
+
+    Returns
+    -------
+    str:
+        The default position
+    """
+    if tracktype in _track_default_position:
+        return _track_default_position[tracktype]
+
+    return None
+
+
 def datatype_to_tracktype(datatype):
-    '''
+    """
     Infer a default track type from a data type. There can
     be other track types that can display a given data type.
 
@@ -545,7 +584,7 @@ def datatype_to_tracktype(datatype):
     str, str:
         A track type (e.g. 'heatmap') and position (e.g. 'top')
 
-    '''
+    """
     track_type = _datatype_default_track.get(datatype, None)
     position = _track_default_position.get(track_type, None)
     return track_type, position

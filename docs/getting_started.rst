@@ -45,10 +45,23 @@ The extent of a view can be set using the ``initialXDomain`` parameter:
         Track(type='top-axis'),
     ], initialXDomain=[0,1e7])
 
+Track Types
+-----------
+
+A list of available track types can be found in the `documentation for HiGlass
+<https://docs.higlass.io/track_types.html>`_. Based on the data type, we can
+sometimes provide a recommended track type as well as a recommended position.
+
+.. code-block:: python
+
+  import higlass.client as hgc
+  track_type, position = hgc.datatype_to_tracktype(datatype)
+
+
 Multiple Views
 --------------
 
-Multiple views can be instantiated much like single views. They are positioned a on grid that is 12 units wide and an arbitrary number of units high. Thus to create two side by side views, set both to be 6 units wide and one on the right to be at x position 6:
+Multiple views can be instantiated much like single views. They are positioned a on grid that is 12 units wide and an arbitrary number of units high. To create two side by side views, set both to be 6 units wide and one on the right to be at x position 6:
 
 .. code-block:: python
 

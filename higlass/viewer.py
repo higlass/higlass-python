@@ -100,34 +100,3 @@ def display(
         server,
         viewconf,
     )
-
-
-def view(tilesets):
-    """
-    Create a higlass viewer that displays the specified tilesets
-
-    Parameters:
-    -----------
-
-    Returns
-    -------
-        Nothing
-    """
-    from .server import Server
-    from .client import View
-
-    curr_view = View()
-    server = Server()
-    server.start(tilesets)
-
-    for ts in tilesets:
-        if ts.track_type is not None and ts.track_position is not None:
-            curr_view.add_track(
-                ts.track_type,
-                ts.track_position,
-                api_url=server.api_address,
-                tileset_uuid=ts.uuid,
-            )
-
-    curr_view.server = server
-    return curr_view

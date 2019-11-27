@@ -1,5 +1,5 @@
 from ._version import __version__
-from .viewer import view, display
+from .viewer import display
 from .tilesets import Tileset
 from .server import Server
 from .client import Track, CombinedTrack, View, ViewConf

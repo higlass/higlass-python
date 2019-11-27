@@ -542,6 +542,30 @@ class ViewConf(Component):
         return conf
 
 
+def tracktype_default_position(tracktype: str):
+    """
+    Get the default track position for a track type.
+
+    For example, default position for a heatmap is 'center'.
+    If the provided track type has no known default position
+    return None.
+
+    Parameters
+    ----------
+    tracktype: str
+        The track type to check
+
+    Returns
+    -------
+    str:
+        The default position
+    """
+    if tracktype in _track_default_position:
+        return _track_default_position[tracktype]
+
+    return None
+
+
 def datatype_to_tracktype(datatype):
     """
     Infer a default track type from a data type. There can

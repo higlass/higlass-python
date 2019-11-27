@@ -184,10 +184,7 @@ class CombinedTrack(Track):
                     break
 
         self.height = height
-        self.conf = {
-            "type": "combined",
-            "height": height,
-        }
+        self.conf = {"type": "combined", "height": height}
 
     @classmethod
     def from_dict(cls, conf):

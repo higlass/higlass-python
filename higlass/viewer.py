@@ -1,14 +1,6 @@
 import logging
 import ipywidgets as widgets
-from traitlets import (
-    Bool,
-    Dict,
-    Float,
-    Int,
-    List,
-    Unicode,
-    Union,
-)
+from traitlets import Bool, Dict, Float, Int, List, Unicode, Union
 
 from ._version import __version__
 

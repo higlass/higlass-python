@@ -102,6 +102,9 @@ class Track(Component):
             else:
                 raise ValueError("Track type is required.")
 
+        if not position:
+            position = _track_default_position[track_type]
+
         self.position = position
         self.tileset = tileset
 
@@ -601,21 +604,33 @@ def datatype_to_tracktype(datatype):
     return track_type, position
 
 
+class ViewportProjection(Track):
+    def __init__(self, position, fromViewUid, **kwargs):
+        if position == "center":
+            track_type = "viewport-projection-center"
+        elif position == "top" or position == "bottom":
+            track_type = "viewport-projection-horizontal"
+        elif position == "left" or position == "right":
+            track_type = "viewport-projection-vertical"
+
+        self.position = position
+        self.conf = {"type": track_type, "fromViewUid": fromViewUid}
+
+        self.conf.update(kwargs)
+
+        if "uid" not in self.conf:
+            self.conf["uid"] = slugid.nice()
+
+
 def projection_adder(view: View):
     """Return a function with adds a viewport projection."""
 
     def adder(track: Track):
-        if track.position == "center":
-            track_type = "viewport-projection-center"
-        elif track.position == "top" or track.position == "bottom":
-            track_type = "viewport-projection-horizontal"
-        elif track.position == "left" or track.position == "right":
-            track_type = "viewport-projection-vertical"
-
-        projection_track = Track(
-            track_type=track_type, position=track.position, fromViewUid=view.uid
+        projection_track = ViewportProjection(
+            position=track.position, fromViewUid=view.uid
         )
 
+        print("type1", type(projection_track))
         return CombinedTrack([track, projection_track])
 
     return adder

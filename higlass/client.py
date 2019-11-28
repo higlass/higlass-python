@@ -35,6 +35,7 @@ _track_default_position = {
     "osm-tiles": "center",
     "top-axis": "top",
     "viewport-projection-center": "center",
+    "viewport-projection-horizontal": "top",
 }
 
 
@@ -163,7 +164,7 @@ class Track(Component):
 
 
 class CombinedTrack(Track):
-    def __init__(self, tracks, position=None, height=100, **kwargs):
+    def __init__(self, tracks, position=None, height=None, **kwargs):
         """
         The combined track contains multiple actual tracks as layers.
 
@@ -183,8 +184,21 @@ class CombinedTrack(Track):
                     self.position = track.position
                     break
 
-        self.height = height
-        self.conf = {"type": "combined", "height": height}
+        # if no height is specified try to infer it from
+        # the containing tracks
+        if not height:
+            for track in tracks:
+                if "height" in track.conf and track.conf["height"]:
+                    if not height:
+                        height = track.conf["height"]
+                    else:
+                        height = max(height, track.conf["height"])
+
+        if height:
+            self.height = height
+            self.conf = {"type": "combined", "height": height}
+        else:
+            self.conf = {"type": "combined"}
 
     @classmethod
     def from_dict(cls, conf):
@@ -585,3 +599,23 @@ def datatype_to_tracktype(datatype):
     track_type = _datatype_default_track.get(datatype, None)
     position = _track_default_position.get(track_type, None)
     return track_type, position
+
+
+def projection_adder(view: View):
+    """Return a function with adds a viewport projection."""
+
+    def adder(track: Track):
+        if track.position == "center":
+            track_type = "viewport-projection-center"
+        elif track.position == "top" or track.position == "bottom":
+            track_type = "viewport-projection-horizontal"
+        elif track.position == "left" or track.position == "right":
+            track_type = "viewport-projection-vertical"
+
+        projection_track = Track(
+            track_type=track_type, position=track.position, fromViewUid=view.uid
+        )
+
+        return CombinedTrack([track, projection_track])
+
+    return adder

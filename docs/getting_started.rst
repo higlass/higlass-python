@@ -96,6 +96,27 @@ views will scroll or zoom (or both) together:
     location_syncs=[[view1, view2]],
     zoom_syncs=[[view1, view2]])
 
+Viewport Projection
+-------------------
+
+Viewport projections can be instantiated using a decorator. To create the
+decorator, use ``projection_adder`` and pass in the View whose extent is to be
+projected. Use the returned decorator to add a viewport projection to a track.
+
+.. code-block:: python
+
+    from higlass.client import projection_adder
+
+    view1 = View([
+        Track(type='top-axis'),
+    ], initialXDomain=[0,1e7])
+
+    projection = projection_adder(view2)
+
+    view1 = View([
+        projection(Track(type='top-axis')),
+    ], initialXDomain=[0,2e7])
+
 
 Other Examples
 --------------

@@ -134,7 +134,7 @@ it will be overlayed.
 
     projection = ViewportProjection(view1)
 
-    view1 = View([
+    view2 = View([
         Track(type='top-axis') + projection,
     ], initialXDomain=[0,2e7])
 

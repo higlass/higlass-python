@@ -1,20 +1,35 @@
-from higlass.client import Track, View, projection_adder
+from higlass.client import Track, View, ViewportProjection
 import higlass
 
 
+def test_add_tracks():
+    track1 = Track("top-axis")
+    track2 = Track("top-axis")
+
+    track3 = track1 + track2
+
+    assert track1 in track3.tracks
+
+    track4 = Track("top-axis")
+    track5 = track3 + track4
+
+    assert track1 in track5.tracks
+    assert track4 in track5.tracks
+
+
 def test_viewport_projection():
-    view1 = View([Track("top-axis")])
+    track1 = Track("top-axis")
+    view1 = View([track1])
 
-    adder = projection_adder(view1)
+    vp = ViewportProjection(view1)
 
-    view2 = View([adder(Track("top-axis"))])
+    track2 = Track("top-axis")
+    track3 = track2 + vp
 
-    (display, server, viewconf) = higlass.display([view1, view2])
+    assert vp.conf["type"] == "viewport-projection"
+    assert track3.tracks[1].conf["type"] == "viewport-projection-horizontal"
 
-    print(viewconf.to_dict()["views"][1]["tracks"]["top"][0])
-    assert (
-        "server"
-        not in viewconf.to_dict()["views"][1]["tracks"]["top"][0]["contents"][1]
-    )
+    track4 = Track("heatmap")
+    track5 = track4 + vp
 
-    server.stop()
+    assert track5.tracks[1].conf["type"] == "viewport-projection-center"

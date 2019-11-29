@@ -57,11 +57,32 @@ sometimes provide a recommended track type as well as a recommended position.
   import higlass.client as hgc
   track_type, position = hgc.datatype_to_tracktype(datatype)
 
+Combining Tracks
+----------------
+
+Tracks can be combined by overlaying them on top of each other or by performing operations with them.
+
+Overlaying tracks
+^^^^^^^^^^^^^^^^^
+
+Two tracks can be overlayed by using the ``+`` operator:
+
+.. code-block:: python
+
+  view=View([Track('top-axis') +
+         Track('horizontal-bar',
+              server='//higlass.io/api/v1',
+              tilesetUid='F2vbUeqhS86XkxuO1j2rPA')
+        ], initialXDomain=[0,1e9])
+
 
 Multiple Views
 --------------
 
-Multiple views can be instantiated much like single views. They are positioned a on grid that is 12 units wide and an arbitrary number of units high. To create two side by side views, set both to be 6 units wide and one on the right to be at x position 6:
+Multiple views can be instantiated much like single views. They are positioned
+a on grid that is 12 units wide and an arbitrary number of units high. To
+create two side by side views, set both to be 6 units wide and one on the
+right to be at x position 6:
 
 .. code-block:: python
 
@@ -99,30 +120,33 @@ views will scroll or zoom (or both) together:
 Viewport Projection
 -------------------
 
-Viewport projections can be instantiated using a decorator. To create the
-decorator, use ``projection_adder`` and pass in the View whose extent is to be
-projected. Use the returned decorator to add a viewport projection to a track.
+Viewport projections can be instantiated like other tracks. It is created with
+a reference to the view we wish to track and combined with another track where
+it will be overlayed.
 
 .. code-block:: python
 
-    from higlass.client import projection_adder
+    from higlass.client import ViewportProjection
 
     view1 = View([
         Track(type='top-axis'),
     ], initialXDomain=[0,1e7])
 
-    projection = projection_adder(view2)
+    projection = ViewportProjection(view1)
 
     view1 = View([
-        projection(Track(type='top-axis')),
+        Track(type='top-axis') + projection,
     ], initialXDomain=[0,2e7])
 
+Note that `ViewportProjection` tracks always need to be paired with other non-
+ViewportProjection tracks. Multiple ViewportProjection tracks can, however, be
+combined, as long as they are associated with regular tracks.
 
 Other Examples
 --------------
 
-The examples below demonstrate how to use the HiGlass Python API to view
-data locally in a Jupyter notebook or a browser-based HiGlass instance.
+The examples below demonstrate how to use the HiGlass Python API to view data
+locally in a Jupyter notebook or a browser-based HiGlass instance.
 
 For a fYou can find the demos from the talk at `github.com/higlass/scipy19 <https://github.com/higlass/scipy19>`_.
 

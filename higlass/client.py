@@ -158,12 +158,34 @@ class Track(Component):
         options.update(kwargs)
         return self.change_attributes(options=options)
 
+    def __add__(self, other):
+        """Overload the + operator to create combined tracks."""
+        new_tracks = []
+
+        if self.conf["type"] == "combined":
+            # this is a combined track
+            for track in self.tracks:
+                new_tracks += [track.copy()]
+        else:
+            new_tracks += [self]
+
+        if other.conf["type"] == "combined":
+            for track in other.tracks:
+                new_tracks += [track.copy()]
+        else:
+            new_tracks += [other.copy()]
+
+        return CombinedTrack(new_tracks)
+
     @classmethod
     def from_dict(cls, conf):
         return cls(**conf)
 
     def to_dict(self):
         return self.conf.copy()
+
+    def copy(self):
+        return Track(**self.to_dict())
 
 
 class CombinedTrack(Track):
@@ -187,6 +209,11 @@ class CombinedTrack(Track):
                     self.position = track.position
                     break
 
+        for track in tracks:
+            if track.conf["type"] == "viewport-projection":
+                track.conf["type"] = position_to_viewport_projection_type(self.position)
+                track.position = self.position
+        #
         # if no height is specified try to infer it from
         # the containing tracks
         if not height:
@@ -604,33 +631,29 @@ def datatype_to_tracktype(datatype):
     return track_type, position
 
 
+def position_to_viewport_projection_type(position):
+    if position == "center":
+        track_type = "viewport-projection-center"
+    elif position == "top" or position == "bottom":
+        track_type = "viewport-projection-horizontal"
+    elif position == "left" or position == "right":
+        track_type = "viewport-projection-vertical"
+    else:
+        track_type = "viewport-projection"
+
+    return track_type
+
+
 class ViewportProjection(Track):
-    def __init__(self, position, fromViewUid, **kwargs):
-        if position == "center":
-            track_type = "viewport-projection-center"
-        elif position == "top" or position == "bottom":
-            track_type = "viewport-projection-horizontal"
-        elif position == "left" or position == "right":
-            track_type = "viewport-projection-vertical"
-
+    def __init__(self, view, position=None):
         self.position = position
-        self.conf = {"type": track_type, "fromViewUid": fromViewUid}
-
-        self.conf.update(kwargs)
+        track_type = position_to_viewport_projection_type(position)
+        self.conf = {"type": track_type, "fromViewUid": view.uid}
+        self.view = view
 
         if "uid" not in self.conf:
             self.conf["uid"] = slugid.nice()
 
-
-def projection_adder(view: View):
-    """Return a function with adds a viewport projection."""
-
-    def adder(track: Track):
-        projection_track = ViewportProjection(
-            position=track.position, fromViewUid=view.uid
-        )
-
-        print("type1", type(projection_track))
-        return CombinedTrack([track, projection_track])
-
-    return adder
+    def copy(self):
+        """Copy this track."""
+        return ViewportProjection(self.view, self.position)

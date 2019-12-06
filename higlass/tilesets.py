@@ -95,6 +95,27 @@ def cooler(filepath, uuid=None, **kwargs):
     )
 
 
+def beddb(filepath, uuid=None, **kwargs):
+    from clodius.tiles.beddb import tileset_info, tiles
+
+    return Tileset(
+        uuid=uuid,
+        tileset_info=lambda: tileset_info(filepath),
+        tiles=lambda tids: tiles(filepath, tids),
+        **kwargs
+    )
+
+
+def bigbed(filepath, uuid=None, chromsizes=None, **kwargs):
+    from clodius.tiles.bigbed import tileset_info, tiles
+
+    return Tileset(
+        uuid=uuid,
+        tileset_info=lambda: tileset_info(filepath, chromsizes),
+        tiles=lambda tids: tiles(filepath, tids, chromsizes=chromsizes),
+    )
+
+
 def bigwig(filepath, uuid=None, chromsizes=None, **kwargs):
     from clodius.tiles.bigwig import tileset_info, tiles
 

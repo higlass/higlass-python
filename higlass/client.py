@@ -46,6 +46,7 @@ _datatype_default_track = {
     "gene-annotations": "horizontal-gene-annotations",
     "matrix": "heatmap",
     "vector": "horizontal-bar",
+    "multivec": "horizontal-multivec",
 }
 
 
@@ -364,7 +365,13 @@ class View(Component):
                     klass = CombinedTrack
                 else:
                     klass = Track
-                self.add_track(track=klass.from_dict(track_conf), position=position)
+
+                # position has to be passed in as part of the parameter
+                # array so that the constructor can be called with it as
+                # a parameter
+                self.add_track(
+                    track=klass.from_dict({"position": position, **track_conf})
+                )
         return self
 
     def to_dict(self):

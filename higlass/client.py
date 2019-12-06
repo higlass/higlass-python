@@ -299,8 +299,13 @@ class View(Component):
             self.conf["initialYDomain"] = initialYDomain
 
         self._track_position = {}
+
         for track in tracks:
-            self.add_track(track)
+            if type(track) is list:
+                new_track = CombinedTrack(track)
+                self.add_track(new_track)
+            else:
+                self.add_track(track)
 
         for i, overlay in enumerate(overlays):
             # The uids need to be unique so if no uid is available we need to

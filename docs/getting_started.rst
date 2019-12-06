@@ -75,6 +75,16 @@ Two tracks can be overlayed by using the ``+`` operator:
               tilesetUid='F2vbUeqhS86XkxuO1j2rPA')
         ], initialXDomain=[0,1e9])
 
+Another way to express this is to pass in a list of tracks
+as if it were a single track:
+
+.. code-block:: python
+
+  view=View([[Track('top-axis'),
+         Track('horizontal-bar',
+              server='//higlass.io/api/v1',
+              tilesetUid='F2vbUeqhS86XkxuO1j2rPA')
+        ]], initialXDomain=[0,1e9])
 
 Multiple Views
 --------------
@@ -141,6 +151,15 @@ it will be overlayed.
 Note that `ViewportProjection` tracks always need to be paired with other non-
 ViewportProjection tracks. Multiple ViewportProjection tracks can, however, be
 combined, as long as they are associated with regular tracks.
+
+Combined tracks can also be created by passing a list of tracks
+as if it were a track itself to a ``View``.
+
+.. code-block:: python
+
+    view2 = View([
+      [ Track(type='top-axis'), projection ]
+    ], initialXDomain=[0,2e7])
 
 Other Examples
 --------------

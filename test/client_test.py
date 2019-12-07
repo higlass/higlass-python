@@ -14,8 +14,7 @@ def test_add_tracks():
     track4 = Track("top-axis")
     track5 = track3 + track4
 
-    assert track1 in track5.tracks
-    assert track4 in track5.tracks
+    assert len(track5.tracks) == 3
 
 
 def test_combined_track_from_track_list():

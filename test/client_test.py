@@ -3,6 +3,7 @@ import higlass
 
 
 def test_add_tracks():
+    """Test combining tracks using the '+' operator."""
     track1 = Track("top-axis")
     track2 = Track("top-axis")
 
@@ -13,11 +14,28 @@ def test_add_tracks():
     track4 = Track("top-axis")
     track5 = track3 + track4
 
-    assert track1 in track5.tracks
-    assert track4 in track5.tracks
+    assert len(track5.tracks) == 3
+
+
+def test_combined_track_from_track_list():
+    """Test creating a CombinedTrack by providing a list
+    of tracks when creating a View."""
+    track1 = Track("top-axis")
+    track2 = Track("horizontal-line")
+
+    view = View([[track1, track2]])
+
+    view_dict = view.to_dict()
+    print("view_dict:", view_dict)
+
+    combined_track = view_dict["tracks"]["top"][0]
+
+    assert combined_track["type"] == "combined"
+    assert combined_track["contents"][0]["type"] == "top-axis"
 
 
 def test_viewport_projection():
+    """Test creating a ViewportProjection track."""
     track1 = Track("top-axis")
     view1 = View([track1])
 

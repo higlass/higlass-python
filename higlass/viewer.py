@@ -56,7 +56,7 @@ def display(
     Instantiate a HiGlass display with the given views
     """
     from .server import Server
-    from .client import CombinedTrack, View, ViewConf
+    from .client import CombinedTrack, View, ViewConf, ViewportProjection
 
     tilesets = []
 
@@ -64,7 +64,7 @@ def display(
         for track in view.tracks:
             if hasattr(track, "tracks"):
                 for track1 in track.tracks:
-                    if track1.tileset:
+                    if not isinstance(track1, ViewportProjection) and track1.tileset:
                         tilesets += [track1.tileset]
 
             if track.tileset:
@@ -79,8 +79,14 @@ def display(
         for track in view.tracks:
             if isinstance(track, CombinedTrack):
                 for track1 in track.tracks:
-                    if "server" not in track1.conf or track1.conf["server"] is None:
+                    if "fromViewUid" in track1.conf:
+                        # this is a viewport projection and doesn't have
+                        # a server
+                        pass
+                    elif "server" not in track1.conf or track1.conf["server"] is None:
                         track1.conf["server"] = server.api_address
+            elif "fromViewUid" in track.conf:
+                pass
             else:
                 if "server" not in track.conf or track.conf["server"] is None:
                     track.conf["server"] = server.api_address

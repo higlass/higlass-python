@@ -189,6 +189,41 @@ class Track(Component):
         return Track(**self.to_dict())
 
 
+class DividedTrack(Track):
+    """A track representing one tileset divided by another.
+
+    Only works with some tileset types.
+    """
+
+    def __init__(
+        self,
+        numerator_uuid,
+        numerator_server,
+        denominator_uuid,
+        denominator_server,
+        *args,
+        **kwargs,
+    ):
+        """This track is created using two tilesets.
+
+        Parameters
+        ----------
+        numerator (tileset):
+            The tileset to be divided
+        denominator (tileset):
+            The tileset to divide by
+        """
+        data_config = {
+            "type": "divided",
+            "children": [
+                {"server": numerator_server, "tilesetUid": numerator_uuid,},
+                {"server": denominator_server, "tilesetUid": denominator_uuid,},
+            ],
+        }
+
+        super().__init__(data=data_config, *args, **kwargs)
+
+
 class CombinedTrack(Track):
     def __init__(self, tracks, position=None, height=None, **kwargs):
         """

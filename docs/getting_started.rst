@@ -57,6 +57,26 @@ sometimes provide a recommended track type as well as a recommended position.
   import higlass.client as hgc
   track_type, position = hgc.datatype_to_tracktype(datatype)
 
+Color Maps
+----------
+
+Certain quantative tracks such as the heatmap can vary their colormap. Color maps can be passed in directly as arrays of color values:
+
+.. code-block:: python
+
+  Track('heatmap', tileset, colorRange=['white', 'black'])
+
+Or created from a matplotlib colormap (``reversed=True`` reverses the color
+order in the heatmap):
+
+.. code-block:: python
+
+  from higlass.utils import hg_cmap
+  Track('heatmap', tileset, colorRange=hg_cmap('jet', reverse=True))
+
+A list of available matplotlib color maps can be found `in the matplotlib docs
+<https://matplotlib.org/3.1.1/gallery/color/colormap_reference.html>`_.
+
 Combining Tracks
 ----------------
 
@@ -167,7 +187,8 @@ Other Examples
 The examples below demonstrate how to use the HiGlass Python API to view data
 locally in a Jupyter notebook or a browser-based HiGlass instance.
 
-For a fYou can find the demos from the talk at `github.com/higlass/scipy19 <https://github.com/higlass/scipy19>`_.
+For a more complete overview, you can find the demos from the talk at
+`github.com/higlass/scipy19 <https://github.com/higlass/scipy19>`_.
 
 Jupyter HiGlass Component
 ^^^^^^^^^^^^^^^^^^^^^^^^^

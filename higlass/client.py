@@ -75,7 +75,7 @@ class Track(Component):
     file_url: str
         An http accessible tileset file
     filetype : str
-        The type of the remote tilesets (e.g. 'bigwig' or 'cooler')
+        The type of the remote tilesets (e.g. 'bigwig', 'cooler', etc...)
     server : str, optional
         The server name (usually just 'localhost')
     height : int, optional
@@ -178,6 +178,28 @@ class Track(Component):
 
         return CombinedTrack(new_tracks)
 
+    def __truediv__(self, other):
+        if other.conf["type"] != self.conf["type"]:
+            raise ValueError(
+                f"Different track types: {self.conf['type']}, {other.conf['type']}"
+            )
+
+        if json.dumps(self.conf["options"]) != json.dumps(other.conf["options"]):
+            logger.warn(
+                "Tracks have different options, " "so we're using the first track's"
+            )
+
+        return DividedTrack(
+            self.conf["tilesetUid"],
+            self.conf["server"],
+            other.conf["tilesetUid"],
+            other.conf["server"],
+            type=self.conf["type"],
+            position=self.position,
+            options=self.conf["options"],
+            height=self.conf["height"],
+        )
+
     @classmethod
     def from_dict(cls, conf):
         return cls(**conf)
@@ -216,12 +238,21 @@ class DividedTrack(Track):
         data_config = {
             "type": "divided",
             "children": [
-                {"server": numerator_server, "tilesetUid": numerator_uuid,},
-                {"server": denominator_server, "tilesetUid": denominator_uuid,},
+                {"server": numerator_server, "tilesetUid": numerator_uuid},
+                {"server": denominator_server, "tilesetUid": denominator_uuid},
             ],
         }
 
         super().__init__(data=data_config, *args, **kwargs)
+
+    def change_attributes(self, **kwargs):
+        """
+        Change an attribute of this track and return a new copy.
+        """
+        conf = self.conf.copy()
+        conf.update(kwargs)
+
+        return Track(conf["type"]).from_dict(conf)
 
 
 class CombinedTrack(Track):

@@ -50,7 +50,8 @@ The simplest way to instantiate a HiGlass instance to create a display object wi
 If brevity is of importance, the constructor for ``View`` can be omitted and a
 view will automatically be created from the list of Tracks:
 ``higlass.display([[Track('top-axis')]])``. This, however, precludes the use
-of parameters with the view or for linking views using syncs.
+of parameters with the view or for linking views using syncs. It also always
+uses the `default position <https://github.com/higlass/higlass-python/blob/70d36d18eb8ef9e207640de5e7bc478c43fdc8de/higlass/client.py#L23>`_ for a given track type.
 
 View extent
 -----------

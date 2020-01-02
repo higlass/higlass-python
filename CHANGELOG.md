@@ -1,6 +1,7 @@
 ** Next release **
 
 -   Copied Python docs over from the higlass repo
+-   Added `save_as_png` function
 -   Added section on track types and multiple views to the docs
 -   Overloaded '+' operator to for combining tracks and creating CombinedTracks
 -   Added `ViewProjection` track

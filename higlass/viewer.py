@@ -1,15 +1,7 @@
 import json
 import logging
 import ipywidgets as widgets
-from traitlets import (
-    Bool,
-    Dict,
-    Float,
-    Int,
-    List,
-    Unicode,
-    Union,
-)
+from traitlets import Bool, Dict, Float, Int, List, Unicode, Union
 
 import slugid
 from ._version import __version__
@@ -116,18 +108,49 @@ def display(
     no_fuse=False,
 ):
     """
-    Instantiate a HiGlass display with the given views
+    Instantiate a HiGlass display with the given views.
+
+    Args:
+        views: A list of views to display. If the items in the list are
+            lists themselves, then automatically create views out of them.
+        location_syncs: A list of lists, each containing a list of views which
+            will scroll together.
+        zoom_syncs: A list of lists, each containing a list of views that
+            will zoom together.
+        host: The host on which the internal higlass server will be running on.
+        server_port: The port on which the internal higlass server will be running on.
+        dark_mode: Whether to use dark mode or not.
+        log_level: Level of logging to perform.
+        no_fuse: Don't mount the fuse filesystem. Useful if not loading any data
+            over http or https.
+
+    Returns:
+        (display: HiGlassDisplay, server: higlass.server.Server, higlass.client.viewconf) tuple
+        Display is an object used to create
+        a HiGlass viewer within a Jupyter notebook. The server object encapsulates
+        a Flask instance of a higlass server and the viewconf is a Python object
+        containing the viewconf describing the higlass dashboard.
     """
     from .server import Server
-    from .client import CombinedTrack, View, ViewConf
+    from .client import CombinedTrack, View, ViewConf, ViewportProjection
 
     tilesets = []
+
+    # views can also be passed in as lists of tracks
+    new_views = []
+    for view in views:
+        if isinstance(view, (tuple, list)):
+            # view is a list of tracks
+            new_views.append(View(view))
+        else:
+            new_views.append(view)
+    views = new_views
 
     for view in views:
         for track in view.tracks:
             if hasattr(track, "tracks"):
                 for track1 in track.tracks:
-                    if track1.tileset:
+                    if not isinstance(track1, ViewportProjection) and track1.tileset:
                         tilesets += [track1.tileset]
 
             if track.tileset:
@@ -142,8 +165,14 @@ def display(
         for track in view.tracks:
             if isinstance(track, CombinedTrack):
                 for track1 in track.tracks:
-                    if "server" not in track1.conf or track1.conf["server"] is None:
+                    if "fromViewUid" in track1.conf:
+                        # this is a viewport projection and doesn't have
+                        # a server
+                        pass
+                    elif "server" not in track1.conf or track1.conf["server"] is None:
                         track1.conf["server"] = server.api_address
+            elif "fromViewUid" in track.conf:
+                pass
             else:
                 if "server" not in track.conf or track.conf["server"] is None:
                     track.conf["server"] = server.api_address
@@ -163,34 +192,3 @@ def display(
         server,
         viewconf,
     )
-
-
-def view(tilesets):
-    """
-    Create a higlass viewer that displays the specified tilesets
-
-    Parameters:
-    -----------
-
-    Returns
-    -------
-        Nothing
-    """
-    from .server import Server
-    from .client import View
-
-    curr_view = View()
-    server = Server()
-    server.start(tilesets)
-
-    for ts in tilesets:
-        if ts.track_type is not None and ts.track_position is not None:
-            curr_view.add_track(
-                ts.track_type,
-                ts.track_position,
-                api_url=server.api_address,
-                tileset_uuid=ts.uuid,
-            )
-
-    curr_view.server = server
-    return curr_view

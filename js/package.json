@@ -10,11 +10,11 @@
   },
   "keywords": [
     "jupyter",
-    "nootbook",
-    "lab",
-    "widgets",
     "ipython",
-    "ipywidgets"
+    "ipywidgets",
+    "jupyterlab",
+    "jupyterlab-extension",
+    "widgets"
   ],
   "files": [
     "lib/**/*.js",

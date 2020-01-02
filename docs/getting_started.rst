@@ -34,44 +34,24 @@ Uninstalling
 
     jupyter nbextension uninstall --py --sys-prefix higlass
 
-Using HiGlass in Jupyter
-------------------------
+Simplest Use Case
+------------------
 
-To instantiate a HiGlass component within a Jupyter notebook, we first need
-to specify which data should be loaded. This can be accomplished with the
-help of the ``higlass.client`` module:
+The simplest way to instantiate a HiGlass instance to create a display object with one view:
 
 .. code-block:: python
 
-    from higlass.client import View, Track
-    import higlass
+  import higlass
+  from higlass.client import Track
 
+  display, server, viewconf = higlass.display([View([Track('top-axis')])])
+  display
 
-    view1 = View([
-        Track(track_type='top-axis', position='top'),
-        Track(track_type='heatmap', position='center',
-              tileset_uuid='CQMd6V_cRw6iCI_-Unl3PQ',
-              server="http://higlass.io/api/v1/",
-              height=250,
-              options={ 'valueScaleMax': 0.5 }),
-    ])
-
-    display, server, viewconf = higlass.display([view1])
-    display
-
-The result is a fully interactive HiGlass view direcly embedded in the Jupyter
-notebook.
-
-.. image:: img/remote-hic.png
-
-Saving the view
-^^^^^^^^^^^^^^^
-
-The currently visible HiGlass view can be downloaded to a file:
-
-.. code-block:: python
-
-  display.save_as_png('/tmp/my_view.png')
+If brevity is of importance, the constructor for ``View`` can be omitted and a
+view will automatically be created from the list of Tracks:
+``higlass.display([[Track('top-axis')]])``. This, however, precludes the use
+of parameters with the view or for linking views using syncs. It also always
+uses the `default position <https://github.com/higlass/higlass-python/blob/70d36d18eb8ef9e207640de5e7bc478c43fdc8de/higlass/client.py#L23>`_ for a given track type.
 
 View extent
 -----------
@@ -83,6 +63,68 @@ The extent of a view can be set using the ``initialXDomain`` parameter:
     view1 = View([
         Track(type='top-axis'),
     ], initialXDomain=[0,1e7])
+
+Track Types
+-----------
+
+A list of available track types can be found in the `documentation for HiGlass
+<https://docs.higlass.io/track_types.html>`_. Based on the data type, we can
+sometimes provide a recommended track type as well as a recommended position.
+
+.. code-block:: python
+
+  import higlass.client as hgc
+  track_type, position = hgc.datatype_to_tracktype(datatype)
+
+Combining Tracks
+----------------
+
+Tracks can be combined by overlaying them on top of each other or by performing operations with them.
+
+Overlaying tracks
+^^^^^^^^^^^^^^^^^
+
+Two tracks can be overlayed by using the ``+`` operator:
+
+.. code-block:: python
+
+  view=View([Track('top-axis') +
+         Track('horizontal-bar',
+              server='//higlass.io/api/v1',
+              tilesetUid='F2vbUeqhS86XkxuO1j2rPA')
+        ], initialXDomain=[0,1e9])
+
+Another way to express this is to pass in a list of tracks
+as if it were a single track:
+
+.. code-block:: python
+
+  view=View([[Track('top-axis'),
+         Track('horizontal-bar',
+              server='//higlass.io/api/v1',
+              tilesetUid='F2vbUeqhS86XkxuO1j2rPA')
+        ]], initialXDomain=[0,1e9])
+
+Multiple Views
+--------------
+
+Multiple views can be instantiated much like single views. They are positioned
+a on grid that is 12 units wide and an arbitrary number of units high. To
+create two side by side views, set both to be 6 units wide and one on the
+right to be at x position 6:
+
+.. code-block:: python
+
+  import higlass
+  from higlass.client import Track, View
+
+  view1 = View([Track(type='top-axis')], x=0, width=6)
+  view2 = View([Track(type='top-axis')], x=6, width=6)
+
+  display, server, viewconf = higlass.display([view1, view2])
+  display
+
+.. image:: img/two-simple-views.png
 
 Synchronization
 ---------------
@@ -104,12 +146,78 @@ views will scroll or zoom (or both) together:
     location_syncs=[[view1, view2]],
     zoom_syncs=[[view1, view2]])
 
+Viewport Projection
+-------------------
 
+Viewport projections can be instantiated like other tracks. It is created with
+a reference to the view we wish to track and combined with another track where
+it will be overlayed.
+
+.. code-block:: python
+
+    from higlass.client import ViewportProjection
+
+    view1 = View([
+        Track(type='top-axis'),
+    ], initialXDomain=[0,1e7])
+
+    projection = ViewportProjection(view1)
+
+    view2 = View([
+        Track(type='top-axis') + projection,
+    ], initialXDomain=[0,2e7])
+
+Note that `ViewportProjection` tracks always need to be paired with other non-
+ViewportProjection tracks. Multiple ViewportProjection tracks can, however, be
+combined, as long as they are associated with regular tracks.
+
+Combined tracks can also be created by passing a list of tracks
+as if it were a track itself to a ``View``.
+
+.. code-block:: python
+
+    view2 = View([
+      [ Track(type='top-axis'), projection ]
+    ], initialXDomain=[0,2e7])
+
+Saving the view
+---------------
+
+The currently visible HiGlass view can be downloaded to a file:
+
+.. code-block:: python
+
+  display.save_as_png('/tmp/my_view.png')
+  
 Other Examples
 --------------
 
-The examples below demonstrate how to use the HiGlass Python API to view
-data locally in a Jupyter notebook.
+The examples below demonstrate how to use the HiGlass Python API to view data
+locally in a Jupyter notebook or a browser-based HiGlass instance.
+
+For a fYou can find the demos from the talk at `github.com/higlass/scipy19 <https://github.com/higlass/scipy19>`_.
+
+Jupyter HiGlass Component
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To instantiate a HiGlass component within a Jupyter notebook, we first need
+to specify which data should be loaded. This can be accomplished with the
+help of the ``higlass.client`` module:
+
+.. code-block:: python
+
+    from higlass.client import View, Track
+    import higlass
+
+
+    view1 = View([
+        Track(track_type='top-axis', position='top'),
+        Track(track_type='heatmap', position='center',
+              tileset_uuid='CQMd6V_cRw6iCI_-Unl3PQ',
+              server="http://higlass.io/api/v1/",
+              height=250,
+              options={ 'valueScaleMax': 0.5 }),
+    ])
 
 
 Remote bigWig Files

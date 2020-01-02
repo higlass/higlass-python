@@ -26,9 +26,17 @@ class Tileset:
         Name for the tileset. Also used as display name for the track.
 
     """
-    def __init__(self, uuid=None, tileset_info=None, tiles=None,
-                 chromsizes=lambda: None, datatype="unspecified", name=None,
-                 private=False):
+
+    def __init__(
+        self,
+        uuid=None,
+        tileset_info=None,
+        tiles=None,
+        chromsizes=lambda: None,
+        datatype="unspecified",
+        name=None,
+        private=False,
+    ):
         self.uuid = slugid.nice() if uuid is None else uuid
         self.name = name
         self.tileset_info_fn = tileset_info
@@ -40,7 +48,7 @@ class Tileset:
     def tileset_info(self):
         info = self.tileset_info_fn()
         if self.name is not None:
-            info['name'] = self.name
+            info["name"] = self.name
         return info
 
     def tiles(self, tile_ids):
@@ -70,8 +78,9 @@ def chromsizes(filepath, uuid=None, **kwargs):
     return ChromSizes(
         uuid=uuid,
         chromsizes=get_tsv_chromsizes(filepath),
-        datatype='chromsizes',
-        **kwargs)
+        datatype="chromsizes",
+        **kwargs
+    )
 
 
 def cooler(filepath, uuid=None, **kwargs):
@@ -81,7 +90,7 @@ def cooler(filepath, uuid=None, **kwargs):
         uuid=uuid,
         tileset_info=lambda: tileset_info(filepath),
         tiles=lambda tids: tiles(filepath, tids),
-        datatype='matrix',
+        datatype="matrix",
         **kwargs
     )
 
@@ -93,7 +102,7 @@ def bigwig(filepath, uuid=None, chromsizes=None, **kwargs):
         uuid=uuid,
         tileset_info=lambda: tileset_info(filepath, chromsizes),
         tiles=lambda tids: tiles(filepath, tids, chromsizes=chromsizes),
-        datatype='vector',
+        datatype="vector",
         **kwargs
     )
 
@@ -109,7 +118,7 @@ def mrmatrix(filepath, uuid=None, **kwargs):
         tiles=lambda tile_ids: tiles_wrapper_2d(
             tile_ids, lambda z, x, y: format_dense_tile(tiles(f, z, x, y))
         ),
-        datatype='matrix',
+        datatype="matrix",
         **kwargs
     )
 
@@ -121,18 +130,16 @@ def nplabels(labels_array, uuid=None, importances=None, **kwargs):
 
     return Tileset(
         uuid=uuid,
-        tileset_info=lambda: npvector.tileset_info(labels_array,
-            bins_per_dimension=16),
-        tiles=lambda tids: nplabels.tiles_wrapper(
-            labels_array, tids, importances),
-        datatype='linear-labels',
+        tileset_info=lambda: npvector.tileset_info(labels_array, bins_per_dimension=16),
+        tiles=lambda tids: nplabels.tiles_wrapper(labels_array, tids, importances),
+        datatype="linear-labels",
         **kwargs
     )
 
 
 def h5labels(filename, uuid=None, importances=None, **kwargs):
-    f = h5py.File(filename, 'r')
-    return nplabels(f['labels'], uuid, importances, **kwargs)
+    f = h5py.File(filename, "r")
+    return nplabels(f["labels"], uuid, importances, **kwargs)
 
 
 def dfpoints(df, x_col, y_col, uuid=None, **kwargs):
@@ -160,14 +167,16 @@ def dfpoints(df, x_col, y_col, uuid=None, **kwargs):
 
     tsinfo = tileset_info(df, x_col, y_col)
     tiles_fn = lambda z, x, y, width=1, height=1: tiles(
-        df, x_col, y_col, tsinfo, z, x, y, width, height)
+        df, x_col, y_col, tsinfo, z, x, y, width, height
+    )
 
     return Tileset(
         uuid=uuid,
         tileset_info=lambda: tsinfo,
         tiles=lambda tile_ids: format_data(
-            bundled_tiles_wrapper_2d(tile_ids, tiles_fn)),
-        datatype='scatter-point',
+            bundled_tiles_wrapper_2d(tile_ids, tiles_fn)
+        ),
+        datatype="scatter-point",
         **kwargs
     )
 
@@ -176,5 +185,5 @@ by_filetype = {
     "cooler": cooler,
     "bigwig": bigwig,
     "mrmatrix": mrmatrix,
-    "h5labels": h5labels
+    "h5labels": h5labels,
 }

@@ -161,6 +161,55 @@ as if it were a track itself to a ``View``.
       [ Track(type='top-axis'), projection ]
     ], initialXDomain=[0,2e7])
 
+Dataset Arithmatic
+-------------------
+
+HiGlass supports client-side division between quantitative datasets. This makes it possible
+to quickly compare two datasets by visualizing their ratio as computed on loaded tiles
+rather than the entire dataset:
+
+.. code-block:: python
+
+    t1 = Track(**track_def)
+    t2 = Track(**{ **track_def, "tileset_uuid": "QvdMEvccQuOxKTEjrVL3wA" })
+    t3 = (t1 / t2)
+
+The full example is here:
+
+.. code-block:: python
+
+  from higlass.utils import hg_cmap
+
+  track_def = {
+      "track_type": 'heatmap',
+      "position": 'center',
+      "tileset_uuid": 'CQMd6V_cRw6iCI_-Unl3PQ',
+      "server": "http://higlass.io/api/v1/",
+      "height": 210,
+      "options": {}
+  }
+
+  t1 = Track(**track_def)
+  t2 = Track(**{ **track_def, "tileset_uuid": "QvdMEvccQuOxKTEjrVL3wA" })
+  t3 = (t1 / t2).change_attributes(
+      options={
+          'colorRange': hg_cmap('coolwarm'),
+          'valueScaleMin': 0.1,
+          'valueScaleMax': 10,
+      })
+  domain = [7e7,8e7]
+
+  v1 = View([t1], x=0, width=4, initialXDomain=domain)
+  v2 = View([t3], x=4, width=4, initialXDomain=domain)
+  v3 = View([t2], x=8, width=4, initialXDomain=domain)
+
+  display, server, viewconf = higlass.display([v1, v2, v3])
+  display
+
+.. image:: img/divided-by-track.png
+
+
+
 Other Examples
 --------------
 

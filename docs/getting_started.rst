@@ -167,7 +167,7 @@ Other Examples
 The examples below demonstrate how to use the HiGlass Python API to view data
 locally in a Jupyter notebook or a browser-based HiGlass instance.
 
-For a fYou can find the demos from the talk at `github.com/higlass/scipy19 <https://github.com/higlass/scipy19>`_.
+You can also find other demos from the SciPy talk at `github.com/higlass/scipy19 <https://github.com/higlass/scipy19>`_.
 
 Jupyter HiGlass Component
 ^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -67,11 +67,15 @@ notebook.
 Saving the view
 ^^^^^^^^^^^^^^^
 
-The currently visible HiGlass view can be downloaded to a file:
+The currently visible HiGlass dashboard can be downloaded to a file:
 
 .. code-block:: python
 
   display.save_as_png('/tmp/my_view.png')
+
+Not that this function can only be used within a Jupyter notebook
+and works asynchronously so the saved screenshot will not nessarily
+be complete immediately after the function finishes executing
 
 View extent
 -----------

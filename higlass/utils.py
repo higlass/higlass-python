@@ -90,7 +90,6 @@ def fill_filetype_and_datatype(filename, filetype=None, datatype=None):
     if filetype is None:
         # no filetype provided, try a few common filetypes
         filetype = infer_filetype(filename)
-        print("Inferred filetype:", filetype)
 
         if filetype is None:
             recommended_filetype = recommend_filetype(filename)
@@ -110,7 +109,6 @@ def fill_filetype_and_datatype(filename, filetype=None, datatype=None):
 
     if datatype is None:
         datatype = infer_datatype(filetype)
-        print("Inferred datatype:", datatype)
 
         if datatype is None:
             recommended_datatype = recommend_datatype(filetype)

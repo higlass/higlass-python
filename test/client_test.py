@@ -26,8 +26,6 @@ def test_combined_track_from_track_list():
     view = View([[track1, track2]])
 
     view_dict = view.to_dict()
-    print("view_dict:", view_dict)
-
     combined_track = view_dict["tracks"]["top"][0]
 
     assert combined_track["type"] == "combined"

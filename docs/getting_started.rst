@@ -34,6 +34,25 @@ Uninstalling
 
     jupyter nbextension uninstall --py --sys-prefix higlass
 
+Simplest Use Case
+------------------
+
+The simplest way to instantiate a HiGlass instance to create a display object with one view:
+
+.. code-block:: python
+
+  import higlass
+  from higlass.client import Track
+
+  display, server, viewconf = higlass.display([View([Track('top-axis')])])
+  display
+
+If brevity is of importance, the constructor for ``View`` can be omitted and a
+view will automatically be created from the list of Tracks:
+``higlass.display([[Track('top-axis')]])``. This, however, precludes the use
+of parameters with the view or for linking views using syncs. It also always
+uses the `default position <https://github.com/higlass/higlass-python/blob/70d36d18eb8ef9e207640de5e7bc478c43fdc8de/higlass/client.py#L23>`_ for a given track type.
+
 View extent
 -----------
 
@@ -209,6 +228,18 @@ The full example is here:
 .. image:: img/divided-by-track.png
 
 
+Saving the view
+---------------
+
+The currently visible HiGlass view can be downloaded to a file:
+
+.. code-block:: python
+
+  display.save_as_png('/tmp/my_view.png')
+
+Not that this function can only be used within a Jupyter notebook
+and works asynchronously so the saved screenshot will not nessarily
+be complete immediately after the function finishes executing
 
 Other Examples
 --------------
@@ -240,13 +271,6 @@ help of the ``higlass.client`` module:
               options={ 'valueScaleMax': 0.5 }),
     ])
 
-    display, server, viewconf = higlass.display([view1])
-    display
-
-The result is a fully interactive HiGlass view direcly embedded in the Jupyter
-notebook.
-
-.. image:: img/remote-hic.png
 
 Remote bigWig Files
 ^^^^^^^^^^^^^^^^^^^

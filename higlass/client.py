@@ -368,7 +368,7 @@ class View(Component):
         self._track_position = {}
 
         for track in tracks:
-            if type(track) is list:
+            if isinstance(track, (tuple, list)):
                 new_track = CombinedTrack(track)
                 self.add_track(new_track)
             else:

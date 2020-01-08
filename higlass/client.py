@@ -179,16 +179,6 @@ class Track(Component):
         return CombinedTrack(new_tracks)
 
     def __truediv__(self, other):
-        if other.conf["type"] != self.conf["type"]:
-            raise ValueError(
-                f"Different track types: {self.conf['type']}, {other.conf['type']}"
-            )
-
-        if json.dumps(self.conf["options"]) != json.dumps(other.conf["options"]):
-            logger.warn(
-                "Tracks have different options, " "so we're using the first track's"
-            )
-
         return DividedTrack(self, other,)
 
     @classmethod
@@ -220,6 +210,18 @@ class DividedTrack(Track):
         denominator (tileset):
             The tileset to divide by
         """
+        if numerator.conf["type"] != denominator.conf["type"]:
+            raise ValueError(
+                f"Different track types: {self.conf['type']}, {other.conf['type']}"
+            )
+
+        if json.dumps(numerator.conf["options"]) != denominator.dumps(
+            other.conf["options"]
+        ):
+            logger.warn(
+                "Tracks have different options, " "so we're using the first track's"
+            )
+
         numerator_server = numerator.conf["server"]
         numerator_uuid = numerator.conf["tilesetUid"]
 

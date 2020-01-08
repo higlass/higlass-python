@@ -212,14 +212,14 @@ class DividedTrack(Track):
         """
         if numerator.conf["type"] != denominator.conf["type"]:
             raise ValueError(
-                f"Different track types: {self.conf['type']}, {other.conf['type']}"
+                f"Different track types: {numerator.conf['type']}, {denominator.conf['type']}"
             )
 
-        if json.dumps(numerator.conf["options"]) != denominator.dumps(
-            other.conf["options"]
+        if json.dumps(numerator.conf["options"]) != json.dumps(
+            denominator.conf["options"]
         ):
             logger.warn(
-                "Tracks have different options, " "so we're using the first track's"
+                "Tracks have different options, so we're using the first track's"
             )
 
         numerator_server = numerator.conf["server"]

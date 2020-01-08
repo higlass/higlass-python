@@ -120,7 +120,7 @@ class Track(Component):
             self.conf["filetype"] = filetype
 
         if options is None:
-            options = {}
+            self.conf["options"] = {}
         else:
             self.conf["options"] = deepcopy(options)
 
@@ -189,16 +189,7 @@ class Track(Component):
                 "Tracks have different options, " "so we're using the first track's"
             )
 
-        return DividedTrack(
-            self.conf["tilesetUid"],
-            self.conf["server"],
-            other.conf["tilesetUid"],
-            other.conf["server"],
-            type=self.conf["type"],
-            position=self.position,
-            options=self.conf["options"],
-            height=self.conf["height"],
-        )
+        return DividedTrack(self, other,)
 
     @classmethod
     def from_dict(cls, conf):
@@ -218,13 +209,7 @@ class DividedTrack(Track):
     """
 
     def __init__(
-        self,
-        numerator_uuid,
-        numerator_server,
-        denominator_uuid,
-        denominator_server,
-        *args,
-        **kwargs,
+        self, numerator, denominator, *args, **kwargs,
     ):
         """This track is created using two tilesets.
 
@@ -235,6 +220,17 @@ class DividedTrack(Track):
         denominator (tileset):
             The tileset to divide by
         """
+        numerator_server = numerator.conf["server"]
+        numerator_uuid = numerator.conf["tilesetUid"]
+
+        denominator_server = denominator.conf["server"]
+        denominator_uuid = denominator.conf["tilesetUid"]
+
+        track_type = numerator.conf["type"]
+        position = numerator.position
+        options = numerator.conf["options"]
+        height = numerator.conf["height"] if "height" in numerator.conf else None
+
         data_config = {
             "type": "divided",
             "children": [
@@ -243,7 +239,15 @@ class DividedTrack(Track):
             ],
         }
 
-        super().__init__(data=data_config, *args, **kwargs)
+        super().__init__(
+            data=data_config,
+            type=track_type,
+            position=position,
+            options=options,
+            height=height,
+            *args,
+            **kwargs,
+        )
 
     def change_attributes(self, **kwargs):
         """
@@ -368,7 +372,7 @@ class View(Component):
         self._track_position = {}
 
         for track in tracks:
-            if type(track) is list:
+            if isinstance(track, (tuple, list)):
                 new_track = CombinedTrack(track)
                 self.add_track(new_track)
             else:

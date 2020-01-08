@@ -191,7 +191,7 @@ rather than the entire dataset:
 
     t1 = Track(**track_def)
     t2 = Track(**{ **track_def, "tileset_uuid": "QvdMEvccQuOxKTEjrVL3wA" })
-    t3 = (t1 / t2)
+    t3 = t1 / t2
 
 They can also be created using a constructor:
 

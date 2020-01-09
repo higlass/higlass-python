@@ -133,7 +133,7 @@ def display(
         containing the viewconf describing the higlass dashboard.
     """
     from .server import Server
-    from .client import CombinedTrack, View, ViewConf, ViewportProjection
+    from .client import CombinedTrack, DividedTrack, View, ViewConf, ViewportProjection
 
     tilesets = []
 
@@ -174,6 +174,10 @@ def display(
                         track1.conf["server"] = server.api_address
             elif "fromViewUid" in track.conf:
                 pass
+            elif "data" in track.conf:
+                # probably a divided track with a custom
+                # data fetcher
+                pass
             else:
                 if "server" not in track.conf or track.conf["server"] is None:
                     track.conf["server"] = server.api_address
@@ -185,11 +189,15 @@ def display(
         zoom_syncs=zoom_syncs,
     )
 
+    extra_args = {}
+    if auth_token:
+        extra_args["auth_token"] = auth_token
+
     return (
         HiGlassDisplay(
             viewconf=viewconf.to_dict(),
             hg_options={"theme": "dark" if dark_mode else "light",},
-            auth_token=auth_token,
+            **extra_args
         ),
         server,
         viewconf,

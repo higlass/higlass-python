@@ -248,6 +248,19 @@ Not that this function can only be used within a Jupyter notebook
 and works asynchronously so the saved screenshot will not nessarily
 be complete immediately after the function finishes executing
 
+Authorization
+-------------
+
+If loading tiles from a secured server, the ``auth_token`` parameter takes the
+string that will be used as the Authorization header on all tile requests sent
+out by HiGlass:
+
+.. code-block:: python
+
+  (d,s,v) = higlass.display(views, auth_token='JWT DEADBEEF')
+
+
+
 Other Examples
 --------------
 

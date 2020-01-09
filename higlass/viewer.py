@@ -106,6 +106,7 @@ def display(
     dark_mode=False,
     log_level=logging.ERROR,
     no_fuse=False,
+    auth_token=None,
 ):
     """
     Instantiate a HiGlass display with the given views.
@@ -187,7 +188,8 @@ def display(
     return (
         HiGlassDisplay(
             viewconf=viewconf.to_dict(),
-            hg_options={"theme": "dark" if dark_mode else "light"},
+            hg_options={"theme": "dark" if dark_mode else "light",},
+            auth_token=auth_token,
         ),
         server,
         viewconf,

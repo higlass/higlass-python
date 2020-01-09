@@ -23,6 +23,7 @@ matrix:
         - pip install -r requirements-dev.txt
         - python setup.py install
       script:
+        - mkdir data && ./test/get_test_data.sh
         - pytest
       before_deploy:
         - pip install --user -r docs/requirements.txt

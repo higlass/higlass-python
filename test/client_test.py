@@ -1,4 +1,5 @@
 from higlass.client import Track, View, ViewportProjection
+from higlass.tilesets import Tileset
 import higlass
 
 
@@ -15,6 +16,20 @@ def test_add_tracks():
     track5 = track3 + track4
 
     assert len(track5.tracks) == 3
+
+
+def test_divided_track():
+    """Test creating a divided track."""
+    ts1 = Tileset(uuid="ts1")
+    tr1 = Track(track_type="heatmap", server="server1", tileset=ts1)
+
+    ts2 = Tileset(uuid="ts2")
+    tr2 = Track(track_type="heatmap", server="server2", tileset=ts2)
+
+    tr3 = tr1 / tr2
+
+    assert "data" in tr3.conf
+    assert tr3.conf["data"]["type"] == "divided"
 
 
 def test_combined_track_from_track_list():

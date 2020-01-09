@@ -5,6 +5,8 @@
 -   Added section on track types and multiple views to the docs
 -   Overloaded '+' operator to for combining tracks and creating CombinedTracks
 -   Added `ViewProjection` track
+-   Overloaded the '/' operator to create divided tracks
+-   Added support using matplotlib colormaps
 -   Created simplified view creation API
 
 ## [v0.3.0](https://github.com/higlass/higlass-python/compare/v0.2.1...v0.3.0)

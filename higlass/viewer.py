@@ -1,8 +1,23 @@
+import json
 import logging
 import ipywidgets as widgets
 from traitlets import Bool, Dict, Float, Int, List, Unicode, Union
 
+import slugid
 from ._version import __version__
+
+import os
+import threading
+import time
+
+
+def save_b64_image_to_png(filename, b64str):
+    """Save a base64 encoded image to a file."""
+    import base64
+
+    imgdata = base64.b64decode(b64str.split(",")[1])
+    with open(filename, "wb") as f:
+        f.write(imgdata)
 
 
 @widgets.register
@@ -38,7 +53,47 @@ class HiGlassDisplay(widgets.DOMWidget):
     options = Dict({}).tag(sync=True)
 
     def __init__(self, **kwargs):
+        self.on_msg(self._handle_js_events)
+        self.callbacks = {}
+
         super(HiGlassDisplay, self).__init__(**kwargs)
+
+    def get_base64_img(self, callback):
+        uuid = slugid.nice()
+
+        self.callbacks[uuid] = callback
+
+        self.send(json.dumps({"request": "save_as_png", "params": {"uuid": uuid},}))
+
+    def _handle_js_events(self, widget, content, buffers=None):
+        try:
+            if self.callbacks[content["params"]["uuid"]]:
+                self.callbacks[content["params"]["uuid"]](content["imgData"])
+                del self.callbacks[content["params"]["uuid"]]
+        except Exception as e:
+            self.log.error(e)
+            self.log.exception("Unhandled exception while handling msg")
+
+    # def save_as_png(self, filename):
+    #     """Save the currently visible plot to a png file"""
+    #     from IPython.display import Javascript
+
+    #     js = Javascript(
+    #         f"""
+    #         let d = document.getElementById('{self.dom_element_id}');
+    # d.api.exportAsPngBlobPromise().then(blob => {{
+    #  let reader = new FileReader();
+    #  reader.readAsDataURL(blob);
+    #  reader.onloadend = function() {{
+    #      let base64data = reader.result;
+    #      let kernel = IPython.notebook.kernel;
+    #      let command = `from higlass.viewer import save_b64_image_to_png; save_b64_image_to_png('{filename}', '''${{base64data}}''')`
+    #      let ex = kernel.execute(command);
+    #  }}
+    # }})
+    #     """
+    #     )
+    #     return js
 
 
 def display(
@@ -53,12 +108,43 @@ def display(
     no_fuse=False,
 ):
     """
-    Instantiate a HiGlass display with the given views
+    Instantiate a HiGlass display with the given views.
+
+    Args:
+        views: A list of views to display. If the items in the list are
+            lists themselves, then automatically create views out of them.
+        location_syncs: A list of lists, each containing a list of views which
+            will scroll together.
+        zoom_syncs: A list of lists, each containing a list of views that
+            will zoom together.
+        host: The host on which the internal higlass server will be running on.
+        server_port: The port on which the internal higlass server will be running on.
+        dark_mode: Whether to use dark mode or not.
+        log_level: Level of logging to perform.
+        no_fuse: Don't mount the fuse filesystem. Useful if not loading any data
+            over http or https.
+
+    Returns:
+        (display: HiGlassDisplay, server: higlass.server.Server, higlass.client.viewconf) tuple
+        Display is an object used to create
+        a HiGlass viewer within a Jupyter notebook. The server object encapsulates
+        a Flask instance of a higlass server and the viewconf is a Python object
+        containing the viewconf describing the higlass dashboard.
     """
     from .server import Server
     from .client import CombinedTrack, View, ViewConf, ViewportProjection
 
     tilesets = []
+
+    # views can also be passed in as lists of tracks
+    new_views = []
+    for view in views:
+        if isinstance(view, (tuple, list)):
+            # view is a list of tracks
+            new_views.append(View(view))
+        else:
+            new_views.append(view)
+    views = new_views
 
     for view in views:
         for track in view.tracks:

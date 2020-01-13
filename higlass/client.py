@@ -6,10 +6,6 @@ import os
 
 
 logger = logging.getLogger()
-fhandler = logging.FileHandler(filename="higlass-python.log", mode="a")
-formatter = logging.Formatter("[%(asctime)s] %(levelname)s in %(module)s: %(message)s")
-fhandler.setFormatter(formatter)
-logger.addHandler(fhandler)
 
 if "HIGLASS_PYTHON_DEBUG" in os.environ and os.environ["HIGLASS_PYTHON_DEBUG"]:
     logger.setLevel(logging.DEBUG)
@@ -75,7 +71,7 @@ class Track(Component):
     file_url: str
         An http accessible tileset file
     filetype : str
-        The type of the remote tilesets (e.g. 'bigwig' or 'cooler')
+        The type of the remote tilesets (e.g. 'bigwig', 'cooler', etc...)
     server : str, optional
         The server name (usually just 'localhost')
     height : int, optional
@@ -120,7 +116,7 @@ class Track(Component):
             self.conf["filetype"] = filetype
 
         if options is None:
-            options = {}
+            self.conf["options"] = {}
         else:
             self.conf["options"] = deepcopy(options)
 
@@ -178,6 +174,9 @@ class Track(Component):
 
         return CombinedTrack(new_tracks)
 
+    def __truediv__(self, other):
+        return DividedTrack(self, other,)
+
     @classmethod
     def from_dict(cls, conf):
         return cls(**conf)
@@ -187,6 +186,75 @@ class Track(Component):
 
     def copy(self):
         return Track(**self.to_dict())
+
+
+class DividedTrack(Track):
+    """A track representing one tileset divided by another.
+
+    Only works with some tileset types.
+    """
+
+    def __init__(
+        self, numerator, denominator, *args, **kwargs,
+    ):
+        """This track is created using two tilesets.
+
+        Parameters
+        ----------
+        numerator (tileset):
+            The tileset to be divided
+        denominator (tileset):
+            The tileset to divide by
+        """
+        if numerator.conf["type"] != denominator.conf["type"]:
+            raise ValueError(
+                f"Different track types: {numerator.conf['type']}, {denominator.conf['type']}"
+            )
+
+        if json.dumps(numerator.conf["options"]) != json.dumps(
+            denominator.conf["options"]
+        ):
+            logger.warn(
+                "Tracks have different options, so we're using the first track's"
+            )
+
+        numerator_server = numerator.conf["server"]
+        numerator_uuid = numerator.conf["tilesetUid"]
+
+        denominator_server = denominator.conf["server"]
+        denominator_uuid = denominator.conf["tilesetUid"]
+
+        track_type = numerator.conf["type"]
+        position = numerator.position
+        options = numerator.conf["options"]
+        height = numerator.conf["height"] if "height" in numerator.conf else None
+
+        data_config = {
+            "type": "divided",
+            "children": [
+                {"server": numerator_server, "tilesetUid": numerator_uuid},
+                {"server": denominator_server, "tilesetUid": denominator_uuid},
+            ],
+        }
+
+        super().__init__(
+            data=data_config,
+            type=track_type,
+            position=position,
+            options=options,
+            height=height,
+            *args,
+            **kwargs,
+        )
+
+    def change_attributes(self, **kwargs):
+        """
+        Change an attribute of this track and return a new copy.
+        """
+        conf = self.conf.copy()
+        conf.update(kwargs)
+
+        return Track(conf["type"]).from_dict(conf)
 
 
 class CombinedTrack(Track):

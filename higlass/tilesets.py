@@ -113,6 +113,7 @@ def bigbed(filepath, uuid=None, chromsizes=None, **kwargs):
         uuid=uuid,
         tileset_info=lambda: tileset_info(filepath, chromsizes),
         tiles=lambda tids: tiles(filepath, tids, chromsizes=chromsizes),
+        **kwargs
     )
 
 

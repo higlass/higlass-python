@@ -6,10 +6,6 @@ import os
 
 
 logger = logging.getLogger()
-fhandler = logging.FileHandler(filename="higlass-python.log", mode="a")
-formatter = logging.Formatter("[%(asctime)s] %(levelname)s in %(module)s: %(message)s")
-fhandler.setFormatter(formatter)
-logger.addHandler(fhandler)
 
 if "HIGLASS_PYTHON_DEBUG" in os.environ and os.environ["HIGLASS_PYTHON_DEBUG"]:
     logger.setLevel(logging.DEBUG)

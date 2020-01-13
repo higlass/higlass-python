@@ -14,3 +14,28 @@ def test_dfpoints():
 
     assert len(tsinfo["min_pos"]) == 2
     assert "max_width" in tsinfo
+
+
+def test_beddb():
+    """Test the creation of a beddb tileset."""
+    ts = hgti.beddb("data/gene_annotations.short.db")
+
+    tsinfo = ts.tileset_info()
+
+    assert "max_width" in tsinfo
+
+    tiles = ts.tiles(["x.0.0"])
+
+    assert len(tiles) == 1
+
+
+def test_bigbed():
+    ts = hgti.bigbed("data/Ctcf_WT_allMot.bed.short.bb")
+
+    tsinfo = ts.tileset_info()
+
+    assert "max_width" in tsinfo
+
+    tiles = ts.tiles(["x.0.0"])
+
+    assert len(tiles) == 1

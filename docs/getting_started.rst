@@ -34,6 +34,25 @@ Uninstalling
 
     jupyter nbextension uninstall --py --sys-prefix higlass
 
+Simplest Use Case
+------------------
+
+The simplest way to instantiate a HiGlass instance to create a display object with one view:
+
+.. code-block:: python
+
+  import higlass
+  from higlass.client import Track
+
+  display, server, viewconf = higlass.display([View([Track('top-axis')])])
+  display
+
+If brevity is of importance, the constructor for ``View`` can be omitted and a
+view will automatically be created from the list of Tracks:
+``higlass.display([[Track('top-axis')]])``. This, however, precludes the use
+of parameters with the view or for linking views using syncs. It also always
+uses the `default position <https://github.com/higlass/higlass-python/blob/70d36d18eb8ef9e207640de5e7bc478c43fdc8de/higlass/client.py#L23>`_ for a given track type.
+
 View extent
 -----------
 
@@ -161,13 +180,81 @@ as if it were a track itself to a ``View``.
       [ Track(type='top-axis'), projection ]
     ], initialXDomain=[0,2e7])
 
+Dataset Arithmatic
+-------------------
+
+HiGlass supports client-side division between quantitative datasets. This makes it possible
+to quickly compare two datasets by visualizing their ratio as computed on loaded tiles
+rather than the entire dataset:
+
+.. code-block:: python
+
+    t1 = Track(**track_def)
+    t2 = Track(**{ **track_def, "tileset_uuid": "QvdMEvccQuOxKTEjrVL3wA" })
+    t3 = t1 / t2
+
+They can also be created using a constructor:
+
+.. code-block:: python
+    from higlass.client import DividedTrack
+
+    t3 = DividedTrack(t1, t2)
+
+The full example is here:
+
+.. code-block:: python
+
+  from higlass.utils import hg_cmap
+
+  track_def = {
+      "track_type": 'heatmap',
+      "position": 'center',
+      "tileset_uuid": 'CQMd6V_cRw6iCI_-Unl3PQ',
+      "server": "http://higlass.io/api/v1/",
+      "height": 210,
+      "options": {}
+  }
+
+  t1 = Track(**track_def)
+  t2 = Track(**{ **track_def, "tileset_uuid": "QvdMEvccQuOxKTEjrVL3wA" })
+  t3 = (t1 / t2).change_attributes(
+      options={
+          'colorRange': hg_cmap('coolwarm'),
+          'valueScaleMin': 0.1,
+          'valueScaleMax': 10,
+      })
+  domain = [7e7,8e7]
+
+  v1 = View([t1], x=0, width=4, initialXDomain=domain)
+  v2 = View([t3], x=4, width=4, initialXDomain=domain)
+  v3 = View([t2], x=8, width=4, initialXDomain=domain)
+
+  display, server, viewconf = higlass.display([v1, v2, v3])
+  display
+
+.. image:: img/divided-by-track.png
+
+
+Saving the view
+---------------
+
+The currently visible HiGlass view can be downloaded to a file:
+
+.. code-block:: python
+
+  display.save_as_png('/tmp/my_view.png')
+
+Not that this function can only be used within a Jupyter notebook
+and works asynchronously so the saved screenshot will not nessarily
+be complete immediately after the function finishes executing
+
 Other Examples
 --------------
 
 The examples below demonstrate how to use the HiGlass Python API to view data
 locally in a Jupyter notebook or a browser-based HiGlass instance.
 
-For a fYou can find the demos from the talk at `github.com/higlass/scipy19 <https://github.com/higlass/scipy19>`_.
+You can also find other demos from the SciPy talk at `github.com/higlass/scipy19 <https://github.com/higlass/scipy19>`_.
 
 Jupyter HiGlass Component
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -191,13 +278,6 @@ help of the ``higlass.client`` module:
               options={ 'valueScaleMax': 0.5 }),
     ])
 
-    display, server, viewconf = higlass.display([view1])
-    display
-
-The result is a fully interactive HiGlass view direcly embedded in the Jupyter
-notebook.
-
-.. image:: img/remote-hic.png
 
 Remote bigWig Files
 ^^^^^^^^^^^^^^^^^^^

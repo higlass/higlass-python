@@ -1,3 +1,3 @@
 #!/bin/bash
 
-sphinx-autobuild -b html . _build/html -p 8062 --ignore "*.swp" -B
+sphinx-autobuild -b html . _build/html -p 8061 --ignore "*.swp" -B

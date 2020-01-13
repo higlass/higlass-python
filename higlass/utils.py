@@ -40,7 +40,7 @@ def recommend_datatype(filetype):
         return "bedlike"
 
 
-filetypes = {
+FILETYPES = {
     "cooler": {
         "description": "multi-resolution cooler file",
         "extensions": [".mcool"],
@@ -72,7 +72,7 @@ filetypes = {
 def infer_filetype(filename):
     _, ext = op.splitext(filename)
 
-    for filetype, meta in filetypes.items():
+    for filetype, meta in FILETYPES.items():
         if ext.lower() in meta["extensions"]:
             return filetype
 
@@ -80,8 +80,8 @@ def infer_filetype(filename):
 
 
 def infer_datatype(filetype):
-    if filetype in filetypes:
-        return filetypes[filetype]["datatypes"][0]
+    if filetype in FILETYPES:
+        return FILETYPES[filetype]["datatypes"][0]
 
     return None
 
@@ -139,4 +139,4 @@ def fill_filetype_and_datatype(filename, filetype=None, datatype=None):
                     )
                 )
 
-    return (filetype, datatype)
+    return filetype, datatype

@@ -40,34 +40,50 @@ def recommend_datatype(filetype):
         return "bedlike"
 
 
+filetypes = {
+    "cooler": {
+        "description": "multi-resolution cooler file",
+        "extensions": [".mcool"],
+        "datatypes": ["matrix"],
+    },
+    "bigwig": {
+        "description": "Genomics focused multi-resolution vector file",
+        "extensions": [".bw", ".bigwig"],
+        "datatypes": ["vector"],
+    },
+    "beddb": {
+        "description": "SQLite-based multi-resolution annotation file",
+        "extensions": [".beddb", ".multires.db"],
+        "datatypes": ["bedlike", "gene-annotations"],
+    },
+    "hitile": {
+        "description": "Multi-resolution vector file",
+        "extensions": [".hitile"],
+        "datatypes": ["vector"],
+    },
+    "time-interval-json": {
+        "description": "Time interval notation",
+        "extensions": [".htime"],
+        "datatypes": ["time-interval"],
+    },
+}
+
+
 def infer_filetype(filename):
     _, ext = op.splitext(filename)
 
-    if ext.lower() == ".bw" or ext.lower() == ".bigwig":
-        return "bigwig"
-    elif ext.lower() == ".mcool" or ext.lower() == ".cool":
-        return "cooler"
-    elif ext.lower() == ".htime":
-        return "time-interval-json"
-    elif ext.lower() == ".hitile":
-        return "hitile"
-    elif ext.lower() == ".beddb":
-        return "beddb"
+    for filetype, meta in filetypes.items():
+        if ext.lower() in meta["extensions"]:
+            return filetype
 
     return None
 
 
 def infer_datatype(filetype):
-    if filetype == "cooler":
-        return "matrix"
-    if filetype == "bigwig":
-        return "vector"
-    if filetype == "time-interval-json":
-        return "time-interval"
-    if filetype == "hitile":
-        return "vector"
-    if filetype == "beddb":
-        return "bedlike"
+    if filetype in filetypes:
+        return filetypes[filetype]["datatypes"][0]
+
+    return None
 
 
 def fill_filetype_and_datatype(filename, filetype=None, datatype=None):

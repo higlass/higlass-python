@@ -6,3 +6,8 @@ def test_fill_filetype_and_datatype():
 
     assert filetype == "cooler"
     assert datatype == "matrix"
+
+    filetype, datatype = fill_filetype_and_datatype("myfile.xyz")
+
+    assert not filetype
+    assert not datatype

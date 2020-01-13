@@ -178,11 +178,12 @@ def create_app(tilesets, name, log_file, log_level, file_ids, fuse=None):
         data = {tid: tval for tid, tval in tiles}
         return jsonify(data)
 
-    logging.basicConfig(
-        level=log_level,
-        filename=log_file,
-        format="[%(asctime)s] %(levelname)s in %(module)s: %(message)s",
-    )
+    if log_file is not None:
+        logging.basicConfig(
+            level=log_level,
+            filename=log_file,
+            format="[%(asctime)s] %(levelname)s in %(module)s: %(message)s",
+        )
 
     return app
 
@@ -338,7 +339,7 @@ class Server:
             self.fuse_process = FuseProcess(tmp_dir)
             self.fuse_process.setup()
 
-    def start(self, log_file="higlass-python.log", log_level=logging.INFO):
+    def start(self, log_file=None, log_level=logging.INFO):
         """
         Start a lightweight higlass server.
 

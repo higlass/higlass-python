@@ -346,7 +346,7 @@ class Server:
             for caching.
 
         """
-        self.name = name or __name__.split(".")[0] + slugid.nice()[:8]
+        self.name = name or __name__.split(".")[0] + '-' + slugid.nice()[:8]
         self.tilesets = tilesets
         self.host = host
         self.port = port
@@ -377,7 +377,7 @@ class Server:
             self.processes[puid].terminate()
             del self.processes[puid]
 
-        self.app = create_app(__name__, self.tilesets, fuse=self.fuse_process)
+        self.app = create_app(self.name, self.tilesets, fuse=self.fuse_process)
 
         if log_file:
             self.log = None

@@ -1,5 +1,6 @@
 ** Next release **
 
+-   Removed default log file creation. Servers now log to in-memory stream by default.
 -   Copied Python docs over from the higlass repo
 -   Added `save_as_png` function
 -   Added section on track types and multiple views to the docs

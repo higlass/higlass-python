@@ -1,6 +1,9 @@
+import os.path as op
 import higlass.tilesets as hgti
-
 import pandas as pd
+
+
+testdir = op.dirname(op.realpath(__file__))
 
 
 def test_dfpoints():
@@ -18,7 +21,7 @@ def test_dfpoints():
 
 def test_beddb():
     """Test the creation of a beddb tileset."""
-    ts = hgti.beddb("data/gene_annotations.short.db")
+    ts = hgti.beddb(op.join(testdir, "data/gene_annotations.short.db"))
 
     tsinfo = ts.tileset_info()
 
@@ -30,7 +33,7 @@ def test_beddb():
 
 
 def test_bigbed():
-    ts = hgti.bigbed("data/Ctcf_WT_allMot.bed.short.bb")
+    ts = hgti.bigbed(op.join(testdir, "data/Ctcf_WT_allMot.bed.short.bb"))
 
     tsinfo = ts.tileset_info()
 

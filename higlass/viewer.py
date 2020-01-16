@@ -105,7 +105,7 @@ def display(
     server_port=None,
     dark_mode=False,
     log_level=logging.ERROR,
-    no_fuse=False,
+    fuse=True,
     auth_token=None,
 ):
     """
@@ -122,8 +122,8 @@ def display(
         server_port: The port on which the internal higlass server will be running on.
         dark_mode: Whether to use dark mode or not.
         log_level: Level of logging to perform.
-        no_fuse: Don't mount the fuse filesystem. Useful if not loading any data
-            over http or https.
+        fuse: Whether to mount the fuse filesystem. Set to false if not loading any
+            data over http or https.
 
     Returns:
         (display: HiGlassDisplay, server: higlass.server.Server, higlass.client.viewconf) tuple
@@ -157,8 +157,10 @@ def display(
             if track.tileset:
                 tilesets += [track.tileset]
 
-    server = Server(tilesets, host=host, port=server_port, no_fuse=no_fuse)
-    server.start(log_level=log_level)
+    server = Server(
+        tilesets, host=host, port=server_port, fuse=fuse, log_level=log_level
+    )
+    server.start()
 
     cloned_views = [View.from_dict(view.to_dict()) for view in views]
 

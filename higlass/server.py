@@ -1,10 +1,13 @@
 from functools import partial
+from io import StringIO
 import multiprocess as mp
 import cytoolz as toolz
 import os.path as op
 import platform
 import logging
+import logging.handlers
 import socket
+import tempfile
 import json
 import time
 import os
@@ -24,17 +27,20 @@ import sh
 __all__ = ["Server"]
 
 OS_NAME = platform.system()
+OS_TEMPDIR = tempfile.gettempdir()
 
-# Disable annoying flask logs
+
+# Disable annoying logs from werkzeug server
 log = logging.getLogger("werkzeug")
 log.setLevel(logging.ERROR)
 log.disabled = True
+
 # The following line is also needed to turn off all debug logs
 os.environ["WERKZEUG_RUN_MAIN"] = "true"
 
 
-def create_app(tilesets, name, log_file, log_level, file_ids, fuse=None):
-    app = Flask(__name__)
+def create_app(name, tilesets, fuse=None):
+    app = Flask(name)
     app.logger.disabled = True
     CORS(app)
 
@@ -54,6 +60,7 @@ def create_app(tilesets, name, log_file, log_level, file_ids, fuse=None):
                 jsonify({"error": "Unknown filetype: {}".format(js["filetype"])}),
                 400,
             )
+
         if fuse is None:
             return jsonify({"error": "httpfs is not available."})
 
@@ -61,10 +68,24 @@ def create_app(tilesets, name, log_file, log_level, file_ids, fuse=None):
         if key in remote_tilesets:
             ts = remote_tilesets[key]
         else:
+            mounted_url = fuse.get_filepath(js["fileUrl"])
             factory = by_filetype[js["filetype"]]
-            ts = factory(fuse.get_filepath(js["fileUrl"]))
+            ts = factory(mounted_url)
             remote_tilesets[key] = ts
+
         return jsonify({"uid": ts.uuid})
+
+    @app.route("/api/v1/available-chrom-sizes/", methods=["GET"])
+    def available_chrom_sizes():
+        """
+        Get the list of available chromosome size lists. No query parameters.
+
+        """
+        results = []
+        for ts in tilesets:
+            if ts.datatype == "chromsizes":
+                results.append(ts.meta)
+        return jsonify({"count": len(results), "results": results})
 
     @app.route("/api/v1/chrom-sizes/", methods=["GET"])
     def chrom_sizes():
@@ -178,13 +199,6 @@ def create_app(tilesets, name, log_file, log_level, file_ids, fuse=None):
         data = {tid: tval for tid, tval in tiles}
         return jsonify(data)
 
-    if log_file is not None:
-        logging.basicConfig(
-            level=log_level,
-            filename=log_file,
-            format="[%(asctime)s] %(levelname)s in %(module)s: %(message)s",
-        )
-
     return app
 
 
@@ -297,88 +311,105 @@ class FuseProcess:
 class Server:
     """
     A lightweight HiGlass server.
-    """
 
+    Parameters
+    ----------
+    tilesets : list
+        A list of tilesets to serve (see higlass.tilesets)
+    host : str, optional
+        The host this server is running on. Usually just localhost.
+    port : int, optional
+        The port that this server will run on.
+    name : str, optional
+        A name for the Flask app being served. If not provided, a
+        unique name will be generated. The app's logger inherits this
+        name.
+    fuse : bool, optional
+        Whether to mount http(s) resources using FUSE.
+    tmp_dir : string, optional
+        A temporary directory for FUSE to mount the http(s) files and
+        for caching.
+    log_level: logging.*
+        What level to log at
+    log_file: str, optional
+        Where to write diagnostic log files. Default is to use a
+        StringIO stream in memory.
+
+    """
     # Keep track of the server processes that have been started.
     # So that when someone says 'start', the old ones are terminated
     processes = {}
-    diskcache_directory = "/tmp/hgflask/dc"
 
     def __init__(
         self,
         tilesets,
-        port=None,
         host="localhost",
-        tmp_dir="/tmp/hgflask",
-        no_fuse: bool = False,
+        port=None,
+        name=None,
+        fuse=True,
+        tmp_dir=OS_TEMPDIR,
+        log_level=logging.INFO,
+        log_file=None,
     ):
-        """
-        Maintain a reference to a running higlass server
-
-        Parameters
-        ----------
-        port: int
-            The port that this server will run on
-        tilesets: []
-            A list of tilesets to serve (see higlass.tilesets)
-        host: string
-            The host this server is running on.  Usually just localhost
-        tmp_dir: string
-            A temporary directory into which to mount the http and https files
-
-        """
+        self.name = name or __name__.split(".")[0] + '-' + slugid.nice()[:8]
         self.tilesets = tilesets
         self.host = host
         self.port = port
-        self.tmp_dir = tmp_dir
-        self.file_ids = dict()
-
-        if no_fuse:
-            self.fuse_process = None
-        else:
-            self.fuse_process = FuseProcess(tmp_dir)
+        if fuse:
+            self.fuse_process = FuseProcess(op.join(tmp_dir, 'higlass-python'))
             self.fuse_process.setup()
+        else:
+            self.fuse_process = None
 
-    def start(self, log_file=None, log_level=logging.INFO):
+        self.app = create_app(self.name, self.tilesets, fuse=self.fuse_process)
+        if log_file:
+            self.log = None
+            handler = logging.handlers.RotatingFileHandler(
+                log_file, maxBytes=100000, backupCount=1
+            )
+        else:
+            self.log = StringIO()
+            handler = logging.StreamHandler(self.log)
+
+        handler.setLevel(log_level)
+        self.app.logger.addHandler(handler)
+
+    def start(self, debug=False, **kwargs):
         """
         Start a lightweight higlass server.
 
         Parameters
         ----------
-        log_file: string
-            Where to place diagnostic log files
-        log_level: logging.*
-            What level to log at
+        debug: bool
+            Run the server in debug mode. Default is False.
+        kwargs :
+            Additional options to pass to app.run
+
         """
         for puid in list(self.processes.keys()):
             self.processes[puid].terminate()
             del self.processes[puid]
 
-        self.app = create_app(
-            self.tilesets,
-            __name__,
-            log_file=log_file,
-            log_level=log_level,
-            file_ids=self.file_ids,
-            fuse=self.fuse_process,
-        )
+        if self.port is None:
+            self.port = get_open_port()
 
         # we're going to assign a uuid to each server process so that if
         # anything goes wrong, the variable referencing the process doesn't get
         # lost
         uuid = slugid.nice()
-        if self.port is None:
-            self.port = get_open_port()
+
         target = partial(
             self.app.run,
-            threaded=True,
-            debug=True,
+            debug=debug,
             host=self.host,
             port=self.port,
+            threaded=True,
             use_reloader=False,
+            **kwargs
         )
         self.processes[uuid] = mp.Process(target=target)
         self.processes[uuid].start()
+
         self.connected = False
         while not self.connected:
             try:
@@ -393,8 +424,8 @@ class Server:
         """
         Stop this server so that the calling process can exit
         """
-        # unsetup_fuse()
-        self.fuse_process.teardown()
+        if self.fuse_process is not None:
+            self.fuse_process.teardown()
         for uuid in self.processes:
             self.processes[uuid].terminate()
 

@@ -216,6 +216,7 @@ rather than the entire dataset:
 They can also be created using a constructor:
 
 .. code-block:: python
+
     from higlass.client import DividedTrack
 
     t3 = DividedTrack(t1, t2)
@@ -626,3 +627,27 @@ requests:
 
 
 In this case, we expect *tile_data* to simply return a matrix of values.
+
+
+Troubleshooting
+---------------
+
+Accessing the server log
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+A local server writes its log records to an in-memory `StringIO <https://docs.python.org/3/library/io.html#io.StringIO>`_ buffer. The server's name can be used to access its logger.
+
+.. code-block:: python
+
+    import logging
+
+    logger = logging.getLogger(server.name)
+    logger.info('Hi!')
+
+    # convert the stream into a string
+    print(server.log.getvalue())
+
+    # write the log to a file
+    with open('higlass-server.log', 'wt') as f:
+        f.write(server.log.getvalue())
+

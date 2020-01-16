@@ -9,8 +9,8 @@
 -   Overloaded the '/' operator to create divided tracks
 -   Added support using matplotlib colormaps
 -   Created simplified view creation API
+-   Add auth_token parameter to higlass.display
 -   Use higlass v1.8
-
 
 ## [v0.3.0](https://github.com/higlass/higlass-python/compare/v0.2.1...v0.3.0)
 

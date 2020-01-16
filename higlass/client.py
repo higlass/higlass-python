@@ -725,7 +725,7 @@ def position_to_viewport_projection_type(position):
 
 
 class ViewportProjection(Track):
-    def __init__(self, view, position=None):
+    def __init__(self, view, position=None, options=None):
         self.position = position
         track_type = position_to_viewport_projection_type(position)
         self.conf = {"type": track_type, "fromViewUid": view.uid}
@@ -734,6 +734,11 @@ class ViewportProjection(Track):
         if "uid" not in self.conf:
             self.conf["uid"] = slugid.nice()
 
+        if options is None:
+            self.conf["options"] = {}
+        else:
+            self.conf["options"] = deepcopy(options)
+
     def copy(self):
         """Copy this track."""
-        return ViewportProjection(self.view, self.position)
+        return ViewportProjection(self.view, self.position, self.conf["options"])

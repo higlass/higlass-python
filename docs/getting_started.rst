@@ -34,6 +34,25 @@ Uninstalling
 
     jupyter nbextension uninstall --py --sys-prefix higlass
 
+Simplest Use Case
+------------------
+
+The simplest way to instantiate a HiGlass instance to create a display object with one view:
+
+.. code-block:: python
+
+  import higlass
+  from higlass.client import Track
+
+  display, server, viewconf = higlass.display([View([Track('top-axis')])])
+  display
+
+If brevity is of importance, the constructor for ``View`` can be omitted and a
+view will automatically be created from the list of Tracks:
+``higlass.display([[Track('top-axis')]])``. This, however, precludes the use
+of parameters with the view or for linking views using syncs. It also always
+uses the `default position <https://github.com/higlass/higlass-python/blob/70d36d18eb8ef9e207640de5e7bc478c43fdc8de/higlass/client.py#L23>`_ for a given track type.
+
 View extent
 -----------
 
@@ -44,6 +63,88 @@ The extent of a view can be set using the ``initialXDomain`` parameter:
     view1 = View([
         Track(type='top-axis'),
     ], initialXDomain=[0,1e7])
+
+Track Types
+-----------
+
+A list of available track types can be found in the `documentation for HiGlass
+<https://docs.higlass.io/track_types.html>`_. Based on the data type, we can
+sometimes provide a recommended track type as well as a recommended position.
+
+.. code-block:: python
+
+  import higlass.client as hgc
+  track_type, position = hgc.datatype_to_tracktype(datatype)
+
+Color Maps
+----------
+
+Certain quantative tracks such as the heatmap can vary their colormap. Color maps can be passed in directly as arrays of color values:
+
+.. code-block:: python
+
+  Track('heatmap', tileset, colorRange=['white', 'black'])
+
+Or created from a matplotlib colormap (``reversed=True`` reverses the color
+order in the heatmap):
+
+.. code-block:: python
+
+  from higlass.utils import hg_cmap
+  Track('heatmap', tileset, colorRange=hg_cmap('jet', reverse=True))
+
+A list of available matplotlib color maps can be found `in the matplotlib docs
+<https://matplotlib.org/3.1.1/gallery/color/colormap_reference.html>`_.
+
+Combining Tracks
+----------------
+
+Tracks can be combined by overlaying them on top of each other or by performing operations with them.
+
+Overlaying tracks
+^^^^^^^^^^^^^^^^^
+
+Two tracks can be overlayed by using the ``+`` operator:
+
+.. code-block:: python
+
+  view=View([Track('top-axis') +
+         Track('horizontal-bar',
+              server='//higlass.io/api/v1',
+              tilesetUid='F2vbUeqhS86XkxuO1j2rPA')
+        ], initialXDomain=[0,1e9])
+
+Another way to express this is to pass in a list of tracks
+as if it were a single track:
+
+.. code-block:: python
+
+  view=View([[Track('top-axis'),
+         Track('horizontal-bar',
+              server='//higlass.io/api/v1',
+              tilesetUid='F2vbUeqhS86XkxuO1j2rPA')
+        ]], initialXDomain=[0,1e9])
+
+Multiple Views
+--------------
+
+Multiple views can be instantiated much like single views. They are positioned
+a on grid that is 12 units wide and an arbitrary number of units high. To
+create two side by side views, set both to be 6 units wide and one on the
+right to be at x position 6:
+
+.. code-block:: python
+
+  import higlass
+  from higlass.client import Track, View
+
+  view1 = View([Track(type='top-axis')], x=0, width=6)
+  view2 = View([Track(type='top-axis')], x=6, width=6)
+
+  display, server, viewconf = higlass.display([view1, view2])
+  display
+
+.. image:: img/two-simple-views.png
 
 Synchronization
 ---------------
@@ -65,14 +166,130 @@ views will scroll or zoom (or both) together:
     location_syncs=[[view1, view2]],
     zoom_syncs=[[view1, view2]])
 
+Viewport Projection
+-------------------
+
+Viewport projections can be instantiated like other tracks. It is created with
+a reference to the view we wish to track and combined with another track where
+it will be overlayed.
+
+.. code-block:: python
+
+    from higlass.client import ViewportProjection
+
+    view1 = View([
+        Track(type='top-axis'),
+    ], initialXDomain=[0,1e7])
+
+    projection = ViewportProjection(view1)
+
+    view2 = View([
+        Track(type='top-axis') + projection,
+    ], initialXDomain=[0,2e7])
+
+Note that `ViewportProjection` tracks always need to be paired with other non-
+ViewportProjection tracks. Multiple ViewportProjection tracks can, however, be
+combined, as long as they are associated with regular tracks.
+
+Combined tracks can also be created by passing a list of tracks
+as if it were a track itself to a ``View``.
+
+.. code-block:: python
+
+    view2 = View([
+      [ Track(type='top-axis'), projection ]
+    ], initialXDomain=[0,2e7])
+
+Dataset Arithmatic
+-------------------
+
+HiGlass supports client-side division between quantitative datasets. This makes it possible
+to quickly compare two datasets by visualizing their ratio as computed on loaded tiles
+rather than the entire dataset:
+
+.. code-block:: python
+
+    t1 = Track(**track_def)
+    t2 = Track(**{ **track_def, "tileset_uuid": "QvdMEvccQuOxKTEjrVL3wA" })
+    t3 = t1 / t2
+
+They can also be created using a constructor:
+
+.. code-block:: python
+
+    from higlass.client import DividedTrack
+
+    t3 = DividedTrack(t1, t2)
+
+The full example is here:
+
+.. code-block:: python
+
+  from higlass.utils import hg_cmap
+
+  track_def = {
+      "track_type": 'heatmap',
+      "position": 'center',
+      "tileset_uuid": 'CQMd6V_cRw6iCI_-Unl3PQ',
+      "server": "http://higlass.io/api/v1/",
+      "height": 210,
+      "options": {}
+  }
+
+  t1 = Track(**track_def)
+  t2 = Track(**{ **track_def, "tileset_uuid": "QvdMEvccQuOxKTEjrVL3wA" })
+  t3 = (t1 / t2).change_attributes(
+      options={
+          'colorRange': hg_cmap('coolwarm'),
+          'valueScaleMin': 0.1,
+          'valueScaleMax': 10,
+      })
+  domain = [7e7,8e7]
+
+  v1 = View([t1], x=0, width=4, initialXDomain=domain)
+  v2 = View([t3], x=4, width=4, initialXDomain=domain)
+  v3 = View([t2], x=8, width=4, initialXDomain=domain)
+
+  display, server, viewconf = higlass.display([v1, v2, v3])
+  display
+
+.. image:: img/divided-by-track.png
+
+
+Saving the view
+---------------
+
+The currently visible HiGlass view can be downloaded to a file:
+
+.. code-block:: python
+
+  display.save_as_png('/tmp/my_view.png')
+
+Not that this function can only be used within a Jupyter notebook
+and works asynchronously so the saved screenshot will not nessarily
+be complete immediately after the function finishes executing
+
+Authorization
+-------------
+
+If loading tiles from a secured server, the ``auth_token`` parameter takes the
+string that will be used as the Authorization header on all tile requests sent
+out by HiGlass:
+
+.. code-block:: python
+
+  (d,s,v) = higlass.display(views, auth_token='JWT DEADBEEF')
+
+
 
 Other Examples
 --------------
 
-The examples below demonstrate how to use the HiGlass Python API to view
-data locally in a Jupyter notebook or a browser-based HiGlass instance.
+The examples below demonstrate how to use the HiGlass Python API to view data
+locally in a Jupyter notebook or a browser-based HiGlass instance.
 
-For a fYou can find the demos from the talk at `github.com/higlass/scipy19 <https://github.com/higlass/scipy19>`_.
+For a more complete overview, you can find the demos from the talk at
+`github.com/higlass/scipy19 <https://github.com/higlass/scipy19>`_.
 
 Jupyter HiGlass Component
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -96,13 +313,6 @@ help of the ``higlass.client`` module:
               options={ 'valueScaleMax': 0.5 }),
     ])
 
-    display, server, viewconf = higlass.display([view1])
-    display
-
-The result is a fully interactive HiGlass view direcly embedded in the Jupyter
-notebook.
-
-.. image:: img/remote-hic.png
 
 Remote bigWig Files
 ^^^^^^^^^^^^^^^^^^^
@@ -417,3 +627,27 @@ requests:
 
 
 In this case, we expect *tile_data* to simply return a matrix of values.
+
+
+Troubleshooting
+---------------
+
+Accessing the server log
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+A local server writes its log records to an in-memory `StringIO <https://docs.python.org/3/library/io.html#io.StringIO>`_ buffer. The server's name can be used to access its logger.
+
+.. code-block:: python
+
+    import logging
+
+    logger = logging.getLogger(server.name)
+    logger.info('Hi!')
+
+    # convert the stream into a string
+    print(server.log.getvalue())
+
+    # write the log to a file
+    with open('higlass-server.log', 'wt') as f:
+        f.write(server.log.getvalue())
+

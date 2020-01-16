@@ -73,6 +73,34 @@ var HiGlassDisplayView = widgets.DOMWidgetView.extend({
     this.model.on("change:renderer", this.handleChange, this);
     this.model.on("change:select_mode", this.handleChange, this);
     this.model.on("change:selection_on_alt", this.handleChange, this);
+    this.model.on('msg:custom', this.customEventHandler, this);
+
+  },
+
+  customEventHandler: async function(msg) {
+    const msgJson = JSON.parse(msg);
+
+    console.log('msgJson:', msgJson);
+
+    this.hg.exportAsPngBlobPromise().then(blob => {
+     let reader = new FileReader();
+     reader.readAsDataURL(blob);
+     reader.onloadend = () => {
+         let base64data = reader.result;
+         this.model.send({
+           imgData: base64data,
+           request: msgJson.request,
+           params: msgJson.params,
+         })
+     }
+    });
+
+    if (msgJson.request === 'save_as_png') {
+      this.model.send({
+        'params': msgJson.params,
+
+      });
+    }
   },
 
   getOptions: function() {

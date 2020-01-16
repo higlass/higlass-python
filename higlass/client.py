@@ -6,10 +6,6 @@ import os
 
 
 logger = logging.getLogger()
-fhandler = logging.FileHandler(filename="higlass-python.log", mode="a")
-formatter = logging.Formatter("[%(asctime)s] %(levelname)s in %(module)s: %(message)s")
-fhandler.setFormatter(formatter)
-logger.addHandler(fhandler)
 
 if "HIGLASS_PYTHON_DEBUG" in os.environ and os.environ["HIGLASS_PYTHON_DEBUG"]:
     logger.setLevel(logging.DEBUG)
@@ -35,6 +31,7 @@ _track_default_position = {
     "osm-tiles": "center",
     "top-axis": "top",
     "viewport-projection-center": "center",
+    "viewport-projection-horizontal": "top",
 }
 
 
@@ -45,6 +42,7 @@ _datatype_default_track = {
     "gene-annotations": "horizontal-gene-annotations",
     "matrix": "heatmap",
     "vector": "horizontal-bar",
+    "multivec": "horizontal-multivec",
 }
 
 
@@ -73,7 +71,7 @@ class Track(Component):
     file_url: str
         An http accessible tileset file
     filetype : str
-        The type of the remote tilesets (e.g. 'bigwig' or 'cooler')
+        The type of the remote tilesets (e.g. 'bigwig', 'cooler', etc...)
     server : str, optional
         The server name (usually just 'localhost')
     height : int, optional
@@ -101,6 +99,9 @@ class Track(Component):
             else:
                 raise ValueError("Track type is required.")
 
+        if not position:
+            position = _track_default_position[track_type]
+
         self.position = position
         self.tileset = tileset
 
@@ -115,7 +116,7 @@ class Track(Component):
             self.conf["filetype"] = filetype
 
         if options is None:
-            options = {}
+            self.conf["options"] = {}
         else:
             self.conf["options"] = deepcopy(options)
 
@@ -154,6 +155,28 @@ class Track(Component):
         options.update(kwargs)
         return self.change_attributes(options=options)
 
+    def __add__(self, other):
+        """Overload the + operator to create combined tracks."""
+        new_tracks = []
+
+        if self.conf["type"] == "combined":
+            # this is a combined track
+            for track in self.tracks:
+                new_tracks += [track.copy()]
+        else:
+            new_tracks += [self]
+
+        if other.conf["type"] == "combined":
+            for track in other.tracks:
+                new_tracks += [track.copy()]
+        else:
+            new_tracks += [other.copy()]
+
+        return CombinedTrack(new_tracks)
+
+    def __truediv__(self, other):
+        return DividedTrack(self, other,)
+
     @classmethod
     def from_dict(cls, conf):
         return cls(**conf)
@@ -161,9 +184,81 @@ class Track(Component):
     def to_dict(self):
         return self.conf.copy()
 
+    def copy(self):
+        return Track(**self.to_dict())
+
+
+class DividedTrack(Track):
+    """A track representing one tileset divided by another.
+
+    Only works with some tileset types.
+    """
+
+    def __init__(
+        self, numerator, denominator, *args, **kwargs,
+    ):
+        """This track is created using two tilesets.
+
+        Parameters
+        ----------
+        numerator (tileset):
+            The tileset to be divided
+        denominator (tileset):
+            The tileset to divide by
+        """
+        if numerator.conf["type"] != denominator.conf["type"]:
+            raise ValueError(
+                f"Different track types: {numerator.conf['type']}, {denominator.conf['type']}"
+            )
+
+        if json.dumps(numerator.conf["options"]) != json.dumps(
+            denominator.conf["options"]
+        ):
+            logger.warn(
+                "Tracks have different options, so we're using the first track's"
+            )
+
+        numerator_server = numerator.conf["server"]
+        numerator_uuid = numerator.conf["tilesetUid"]
+
+        denominator_server = denominator.conf["server"]
+        denominator_uuid = denominator.conf["tilesetUid"]
+
+        track_type = numerator.conf["type"]
+        position = numerator.position
+        options = numerator.conf["options"]
+        height = numerator.conf["height"] if "height" in numerator.conf else None
+
+        data_config = {
+            "type": "divided",
+            "children": [
+                {"server": numerator_server, "tilesetUid": numerator_uuid},
+                {"server": denominator_server, "tilesetUid": denominator_uuid},
+            ],
+        }
+
+        super().__init__(
+            data=data_config,
+            type=track_type,
+            position=position,
+            options=options,
+            height=height,
+            *args,
+            **kwargs,
+        )
+
+    def change_attributes(self, **kwargs):
+        """
+        Change an attribute of this track and return a new copy.
+        """
+        conf = self.conf.copy()
+        conf.update(kwargs)
+
+        return Track(conf["type"]).from_dict(conf)
+
 
 class CombinedTrack(Track):
-    def __init__(self, tracks, position=None, height=100, **kwargs):
+    def __init__(self, tracks, position=None, height=None, **kwargs):
         """
         The combined track contains multiple actual tracks as layers.
 
@@ -183,11 +278,26 @@ class CombinedTrack(Track):
                     self.position = track.position
                     break
 
-        self.height = height
-        self.conf = {
-            "type": "combined",
-            "height": height,
-        }
+        for track in tracks:
+            if track.conf["type"] == "viewport-projection":
+                track.conf["type"] = position_to_viewport_projection_type(self.position)
+                track.position = self.position
+        #
+        # if no height is specified try to infer it from
+        # the containing tracks
+        if not height:
+            for track in tracks:
+                if "height" in track.conf and track.conf["height"]:
+                    if not height:
+                        height = track.conf["height"]
+                    else:
+                        height = max(height, track.conf["height"])
+
+        if height:
+            self.height = height
+            self.conf = {"type": "combined", "height": height}
+        else:
+            self.conf = {"type": "combined"}
 
     @classmethod
     def from_dict(cls, conf):
@@ -260,7 +370,11 @@ class View(Component):
         self._track_position = {}
 
         for track in tracks:
-            self.add_track(track)
+            if isinstance(track, (tuple, list)):
+                new_track = CombinedTrack(track)
+                self.add_track(new_track)
+            else:
+                self.add_track(track)
 
         if not "horizontal-chromosome-labels" in [track.type for track in tracks]:
             if "genomePositionSearchBox" in self.conf:
@@ -338,8 +452,12 @@ class View(Component):
                 else:
                     klass = Track
 
-                self.add_track(track=klass.from_dict(track_conf), position=position)
-
+                # position has to be passed in as part of the parameter
+                # array so that the constructor can be called with it as
+                # a parameter
+                self.add_track(
+                    track=klass.from_dict({"position": position, **track_conf})
+                )
         return self
 
     def to_dict(self):
@@ -590,6 +708,30 @@ class ViewConf(Component):
         return conf
 
 
+def tracktype_default_position(tracktype: str):
+    """
+    Get the default track position for a track type.
+
+    For example, default position for a heatmap is 'center'.
+    If the provided track type has no known default position
+    return None.
+
+    Parameters
+    ----------
+    tracktype: str
+        The track type to check
+
+    Returns
+    -------
+    str:
+        The default position
+    """
+    if tracktype in _track_default_position:
+        return _track_default_position[tracktype]
+
+    return None
+
+
 def datatype_to_tracktype(datatype):
     """
     Infer a default track type from a data type. There can
@@ -609,3 +751,36 @@ def datatype_to_tracktype(datatype):
     track_type = _datatype_default_track.get(datatype, None)
     position = _track_default_position.get(track_type, None)
     return track_type, position
+
+
+def position_to_viewport_projection_type(position):
+    if position == "center":
+        track_type = "viewport-projection-center"
+    elif position == "top" or position == "bottom":
+        track_type = "viewport-projection-horizontal"
+    elif position == "left" or position == "right":
+        track_type = "viewport-projection-vertical"
+    else:
+        track_type = "viewport-projection"
+
+    return track_type
+
+
+class ViewportProjection(Track):
+    def __init__(self, view, position=None, options=None):
+        self.position = position
+        track_type = position_to_viewport_projection_type(position)
+        self.conf = {"type": track_type, "fromViewUid": view.uid}
+        self.view = view
+
+        if "uid" not in self.conf:
+            self.conf["uid"] = slugid.nice()
+
+        if options is None:
+            self.conf["options"] = {}
+        else:
+            self.conf["options"] = deepcopy(options)
+
+    def copy(self):
+        """Copy this track."""
+        return ViewportProjection(self.view, self.position, self.conf["options"])

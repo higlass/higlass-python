@@ -156,8 +156,10 @@ def display(
             if track.tileset:
                 tilesets += [track.tileset]
 
-    server = Server(tilesets, host=host, port=server_port, fuse=fuse)
-    server.start(log_level=log_level)
+    server = Server(
+        tilesets, host=host, port=server_port, fuse=fuse, log_level=log_level
+    )
+    server.start()
 
     cloned_views = [View.from_dict(view.to_dict()) for view in views]
 

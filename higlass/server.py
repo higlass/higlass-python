@@ -85,7 +85,7 @@ def create_app(name, tilesets, fuse=None):
         for ts in tilesets:
             if ts.datatype == "chromsizes":
                 results.append(ts.meta)
-        return jsonify({"count": count, "results": results})
+        return jsonify({"count": len(results), "results": results})
 
     @app.route("/api/v1/chrom-sizes/", methods=["GET"])
     def chrom_sizes():
@@ -325,6 +325,8 @@ class Server:
         name=None,
         fuse=True,
         tmp_dir=OS_TEMPDIR,
+        log_level=logging.INFO,
+        log_file=None,
     ):
         """
         Maintain a reference to a running higlass server
@@ -344,6 +346,11 @@ class Server:
         tmp_dir : string, optional
             A temporary directory for FUSE to mount the http(s) files and
             for caching.
+        log_level: logging.*
+            What level to log at
+        log_file: str, optional
+            Where to write diagnostic log files. Default is to use a
+            StringIO stream in memory.
 
         """
         self.name = name or __name__.split(".")[0] + '-' + slugid.nice()[:8]
@@ -351,12 +358,25 @@ class Server:
         self.host = host
         self.port = port
         if fuse:
-            self.fuse_process = FuseProcess(tmp_dir)
+            self.fuse_process = FuseProcess(op.join(tmp_dir, 'higlass-python'))
             self.fuse_process.setup()
         else:
             self.fuse_process = None
 
-    def start(self, debug=False, log_level=logging.INFO, log_file=None, **kwargs):
+        self.app = create_app(self.name, self.tilesets, fuse=self.fuse_process)
+        if log_file:
+            self.log = None
+            handler = logging.handlers.RotatingFileHandler(
+                log_file, maxBytes=100000, backupCount=1
+            )
+        else:
+            self.log = StringIO()
+            handler = logging.StreamHandler(self.log)
+
+        handler.setLevel(log_level)
+        self.app.logger.addHandler(handler)
+
+    def start(self, debug=False, **kwargs):
         """
         Start a lightweight higlass server.
 
@@ -364,11 +384,6 @@ class Server:
         ----------
         debug: bool
             Run the server in debug mode. Default is False.
-        log_level: logging.*
-            What level to log at
-        log_file: str, optional
-            Where to write diagnostic log files. Default is to use a
-            StringIO stream in memory.
         kwargs :
             Additional options to pass to app.run
 
@@ -376,20 +391,6 @@ class Server:
         for puid in list(self.processes.keys()):
             self.processes[puid].terminate()
             del self.processes[puid]
-
-        self.app = create_app(self.name, self.tilesets, fuse=self.fuse_process)
-
-        if log_file:
-            self.log = None
-            handler = logging.handlers.RotatingFileHandler(
-                log_file, maxBytes=100000, backupCount=1
-            )
-            handler.setLevel(log_level)
-        else:
-            self.log = StringIO()
-            handler = logging.StreamHandler(self.log)
-            handler.setLevel(log_level)
-        self.app.logger.addHandler(handler)
 
         if self.port is None:
             self.port = get_open_port()

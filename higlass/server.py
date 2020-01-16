@@ -321,7 +321,9 @@ class Server:
     port : int, optional
         The port that this server will run on.
     name : str, optional
-        A name for the Flask app being served
+        A name for the Flask app being served. If not provided, a
+        unique name will be generated. The app's logger inherits this
+        name.
     fuse : bool, optional
         Whether to mount http(s) resources using FUSE.
     tmp_dir : string, optional

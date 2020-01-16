@@ -311,8 +311,29 @@ class FuseProcess:
 class Server:
     """
     A lightweight HiGlass server.
-    """
 
+    Parameters
+    ----------
+    tilesets : list
+        A list of tilesets to serve (see higlass.tilesets)
+    host : str, optional
+        The host this server is running on. Usually just localhost.
+    port : int, optional
+        The port that this server will run on.
+    name : str, optional
+        A name for the Flask app being served
+    fuse : bool, optional
+        Whether to mount http(s) resources using FUSE.
+    tmp_dir : string, optional
+        A temporary directory for FUSE to mount the http(s) files and
+        for caching.
+    log_level: logging.*
+        What level to log at
+    log_file: str, optional
+        Where to write diagnostic log files. Default is to use a
+        StringIO stream in memory.
+
+    """
     # Keep track of the server processes that have been started.
     # So that when someone says 'start', the old ones are terminated
     processes = {}
@@ -328,31 +349,6 @@ class Server:
         log_level=logging.INFO,
         log_file=None,
     ):
-        """
-        Maintain a reference to a running higlass server
-
-        Parameters
-        ----------
-        tilesets : list
-            A list of tilesets to serve (see higlass.tilesets)
-        host : str, optional
-            The host this server is running on. Usually just localhost.
-        port : int, optional
-            The port that this server will run on.
-        name : str, optional
-            A name for the Flask app being served
-        fuse : bool, optional
-            Whether to mount http(s) resources using FUSE.
-        tmp_dir : string, optional
-            A temporary directory for FUSE to mount the http(s) files and
-            for caching.
-        log_level: logging.*
-            What level to log at
-        log_file: str, optional
-            Where to write diagnostic log files. Default is to use a
-            StringIO stream in memory.
-
-        """
         self.name = name or __name__.split(".")[0] + '-' + slugid.nice()[:8]
         self.tilesets = tilesets
         self.host = host

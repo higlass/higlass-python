@@ -3,7 +3,7 @@ matrix:
     - language: python
       sudo: required
       python:
-        - "3.7"
+        - '3.7'
       cache: apt
       addons:
         apt:
@@ -13,7 +13,8 @@ matrix:
             - liblapack-dev
             - gfortran
       before_install:
-        - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+        - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O
+          miniconda.sh
         - bash miniconda.sh -b -p $HOME/miniconda
         - export PATH="$HOME/miniconda/bin:$PATH"
       install:
@@ -22,23 +23,37 @@ matrix:
         - pip install -r requirements-dev.txt
         - python setup.py install
       script:
+        - ./test/get_test_data.sh
         - pytest
+      before_deploy:
+        - pip install --user -r docs/requirements.txt
+        - cd docs; ./build.sh; cd -
       deploy:
-        provider: pypi
-        user: nvictus
-        password:
-          secure: K3V+eyTfK1xJaEgQj1Nj+kFcdsFcDiKBOYiNDSqiDL2rMbCmd/ALLDft4481fBzKEK7ZWb8izVVSuOMG9+JnoYPj1jXkj2JUuBVNYmXAiyfZHAiCJPA0D+K/ckryCyvUisXXMhgA1JAWAzayfQdf81NODZWADp05zU2I5NeRNCpMl2l38MtePFZHJXj/ixHt60Ztbw4lvrMDaznhrKQRTNVXy0LV19p+2FrtNEe/lMJVFfFITJ9egOmOY2H9NYGPpGPpZvkQ1aBk8hfeEa9eKXbVkj9xmzyxMXwBETXvr0RciAP4swJeFrbnoI9zEiK/mFOEd7ExuOpqdOnVQnQY6nf8nPUgF6dSWa9RDG6pJhZQ1ZJl5H7pvXVvvLyygeVDNXCuTYGUMEP+G9mByOyLCixkBEf1ee0UyBwaIVHXCg7Ev1Vpn4utUxDMgvZugaSXKuPj+WQKwKZMc/zeIxFEmDO7a7rQrVQXv+sgTuMxIDr4bYEO4Qr94m5VAAFtFtA9VKtZGY9Fw9K24aW+tyiQRKW0KV7RKFSa+hRS/N+Hezuv6Dry/9B6KPazVtnxKRU7hB1ztxVYJxBAGeCdyaIyaHJ4O+MNFej14tHys55DmFqdtrq6b0kX2zqvcfaojbNbgOQlxRTX7fX8AHYyh5aOBrH60Amfbh8e4lsNeE25314=
-        on:
-          tags: true
-          distributions: sdist bdist_wheel
-          repo: higlass/higlass-python
-
+        - &s3
+          provider: s3
+          skip_cleanup: true
+          access_key_id: AKIAZLS5EJLSGCJTLQIB
+          secret_access_key:
+            secure: ZXeYlmS65EyjLWLV3wEfCXGNxCP9Jd5B+4WiOWbhehdBB8O02ugo/F4+K0MJuKfN8HfNU4GyL7uw6fZZECQWIqDkqGd+W4SnFigNFMfp0qfjVmklT0c9FEsV5jOwJBj4v0YN/H+q05iN0VUIWCR5VtvFfIez6Mzgbs18wA2XONMyrBs5lszm3UQzhuXoMNZ4w8WHqYxAjKCVmjt/KuXKBaOCVCGDYDTSdY4u3yGJ+UuprMEVNCIA3snPoWnMu2iTwMJL7b9xEnWaQd/UnQll1ApZUfDbzSnJS3X4u8X18m+61UIvVUZh1YdY6wML+vIxWQRVFSVsiJOkUuJg6sbAfH0MwqYcZ4PzrSqyVXqGy/PnfDHwassRta31eTolsL0lhGMqmQ7XWm/2pOhqXHGRW7LqAZjNuCsNq3x+FItgp//73lUsvsMWzgLzyImFBcvRVCNmKkporpwMAxabmUN8OoVB5ENsHHDBkXUVXcpxMxiiKi3WRArCsDgi0Et6gSLNyZ/aXM9ssWJ+UA2yVGu4Y/VKDZzfBb55Np+QDgAHiomAs7lPlk0tiLfl8nIkb+1Bs+3VLqum5w1xd2Zp4MSaZSwJE1xVrgIDyM+kndmwAdmUE9jvyeA0nVo0qcIxS9t+UqihQP3IgG12K0Ani25hW0XCJn3aVEa8U7aCwlXoyZ0=
+          bucket: docs-python.higlass.io
+          local-dir: docs/_build/html
+          acl: public_read
+          on:
+            branch: master
+        - provider: pypi
+          user: nvictus
+          password:
+            secure: K3V+eyTfK1xJaEgQj1Nj+kFcdsFcDiKBOYiNDSqiDL2rMbCmd/ALLDft4481fBzKEK7ZWb8izVVSuOMG9+JnoYPj1jXkj2JUuBVNYmXAiyfZHAiCJPA0D+K/ckryCyvUisXXMhgA1JAWAzayfQdf81NODZWADp05zU2I5NeRNCpMl2l38MtePFZHJXj/ixHt60Ztbw4lvrMDaznhrKQRTNVXy0LV19p+2FrtNEe/lMJVFfFITJ9egOmOY2H9NYGPpGPpZvkQ1aBk8hfeEa9eKXbVkj9xmzyxMXwBETXvr0RciAP4swJeFrbnoI9zEiK/mFOEd7ExuOpqdOnVQnQY6nf8nPUgF6dSWa9RDG6pJhZQ1ZJl5H7pvXVvvLyygeVDNXCuTYGUMEP+G9mByOyLCixkBEf1ee0UyBwaIVHXCg7Ev1Vpn4utUxDMgvZugaSXKuPj+WQKwKZMc/zeIxFEmDO7a7rQrVQXv+sgTuMxIDr4bYEO4Qr94m5VAAFtFtA9VKtZGY9Fw9K24aW+tyiQRKW0KV7RKFSa+hRS/N+Hezuv6Dry/9B6KPazVtnxKRU7hB1ztxVYJxBAGeCdyaIyaHJ4O+MNFej14tHys55DmFqdtrq6b0kX2zqvcfaojbNbgOQlxRTX7fX8AHYyh5aOBrH60Amfbh8e4lsNeE25314=
+          on:
+            tags: true
+            distributions: sdist bdist_wheel
+            repo: higlass/higlass-python
     - language: node_js
       node_js:
-        - "10"
+        - '10'
       branches:
         only:
-        - master
+          - master
       before_deploy:
         - cd js
       deploy:
@@ -50,3 +65,4 @@ matrix:
           branch: master
           tags: true
           repo: higlass/higlass-python
+

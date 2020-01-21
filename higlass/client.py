@@ -175,7 +175,7 @@ class Track(Component):
         return CombinedTrack(new_tracks)
 
     def __truediv__(self, other):
-        return DividedTrack(self, other,)
+        return DividedTrack(self, other)
 
     @classmethod
     def from_dict(cls, conf):
@@ -194,9 +194,7 @@ class DividedTrack(Track):
     Only works with some tileset types.
     """
 
-    def __init__(
-        self, numerator, denominator, *args, **kwargs,
-    ):
+    def __init__(self, numerator, denominator, *args, **kwargs):
         """This track is created using two tilesets.
 
         Parameters
@@ -352,6 +350,8 @@ class View(Component):
         initialYDomain=None,
         uid=None,
         overlays=[],
+        chrominfo=None,
+        geneinfo=None,
     ):
         if uid is None:
             uid = slugid.nice()
@@ -369,6 +369,13 @@ class View(Component):
 
         self._track_position = {}
 
+        # autcomplete and chrominfo are used to poplulate the
+        # genome position search box
+        if chrominfo:
+            self.add_chrominfo(chrominfo)
+        if geneinfo:
+            self.add_geneinfo(geneinfo)
+
         for track in tracks:
             if isinstance(track, (tuple, list)):
                 new_track = CombinedTrack(track)
@@ -376,7 +383,7 @@ class View(Component):
             else:
                 self.add_track(track)
 
-        if not "horizontal-chromosome-labels" in [track.type for track in tracks]:
+        if not chrominfo:
             if "genomePositionSearchBox" in self.conf:
                 del self.conf["genomePositionSearchBox"]
             if "genomePositionSearchBoxVisible" in self.conf:
@@ -414,12 +421,6 @@ class View(Component):
             else:
                 raise ValueError("A track position is required.")
 
-        if track.type == "horizontal-chromosome-labels":
-            self.add_chrominfo(track)
-
-        if track.type == "horizontal-gene-annotations":
-            self.add_autocomplete(track)
-
         self._track_position[track] = position
 
     def create_track(self, track_type, **kwargs):
@@ -445,6 +446,12 @@ class View(Component):
             uid=conf.get("uid", None),
             overlays=conf.get("overlays", []),
         )
+
+        if "genomePositionSearchBox" in conf:
+            self.conf["genomePositionSearchBox"] = json.loads(
+                json.dumps(conf["genomePositionSearchBox"])
+            )
+
         for position in conf.get("tracks", {}):
             for track_conf in conf["tracks"][position]:
                 if track_conf["type"] == "combined":
@@ -458,6 +465,7 @@ class View(Component):
                 self.add_track(
                     track=klass.from_dict({"position": position, **track_conf})
                 )
+
         return self
 
     def to_dict(self):
@@ -487,7 +495,7 @@ class View(Component):
         except KeyError:
             pass
 
-    def add_autocomplete(self, track):
+    def add_geneinfo(self, track):
         self.conf["genomePositionSearchBoxVisible"] = True
 
         if "genomePositionSearchBox" in self.conf:

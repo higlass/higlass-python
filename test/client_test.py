@@ -2,6 +2,7 @@ from higlass.client import View, Track, ViewportProjection
 from higlass.tilesets import Tileset
 import higlass
 
+
 def test_add_autocomplete():
     """Make sure we add autocomplete if there's gene annotations
     and chromsizes tracks."""
@@ -12,7 +13,7 @@ def test_add_autocomplete():
     )
 
     # chromosome labels should create a genomePositionSearchBox
-    view_dict = View([track1]).to_dict()
+    view_dict = View([track1], chrominfo=track1).to_dict()
     assert "genomePositionSearchBox" in view_dict
 
     track2 = Track(
@@ -22,10 +23,10 @@ def test_add_autocomplete():
     )
 
     # gene labels alone shouldn't
-    view_dict = View([track2]).to_dict()
+    view_dict = View([track2], autocomplete=track2).to_dict()
     assert "genomePositionSearchBox" not in view_dict
 
-    view_dict = View([track1, track2]).to_dict()
+    view_dict = View([track1, track2], chrominfo=track1, autocomplete=track2).to_dict()
     assert "genomePositionSearchBox" in view_dict
 
 

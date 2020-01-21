@@ -23,10 +23,10 @@ def test_add_autocomplete():
     )
 
     # gene labels alone shouldn't
-    view_dict = View([track2], autocomplete=track2).to_dict()
+    view_dict = View([track2], geneinfo=track2).to_dict()
     assert "genomePositionSearchBox" not in view_dict
 
-    view_dict = View([track1, track2], chrominfo=track1, autocomplete=track2).to_dict()
+    view_dict = View([track1, track2], chrominfo=track1, geneinfo=track2).to_dict()
     assert "genomePositionSearchBox" in view_dict
 
 

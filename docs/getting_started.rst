@@ -64,6 +64,31 @@ The extent of a view can be set using the ``initialXDomain`` parameter:
         Track(type='top-axis'),
     ], initialXDomain=[0,1e7])
 
+Search box
+----------
+
+Views can have a search box which shows the current genomic position and lets users search for genes. In order for the current position to be shown, we need to pass in a chromsizes track. For gene search to be enabled, we have to pass in a gene annotations track:
+
+.. code-block:: python
+
+  chromosomes = Track(tilesetUid='N12wVGG9SPiTkk03yUayUw',
+             server='https://higlass.io/api/v1',
+             type='horizontal-chromosome-labels')
+  genes = Track(tilesetUid='OHJakQICQD6gTD7skx4EWA',
+             server='https://higlass.io/api/v1',
+             type='horizontal-gene-annotations')
+
+  (d,s,v) = higlass.display([
+      View(
+              [chromosomes, genes],
+              chrominfo=chromosomes,
+              geneinfo=genes,
+          )
+  ])
+  d
+
+.. image:: img/genome-position-search-box.png
+
 Track Types
 -----------
 

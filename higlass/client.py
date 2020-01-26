@@ -175,7 +175,7 @@ class Track(Component):
         return CombinedTrack(new_tracks)
 
     def __truediv__(self, other):
-        return DividedTrack(self, other,)
+        return DividedTrack(self, other)
 
     @classmethod
     def from_dict(cls, conf):
@@ -194,9 +194,7 @@ class DividedTrack(Track):
     Only works with some tileset types.
     """
 
-    def __init__(
-        self, numerator, denominator, *args, **kwargs,
-    ):
+    def __init__(self, numerator, denominator, *args, **kwargs):
         """This track is created using two tilesets.
 
         Parameters
@@ -352,6 +350,8 @@ class View(Component):
         initialYDomain=None,
         uid=None,
         overlays=[],
+        chrominfo=None,
+        geneinfo=None,
     ):
         if uid is None:
             uid = slugid.nice()
@@ -369,12 +369,25 @@ class View(Component):
 
         self._track_position = {}
 
+        # autcomplete and chrominfo are used to poplulate the
+        # genome position search box
+        if chrominfo:
+            self.add_chrominfo(chrominfo)
+        if geneinfo:
+            self.add_geneinfo(geneinfo)
+
         for track in tracks:
             if isinstance(track, (tuple, list)):
                 new_track = CombinedTrack(track)
                 self.add_track(new_track)
             else:
                 self.add_track(track)
+
+        if not chrominfo:
+            if "genomePositionSearchBox" in self.conf:
+                del self.conf["genomePositionSearchBox"]
+            if "genomePositionSearchBoxVisible" in self.conf:
+                del self.conf["genomePositionSearchBoxVisible"]
 
         for i, overlay in enumerate(overlays):
             # The uids need to be unique so if no uid is available we need to
@@ -407,6 +420,7 @@ class View(Component):
                 position = _track_default_position[track.type]
             else:
                 raise ValueError("A track position is required.")
+
         self._track_position[track] = position
 
     def create_track(self, track_type, **kwargs):
@@ -432,6 +446,12 @@ class View(Component):
             uid=conf.get("uid", None),
             overlays=conf.get("overlays", []),
         )
+
+        if "genomePositionSearchBox" in conf:
+            self.conf["genomePositionSearchBox"] = json.loads(
+                json.dumps(conf["genomePositionSearchBox"])
+            )
+
         for position in conf.get("tracks", {}):
             for track_conf in conf["tracks"][position]:
                 if track_conf["type"] == "combined":
@@ -445,6 +465,7 @@ class View(Component):
                 self.add_track(
                     track=klass.from_dict({"position": position, **track_conf})
                 )
+
         return self
 
     def to_dict(self):
@@ -454,6 +475,7 @@ class View(Component):
         conf = json.loads(json.dumps(self.conf))
         for track, position in self._track_position.items():
             conf["tracks"][position].append(track.to_dict())
+
         return conf
 
     def add_overlay(self, overlay):
@@ -472,6 +494,34 @@ class View(Component):
             self.conf["overlays"].append(overlay_conf)
         except KeyError:
             pass
+
+    def add_geneinfo(self, track):
+        self.conf["genomePositionSearchBoxVisible"] = True
+
+        if "genomePositionSearchBox" in self.conf:
+            gpsb = self.conf["genomePositionSearchBox"]
+        else:
+            gpsb = {}
+
+        gpsb["autocompleteServer"] = track.conf["server"]
+        gpsb["autocompleteId"] = track.conf["tilesetUid"]
+        gpsb["visible"] = True
+
+        self.conf["genomePositionSearchBox"] = gpsb
+
+    def add_chrominfo(self, track):
+        self.conf["genomePositionSearchBoxVisible"] = True
+
+        if "genomePositionSearchBox" in self.conf:
+            gpsb = self.conf["genomePositionSearchBox"]
+        else:
+            gpsb = {}
+
+        gpsb["chromInfoId"] = track.conf["tilesetUid"]
+        gpsb["chromInfoServer"] = track.conf["server"]
+        gpsb["visible"] = True
+
+        self.conf["genomePositionSearchBox"] = gpsb
 
 
 class ViewConf(Component):

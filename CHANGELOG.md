@@ -1,5 +1,6 @@
 ** Next release **
 
+-   API for adding genome position search box within python
 -   Removed default log file creation. Servers now log to in-memory stream by default.
 -   Copied Python docs over from the higlass repo
 -   Added `save_as_png` function
@@ -12,6 +13,7 @@
 -   Created simplified view creation API
 -   Add auth_token parameter to higlass.display
 -   Use higlass v1.8.1
+-   Parameters for turning on the genome position search box
 
 ## [v0.3.0](https://github.com/higlass/higlass-python/compare/v0.2.1...v0.3.0)
 

@@ -1,4 +1,4 @@
-** Next release **
+## [v0.4.0](https://github.com/higlass/higlass-python/compare/v0.4.0...v0.3.0)
 
 -   API for adding genome position search box within python
 -   Removed default log file creation. Servers now log to in-memory stream by default.

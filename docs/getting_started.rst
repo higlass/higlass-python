@@ -225,7 +225,7 @@ as if it were a track itself to a ``View``.
       [ Track(type='top-axis'), projection ]
     ], initialXDomain=[0,2e7])
 
-Dataset Arithmatic
+Dataset Arithmetic
 -------------------
 
 HiGlass supports client-side division between quantitative datasets. This makes it possible

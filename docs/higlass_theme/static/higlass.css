@@ -281,16 +281,9 @@ div.document {
 /* 1280px */
 @media screen and (min-width: 80em) {
   .wrap {
-    margin-left: 16.66667%; /* 1/6 */
-    margin-right: 16.66667%;
-  }
-}
-
-/* 1600px */
-@media screen and (min-width: 100em) {
-  .wrap {
-    margin-left: 20%; /* 1/5 */
-    margin-right: 20%;
+    margin-left: auto;
+    margin-right: auto;
+    width: 940px; /* Matches the Alibaster theme */
   }
 }
 

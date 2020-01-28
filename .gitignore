@@ -20,7 +20,7 @@ __pycache__
 build/
 dist/
 MANIFEST
-docs/_*
+docs/_build
 
 # Webpack watch files
 js/node_modules/

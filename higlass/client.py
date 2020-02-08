@@ -98,6 +98,9 @@ class Track(Component):
                 track_type = kwargs.pop("type")
             else:
                 raise ValueError("Track type is required.")
+        else:
+            if "type" in kwargs:
+                kwargs.pop("type")
 
         if not position:
             position = _track_default_position[track_type]
@@ -142,9 +145,17 @@ class Track(Component):
         Change an attribute of this track and return a new copy.
         """
         conf = self.conf.copy()
+        position = self.position
+        track_type = self.conf["type"]
+
+        if "track_type" in kwargs:
+            track_type = kwargs["track_type"]
+        if "position" in kwargs:
+            position = kwargs["position"]
+
         conf.update(kwargs)
         return self.__class__(
-            conf["type"], position=self.position, tileset=self.tileset, **conf
+            track_type=track_type, position=position, tileset=self.tileset, **conf
         )
 
     def change_options(self, **kwargs):
@@ -250,9 +261,17 @@ class DividedTrack(Track):
         Change an attribute of this track and return a new copy.
         """
         conf = self.conf.copy()
+        position = self.position
+        track_type = self.conf["type"]
+
+        if "track_type" in kwargs:
+            track_type = kwargs["track_type"]
+        if "position" in kwargs:
+            position = kwargs["position"]
+
         conf.update(kwargs)
 
-        return Track(conf["type"]).from_dict(conf)
+        return Track(track_type=track_type, position=position).from_dict(conf)
 
 
 class CombinedTrack(Track):

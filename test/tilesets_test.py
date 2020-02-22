@@ -80,8 +80,15 @@ chr1    10160000        10440000"""
                 "3",
                 "--to2-col",
                 "3",
-                "/tmp/tads.bed",
+                op.join(td, "tads.bed"),
             ]
         )
 
         ts = hgti.bed2ddb(op.join(td, "tads.bed.multires.db"))
+        tsinfo = ts.tileset_info()
+
+        assert "max_width" in ts.tileset_info()
+
+        tiles = ts.tiles(["x.0.0.0"])
+        assert len(tiles) > 0
+        assert len(tiles[0][1]) > 0

@@ -1,3 +1,7 @@
+## Next release
+
+-   Added `bedd2db` wrapper for tilesets
+
 ## [v0.4.0](https://github.com/higlass/higlass-python/compare/v0.4.0...v0.3.0)
 
 -   API for adding genome position search box within python

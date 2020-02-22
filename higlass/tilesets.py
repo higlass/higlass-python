@@ -106,6 +106,19 @@ def beddb(filepath, uuid=None, **kwargs):
     )
 
 
+def bed2ddb(filepath, uuid=None, **kwargs):
+    from clodius.tiles.bed2ddb import get_2d_tileset_info, get_2D_tiles
+
+    return Tileset(
+        uuid=uuid,
+        tileset_info=lambda: get_2d_tileset_info(filepath),
+        tiles=lambda tids: tiles_wrapper_2d(
+            tids, lambda z, x, y: get_2D_tiles(filepath, z, x, y)[(x, y)]
+        ),
+        **kwargs
+    )
+
+
 def bigbed(filepath, uuid=None, chromsizes=None, **kwargs):
     from clodius.tiles.bigbed import tileset_info, tiles
 

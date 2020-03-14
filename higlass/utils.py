@@ -69,7 +69,7 @@ FILETYPES = {
     "bam": {
         "description": "Binary alignment map"
         "extensions": [".bam"],
-        "datatypes": ["reads"],
+        "datatypes": ["alignments"],
     }
 }
 

@@ -67,7 +67,7 @@ FILETYPES = {
         "datatypes": ["time-interval"],
     },
     "bam": {
-        "description": "Binary alignment map"
+        "description": "Binary alignment map",
         "extensions": [".bam"],
         "datatypes": ["alignments"],
     }

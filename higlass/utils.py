@@ -66,6 +66,11 @@ FILETYPES = {
         "extensions": [".htime"],
         "datatypes": ["time-interval"],
     },
+    "bam": {
+        "description": "Binary alignment map"
+        "extensions": [".bam"],
+        "datatypes": ["reads"],
+    }
 }
 
 

@@ -1,3 +1,9 @@
+## [v0.4.1](https://github.com/higlass/higlass-python/compare/v0.4.1...v0.4.0)
+
+- Add missing `pixi.js` dependency from `higlass-jupyter`
+- Update `@jupyter-widgets/base` to support Jupyter Lab v2
+- Update simple-httpfs to fix the missing `boto3` error
+
 ## [v0.4.0](https://github.com/higlass/higlass-python/compare/v0.4.0...v0.3.0)
 
 -   API for adding genome position search box within python

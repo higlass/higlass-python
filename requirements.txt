@@ -8,5 +8,5 @@ matplotlib
 multiprocess
 requests
 sh
-simple-httpfs
+simple-httpfs>=0.4.2
 slugid>=2.0.0

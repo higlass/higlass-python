@@ -34,7 +34,7 @@ Uninstalling
 
     jupyter nbextension uninstall --py --sys-prefix higlass
 
-Simplest Use Case
+Simplest use case
 ------------------
 
 The simplest way to instantiate a HiGlass instance to create a display object with one view:
@@ -115,6 +115,33 @@ You can also pass a directory (marked with a trailing slash) to `host`, and use 
         server_port=None,
         fuse=False
     )
+
+Creating a viewconf
+-------------------
+
+If you just want the viewconf without actually opening higlass, use the
+``ViewConf`` class:
+
+```
+  from higlass.client import ViewConf, Track, View
+
+  ViewConf(
+      [
+          View(
+              [
+                  Track(track_type="top-axis"),
+                  Track(
+                      track_type="pileup",
+                      position="top",
+                      data={"type": "bam", "url": "my_bam"},
+                      options={"axisPositionHorizontal": "right"},
+                  ),
+                  Track(track_type="vcf", position="top", data={"type": "vcf", "url": "my_vcf"}),
+              ]
+          )
+      ]
+  ).to_dict()
+```
 
 View extent
 -----------

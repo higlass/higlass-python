@@ -1,3 +1,7 @@
+## [v0.4.2](https://github.com/higlass/higlass-python/compare/v0.4.2...v0.4.2)
+
+- Only load FUSE python package when it is called to avoid libfuse missing error
+
 ## [v0.4.1](https://github.com/higlass/higlass-python/compare/v0.4.1...v0.4.0)
 
 - Add missing `pixi.js` dependency from `higlass-jupyter`

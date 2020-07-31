@@ -18,7 +18,6 @@ from flask import request, jsonify
 # from flask_restful import reqparse, abort, Api, Resource
 from flask_cors import CORS
 
-from fuse import FUSE
 import requests
 import slugid
 import sh
@@ -249,6 +248,10 @@ class FuseProcess:
 
         def start_fuse(directory, protocol):
             try:
+                # this import can cause problems on systems that don't have libfuse
+                # installed so let's only try it if absolutely necessary
+                from fuse import FUSE
+
                 # This is a bit confusing. I think `fuse` (lowercase) is used
                 # above in get_filepath() line 50 and 52. If that's not the
                 # case than this assignment is useless and get_filepath() is
@@ -336,6 +339,7 @@ class Server:
         StringIO stream in memory.
 
     """
+
     # Keep track of the server processes that have been started.
     # So that when someone says 'start', the old ones are terminated
     processes = {}
@@ -351,12 +355,12 @@ class Server:
         log_level=logging.INFO,
         log_file=None,
     ):
-        self.name = name or __name__.split(".")[0] + '-' + slugid.nice()[:8]
+        self.name = name or __name__.split(".")[0] + "-" + slugid.nice()[:8]
         self.tilesets = tilesets
         self.host = host
         self.port = port
         if fuse:
-            self.fuse_process = FuseProcess(op.join(tmp_dir, 'higlass-python'))
+            self.fuse_process = FuseProcess(op.join(tmp_dir, "higlass-python"))
             self.fuse_process.setup()
         else:
             self.fuse_process = None

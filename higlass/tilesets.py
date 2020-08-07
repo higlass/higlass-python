@@ -129,6 +129,17 @@ def bigwig(filepath, uuid=None, chromsizes=None, **kwargs):
     )
 
 
+def multivec(filepath, uuid=None, **kwargs):
+    from clodius.tiles.multivec import tileset_info, tiles
+
+    return Tileset(
+        uuid=uuid,
+        tileset_info=lambda: tileset_info(filepath),
+        tiles=lambda tile_ids: tiles(filepath, tile_ids),
+        **kwargs
+    )
+
+
 def mrmatrix(filepath, uuid=None, **kwargs):
     from clodius.tiles.mrmatrix import tileset_info, tiles
 

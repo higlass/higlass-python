@@ -1,6 +1,7 @@
 ## Next release
 
 -   Added `bedd2db` wrapper for tilesets
+- Add constructor for multivec tilesets
 
 ## [v0.4.2](https://github.com/higlass/higlass-python/compare/v0.4.2...v0.4.1)
 

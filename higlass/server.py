@@ -337,6 +337,10 @@ class Server:
     log_file: str, optional
         Where to write diagnostic log files. Default is to use a
         StringIO stream in memory.
+    root_api_address: str, optional
+        Root path of the reported api_address, instead of http://{host}:{port}.
+        Can be used for redirecting clients to a proxy. Can include {host} and {port}
+        to use these variables.
 
     """
 
@@ -354,6 +358,7 @@ class Server:
         tmp_dir=OS_TEMPDIR,
         log_level=logging.INFO,
         log_file=None,
+        root_api_address=None,
     ):
         self.name = name or __name__.split(".")[0] + "-" + slugid.nice()[:8]
         self.tilesets = tilesets
@@ -374,6 +379,8 @@ class Server:
         else:
             self.log = StringIO()
             handler = logging.StreamHandler(self.log)
+
+        self._root_api_address = root_api_address
 
         handler.setLevel(log_level)
         self.app.logger.addHandler(handler)
@@ -483,4 +490,7 @@ class Server:
 
     @property
     def api_address(self):
-        return "http://{host}:{port}/api/v1".format(host=self.host, port=self.port)
+        if self._root_api_address is None:
+            return "http://{host}:{port}/api/v1".format(host=self.host, port=self.port)
+        root = self._root_api_address.format(host=self.host, port=self.port)
+        return "{}/api/v1".format(root)

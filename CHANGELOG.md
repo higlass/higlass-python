@@ -4,7 +4,7 @@
 
 - Added default positions for non `horizontal-` tracks
 - Update docs to include Views import in simple example
-- Bump higlass version
+- Bump HiGlass to v1.11
 
 ## [v0.4.2](https://github.com/higlass/higlass-python/compare/v0.4.2...v0.4.1)
 

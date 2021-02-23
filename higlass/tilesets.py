@@ -1,10 +1,10 @@
-import pandas as pd
-import numpy as np
-import slugid
 import h5py
+import numpy as np
+import pandas as pd
 
-from clodius.tiles.utils import tiles_wrapper_2d, bundled_tiles_wrapper_2d
+import slugid
 from clodius.tiles.format import format_dense_tile
+from clodius.tiles.utils import bundled_tiles_wrapper_2d, tiles_wrapper_2d
 
 
 class Tileset:
@@ -91,6 +91,17 @@ def cooler(filepath, uuid=None, **kwargs):
         tileset_info=lambda: tileset_info(filepath),
         tiles=lambda tids: tiles(filepath, tids),
         datatype="matrix",
+        **kwargs
+    )
+
+
+def bam(filepath, index_filename, uuid=None, **kwargs):
+    from clodius.tiles.bam import tileset_info, tiles
+
+    return Tileset(
+        uuid=uuid,
+        tileset_info=lambda: tileset_info(filepath),
+        tiles=lambda tile_ids: tiles(filepath, tile_ids, index_filename=index_filename),
         **kwargs
     )
 

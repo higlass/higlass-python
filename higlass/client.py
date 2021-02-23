@@ -1,9 +1,9 @@
-from copy import deepcopy
 import json
-import slugid
 import logging
 import os
+from copy import deepcopy
 
+import slugid
 
 logger = logging.getLogger()
 
@@ -66,6 +66,8 @@ class Track(Component):
     ----------
     track_type : str
         The type of track (e.g. 'heatmap', 'line')
+    position: str
+        The position of the track (e.g. 'top')
     tileset : :class:`Tileset`
         A Tileset being displayed in this track
     file_url: str

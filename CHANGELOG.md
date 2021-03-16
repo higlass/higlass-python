@@ -4,6 +4,12 @@
 - Added wrapper for bam tileset generator
 - Updated docs to include examples for bam and multivec tilesets
 
+## [v0.4.4](https://github.com/higlass/higlass-python/compare/v0.4.4...v0.4.3)
+
+- Added default positions for non `horizontal-` tracks
+- Update docs to include Views import in simple example
+- Bump HiGlass to v1.11
+
 ## [v0.4.2](https://github.com/higlass/higlass-python/compare/v0.4.2...v0.4.1)
 
 - Only load FUSE python package when it is called to avoid libfuse missing error

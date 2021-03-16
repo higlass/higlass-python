@@ -27,6 +27,13 @@ _track_default_position = {
     "horizontal-1d-heatmap": "top",
     "horizontal-line": "top",
     "horizontal-multivec": "top",
+    "bar": "top",
+    "chromosome-labels": "top",
+    "gene-annotations": "top",
+    "heatmap": "top",
+    "1d-heatmap": "top",
+    "line": "top",
+    "horizontal-multivec": "top",
     "heatmap": "center",
     "left-axis": "left",
     "osm-tiles": "center",
@@ -146,9 +153,7 @@ class Track(Component):
         """
         conf = self.conf.copy()
         conf.update(kwargs)
-        return self.__class__(
-            conf["type"], position=self.position, tileset=self.tileset, **conf
-        )
+        return self.__class__(conf["type"], position=self.position, tileset=self.tileset, **conf)
 
     def change_options(self, **kwargs):
         """
@@ -212,12 +217,8 @@ class DividedTrack(Track):
                 f"Different track types: {numerator.conf['type']}, {denominator.conf['type']}"
             )
 
-        if json.dumps(numerator.conf["options"]) != json.dumps(
-            denominator.conf["options"]
-        ):
-            logger.warn(
-                "Tracks have different options, so we're using the first track's"
-            )
+        if json.dumps(numerator.conf["options"]) != json.dumps(denominator.conf["options"]):
+            logger.warn("Tracks have different options, so we're using the first track's")
 
         numerator_server = numerator.conf["server"]
         numerator_uuid = numerator.conf["tilesetUid"]
@@ -465,9 +466,7 @@ class View(Component):
                 # position has to be passed in as part of the parameter
                 # array so that the constructor can be called with it as
                 # a parameter
-                self.add_track(
-                    track=klass.from_dict({"position": position, **track_conf})
-                )
+                self.add_track(track=klass.from_dict({"position": position, **track_conf}))
 
         return self
 
@@ -530,9 +529,7 @@ class View(Component):
 class ViewConf(Component):
     """Configure a dashboard"""
 
-    def __init__(
-        self, views=[], location_syncs=[], value_scale_syncs=[], zoom_syncs=[]
-    ):
+    def __init__(self, views=[], location_syncs=[], value_scale_syncs=[], zoom_syncs=[]):
 
         self.conf = {
             "editable": True,
@@ -683,9 +680,7 @@ class ViewConf(Component):
         else:
             raise ValueError("Not a valid viewconf server")
 
-        endpoint = urlunsplit(
-            (parts.scheme, parts.netloc, "api/v1/viewconfs", "d=" + conf_id, "")
-        )
+        endpoint = urlunsplit((parts.scheme, parts.netloc, "api/v1/viewconfs", "d=" + conf_id, ""))
 
         conf = requests.get(endpoint).json()
 

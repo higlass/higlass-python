@@ -42,7 +42,7 @@ The simplest way to instantiate a HiGlass instance to create a display object wi
 .. code-block:: python
 
   import higlass
-  from higlass.client import Track
+  from higlass.client import Track, View
 
   display, server, viewconf = higlass.display([View([Track('top-axis')])])
   display

@@ -53,7 +53,7 @@ Create the multivec and output file:
 
 	output_file = "/Users/pete/tmp/my_file.multires.hdf5"
 
-	cm.create_multivec_multires(
+	create_multivec_multires(
 	    array,
 	    [('chr1', chrom_len)],
 	    agg=lambda x: np.nansum(x.T.reshape((x.shape[1], -1, 2)), axis=2).T,

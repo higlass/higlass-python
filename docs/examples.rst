@@ -49,6 +49,8 @@ Create the multivec and output file:
 
 .. code-block:: python
 
+	import clodius.multivec as cm
+
 	output_file = "/Users/pete/tmp/my_file.multires.hdf5"
 
 	cm.create_multivec_multires(

@@ -21,6 +21,7 @@ _track_default_position = {
     "bedlike": "top",
     "horizontal-bar": "top",
     "horizontal-chromosome-labels": "top",
+    "chromosome-labels": "top",
     "horizontal-gene-annotations": "top",
     "horizontal-heatmap": "top",
     "horizontal-1d-heatmap": "top",

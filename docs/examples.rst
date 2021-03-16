@@ -49,7 +49,7 @@ Create the multivec and output file:
 
 .. code-block:: python
 
-	import clodius.multivec as cm
+	from clodius.multivec import create_multivec_multires
 
 	output_file = "/Users/pete/tmp/my_file.multires.hdf5"
 

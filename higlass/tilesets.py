@@ -1,10 +1,10 @@
-import pandas as pd
-import numpy as np
-import slugid
 import h5py
+import numpy as np
+import pandas as pd
 
-from clodius.tiles.utils import tiles_wrapper_2d, bundled_tiles_wrapper_2d
+import slugid
 from clodius.tiles.format import format_dense_tile
+from clodius.tiles.utils import bundled_tiles_wrapper_2d, tiles_wrapper_2d
 
 
 class Tileset:
@@ -79,7 +79,7 @@ def chromsizes(filepath, uuid=None, **kwargs):
         uuid=uuid,
         chromsizes=get_tsv_chromsizes(filepath),
         datatype="chromsizes",
-        **kwargs
+        **kwargs,
     )
 
 
@@ -91,7 +91,23 @@ def cooler(filepath, uuid=None, **kwargs):
         tileset_info=lambda: tileset_info(filepath),
         tiles=lambda tids: tiles(filepath, tids),
         datatype="matrix",
-        **kwargs
+        **kwargs,
+    )
+
+
+def bam(filepath, index_filename=None, uuid=None, chromsizes=None, **kwargs):
+    from clodius.tiles.bam import tileset_info, tiles
+
+    if not index_filename:
+        index_filename = f"{filepath}.bai"
+
+    return Tileset(
+        uuid=uuid,
+        tileset_info=lambda: tileset_info(filepath, chromsizes=chromsizes),
+        tiles=lambda tile_ids: tiles(
+            filepath, tile_ids, index_filename=index_filename, chromsizes=chromsizes
+        ),
+        **kwargs,
     )
 
 
@@ -102,7 +118,7 @@ def beddb(filepath, uuid=None, **kwargs):
         uuid=uuid,
         tileset_info=lambda: tileset_info(filepath),
         tiles=lambda tids: tiles(filepath, tids),
-        **kwargs
+        **kwargs,
     )
 
 
@@ -113,7 +129,7 @@ def bigbed(filepath, uuid=None, chromsizes=None, **kwargs):
         uuid=uuid,
         tileset_info=lambda: tileset_info(filepath, chromsizes),
         tiles=lambda tids: tiles(filepath, tids, chromsizes=chromsizes),
-        **kwargs
+        **kwargs,
     )
 
 
@@ -125,7 +141,7 @@ def bigwig(filepath, uuid=None, chromsizes=None, **kwargs):
         tileset_info=lambda: tileset_info(filepath, chromsizes),
         tiles=lambda tids: tiles(filepath, tids, chromsizes=chromsizes),
         datatype="vector",
-        **kwargs
+        **kwargs,
     )
 
 
@@ -136,7 +152,7 @@ def multivec(filepath, uuid=None, **kwargs):
         uuid=uuid,
         tileset_info=lambda: tileset_info(filepath),
         tiles=lambda tile_ids: tiles(filepath, tile_ids),
-        **kwargs
+        **kwargs,
     )
 
 
@@ -152,7 +168,7 @@ def mrmatrix(filepath, uuid=None, **kwargs):
             tile_ids, lambda z, x, y: format_dense_tile(tiles(f, z, x, y))
         ),
         datatype="matrix",
-        **kwargs
+        **kwargs,
     )
 
 
@@ -166,7 +182,7 @@ def nplabels(labels_array, uuid=None, importances=None, **kwargs):
         tileset_info=lambda: npvector.tileset_info(labels_array, bins_per_dimension=16),
         tiles=lambda tids: nplabels.tiles_wrapper(labels_array, tids, importances),
         datatype="linear-labels",
-        **kwargs
+        **kwargs,
     )
 
 
@@ -210,7 +226,7 @@ def dfpoints(df, x_col, y_col, uuid=None, **kwargs):
             bundled_tiles_wrapper_2d(tile_ids, tiles_fn)
         ),
         datatype="scatter-point",
-        **kwargs
+        **kwargs,
     )
 
 

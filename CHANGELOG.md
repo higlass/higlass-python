@@ -1,4 +1,8 @@
-##
+## Next
+
+- Add constructor for multivec tilesets
+- Added wrapper for bam tileset generator
+- Updated docs to include examples for bam and multivec tilesets
 
 ## [v0.4.4](https://github.com/higlass/higlass-python/compare/v0.4.4...v0.4.3)
 

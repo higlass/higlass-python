@@ -13,4 +13,5 @@ the provided functionality.
     :glob:
 
     getting_started
+    examples
     python_api

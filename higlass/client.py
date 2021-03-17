@@ -1,7 +1,7 @@
-from copy import deepcopy
 import json
 import logging
 import os
+from copy import deepcopy
 
 import slugid
 
@@ -21,6 +21,7 @@ _track_default_position = {
     "bedlike": "top",
     "horizontal-bar": "top",
     "horizontal-chromosome-labels": "top",
+    "chromosome-labels": "top",
     "horizontal-gene-annotations": "top",
     "horizontal-heatmap": "top",
     "horizontal-1d-heatmap": "top",
@@ -73,6 +74,8 @@ class Track(Component):
     ----------
     track_type : str
         The type of track (e.g. 'heatmap', 'line')
+    position: str
+        The position of the track (e.g. 'top')
     tileset : :class:`Tileset`
         A Tileset being displayed in this track
     file_url: str

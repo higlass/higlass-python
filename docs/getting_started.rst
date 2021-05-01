@@ -53,6 +53,24 @@ view will automatically be created from the list of Tracks:
 of parameters with the view or for linking views using syncs. It also always
 uses the `default position <https://github.com/higlass/higlass-python/blob/70d36d18eb8ef9e207640de5e7bc478c43fdc8de/higlass/client.py#L23>`_ for a given track type.
 
+Remote Jupyter Notebook
+-----------------------
+
+If your Jupyter notebook is running on a remote server (at e.g.
+``REMOTE_IP``), you'll need to make sure that you have an extra port
+(let's call it ``HG_PORT``) open on your firewall that HiGlass can use to
+communicate with its server. That port will then need to be passed to the
+server display command:
+
+.. code-block:: python
+
+    higlass.display(
+        ...,
+        server_port=HG_PORT,
+        host=REMOTE_IP
+    )
+  
+
 View extent
 -----------
 

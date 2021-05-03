@@ -1,14 +1,14 @@
 import json
 import logging
-import ipywidgets as widgets
-from traitlets import Bool, Dict, Float, Int, List, Unicode, Union
-
-import slugid
-from ._version import __version__
-
 import os
 import threading
 import time
+
+import ipywidgets as widgets
+import slugid
+from traitlets import Bool, Dict, Float, Int, List, Unicode, Union
+
+from ._version import __version__
 
 
 def save_b64_image_to_png(filename, b64str):
@@ -122,7 +122,7 @@ def display(
         server_port: The port on which the internal higlass server will be running on.
         dark_mode: Whether to use dark mode or not.
         log_level: Level of logging to perform.
-        fuse: Whether to mount the fuse filesystem. Set to false if not loading any
+        fuse: Whether to mount the fuse filesystem. Set to False if not loading any
             data over http or https.
 
     Returns:

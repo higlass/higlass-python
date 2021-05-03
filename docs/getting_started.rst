@@ -67,9 +67,13 @@ server display command:
     higlass.display(
         ...,
         server_port=HG_PORT,
-        host=REMOTE_IP
+        host=REMOTE_IP,
+        fuse=False
     )
   
+The ``fuse=False`` option is often necessary if there is no support for FUSE.
+FUSE is only necessary for loading remote http datasets which are not hosted
+on a HiGlass server.
 
 View extent
 -----------

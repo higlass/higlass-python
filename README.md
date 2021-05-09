@@ -55,6 +55,10 @@ jupyter labextension install higlass-jupyter
 
 Take a look at [notebooks/Examples.ipynb](notebooks/Examples.ipynb) on how to get started.
 
+## Documentation
+
+There is more detailed documentation at [docs-python.higlass.io](https://docs.python.higlass.io).
+
 ## Development
 
 * Install the package in _editable_ mode. (The module will be imported from the development directory, rather than copied to `site-packages`).

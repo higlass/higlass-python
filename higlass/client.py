@@ -153,7 +153,9 @@ class Track(Component):
         """
         conf = self.conf.copy()
         conf.update(kwargs)
-        return self.__class__(conf["type"], position=self.position, tileset=self.tileset, **conf)
+        return self.__class__(
+            conf["type"], position=self.position, tileset=self.tileset, **conf
+        )
 
     def change_options(self, **kwargs):
         """
@@ -217,8 +219,12 @@ class DividedTrack(Track):
                 f"Different track types: {numerator.conf['type']}, {denominator.conf['type']}"
             )
 
-        if json.dumps(numerator.conf["options"]) != json.dumps(denominator.conf["options"]):
-            logger.warn("Tracks have different options, so we're using the first track's")
+        if json.dumps(numerator.conf["options"]) != json.dumps(
+            denominator.conf["options"]
+        ):
+            logger.warn(
+                "Tracks have different options, so we're using the first track's"
+            )
 
         numerator_server = numerator.conf["server"]
         numerator_uuid = numerator.conf["tilesetUid"]
@@ -466,7 +472,9 @@ class View(Component):
                 # position has to be passed in as part of the parameter
                 # array so that the constructor can be called with it as
                 # a parameter
-                self.add_track(track=klass.from_dict({"position": position, **track_conf}))
+                self.add_track(
+                    track=klass.from_dict({"position": position, **track_conf})
+                )
 
         return self
 
@@ -529,7 +537,27 @@ class View(Component):
 class ViewConf(Component):
     """Configure a dashboard"""
 
-    def __init__(self, views=[], location_syncs=[], value_scale_syncs=[], zoom_syncs=[]):
+    def __init__(
+        self, views=[], location_syncs=[], value_scale_syncs=[], zoom_syncs=[]
+    ):
+        """A Python representation of a HiGlass viewconf.
+
+        Parameters
+        ----------
+        views: list[list]
+            A list of View objects which compose the viewable scene
+        location_syncs: list[list]
+            A list of lists of Views to be synced
+        value_scale_syncs: list[list]
+            A list containing the value scale syncs. Each sync can be
+            one of:
+                1. a list of (View, Track) tuples
+                2. a list of Tracks (assumes that there is only one view)
+                3. a list of strings of the form "{viewUid}.{trackUid}"
+        location_syncs: list[list]
+            A list of lists of Views to be synced
+
+        """
 
         self.conf = {
             "editable": True,
@@ -680,7 +708,9 @@ class ViewConf(Component):
         else:
             raise ValueError("Not a valid viewconf server")
 
-        endpoint = urlunsplit((parts.scheme, parts.netloc, "api/v1/viewconfs", "d=" + conf_id, ""))
+        endpoint = urlunsplit(
+            (parts.scheme, parts.netloc, "api/v1/viewconfs", "d=" + conf_id, "")
+        )
 
         conf = requests.get(endpoint).json()
 

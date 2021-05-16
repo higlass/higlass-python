@@ -8,6 +8,14 @@ To synchronize, the locations, zoom levels and value scales, use the provided
 ``location_syncs``, ``zoom_syncs`` and ``value_scale_syncs`` parameters of
 the of the ``display`` function.
 
+The ``location_syncs`` and ``zoom_syncs`` parameters both take a list of lists
+of views which will have their location and / or zoom synchronized. While the
+HiGlass implementation allows for synching of location and zoom independently
+at a given offset, the Python API currently only allows synchronization at
+the same location and / or same zoom level. It is highly recommended that the
+zoom and location syncs are both provided and identical to ensure that zoom
+and location change together in the provided list of views.
+
 .. code-block:: python
 
 	from higlass.client import View, Track

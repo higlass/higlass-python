@@ -5,8 +5,9 @@ import threading
 import time
 
 import ipywidgets as widgets
-import slugid
 from traitlets import Bool, Dict, Float, Int, List, Unicode, Union
+
+import slugid
 
 from ._version import __version__
 
@@ -116,6 +117,11 @@ def display(
             lists themselves, then automatically create views out of them.
         location_syncs: A list of lists, each containing a list of views which
             will scroll together.
+        value_scale_syncs: A list containing the value scale syncs. Each sync can be
+            one of:
+                1. a list of (View, Track) tuples
+                2. a list of Tracks (assumes that there is only one view)
+                3. a list of strings of the form "{viewUid}.{trackUid}"
         zoom_syncs: A list of lists, each containing a list of views that
             will zoom together.
         host: The host on which the internal higlass server will be running on.

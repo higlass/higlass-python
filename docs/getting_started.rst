@@ -75,6 +75,21 @@ The ``fuse=False`` option is often necessary if there is no support for FUSE.
 FUSE is only necessary for loading remote http datasets which are not hosted
 on a HiGlass server.
 
+If you can't open a port on your firewall, an alternative is to set up a proxy
+that will forward the requests to HiGlass. For example, you can have `jupyter-server-proxy <https://github.com/jupyterhub/jupyter-server-proxy>`_
+forward all requests based at ``http://REMOTE_IP/proxy/HG_PORT/`` to a local HiGlass
+instance listening at ``HG_PORT``. ``HG_PORT`` can be specified by the
+``server_port`` option or chosen randomly by HiGlass. You can then tell HiGlass
+to use the proxy:
+
+.. code-block:: python
+
+    higlass.display(
+        ...,
+        fuse=False,
+        proxy_base="http://my.remote.ip/proxy/{port}" # {port} will be replaced by the local HiGlass port
+    )
+
 View extent
 -----------
 

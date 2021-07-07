@@ -108,6 +108,7 @@ def display(
     log_level=logging.ERROR,
     fuse=True,
     auth_token=None,
+    proxy_base=None,
 ):
     """
     Instantiate a HiGlass display with the given views.
@@ -130,6 +131,7 @@ def display(
         log_level: Level of logging to perform.
         fuse: Whether to mount the fuse filesystem. Set to False if not loading any
             data over http or https.
+        proxy_base: Url and base path of server to use as proxy for the client
 
     Returns:
         (display: HiGlassDisplay, server: higlass.server.Server, higlass.client.viewconf) tuple
@@ -164,7 +166,12 @@ def display(
                 tilesets += [track.tileset]
 
     server = Server(
-        tilesets, host=host, port=server_port, fuse=fuse, log_level=log_level
+        tilesets,
+        host=host,
+        port=server_port,
+        fuse=fuse,
+        log_level=log_level,
+        root_api_address=proxy_base,
     )
     server.start()
 

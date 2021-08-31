@@ -4,6 +4,7 @@
 - Added wrapper for bam tileset generator
 - Updated docs to include examples for bam and multivec tilesets
 - Add proxy support
+- Add support for listening on a unix socket
 
 ## [v0.4.4](https://github.com/higlass/higlass-python/compare/v0.4.4...v0.4.3)
 

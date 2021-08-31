@@ -466,7 +466,7 @@ class Server:
                 r = requests.head(url)
                 if r.ok:
                     self.connected = True
-            except requests.ConnectionError as e:
+            except requests.ConnectionError:
                 time.sleep(0.2)
 
     def _get_url(self, path):

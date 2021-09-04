@@ -537,6 +537,6 @@ class Server:
     @property
     def api_address(self):
         if self._root_api_address is None:
-            return self._get_url('')
+            return self._get_url('api/v1')
         root = self._root_api_address.format(host=self.host, port=self.port, unix_filename=self._unix_filename or '')
         return "{}/api/v1".format(root)

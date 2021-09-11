@@ -77,7 +77,7 @@ def chromsizes(filepath, uuid=None, **kwargs):
 
     return ChromSizes(
         uuid=uuid,
-        chromsizes=get_tsv_chromsizes(filepath),
+        chromsizes=[(c[0], c[1]) for c in get_tsv_chromsizes(filepath)],
         datatype="chromsizes",
         **kwargs,
     )

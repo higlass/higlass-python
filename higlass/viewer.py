@@ -64,7 +64,14 @@ class HiGlassDisplay(widgets.DOMWidget):
 
         self.callbacks[uuid] = callback
 
-        self.send(json.dumps({"request": "save_as_png", "params": {"uuid": uuid},}))
+        self.send(
+            json.dumps(
+                {
+                    "request": "save_as_png",
+                    "params": {"uuid": uuid},
+                }
+            )
+        )
 
     def _handle_js_events(self, widget, content, buffers=None):
         try:
@@ -211,7 +218,9 @@ def display(
     return (
         HiGlassDisplay(
             viewconf=viewconf.to_dict(),
-            hg_options={"theme": "dark" if dark_mode else "light",},
+            hg_options={
+                "theme": "dark" if dark_mode else "light",
+            },
             **extra_args
         ),
         server,

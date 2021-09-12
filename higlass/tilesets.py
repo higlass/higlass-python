@@ -104,9 +104,7 @@ def bam(filepath, index_filename=None, uuid=None, chromsizes=None, **kwargs):
     return Tileset(
         uuid=uuid,
         tileset_info=lambda: tileset_info(filepath),
-        tiles=lambda tile_ids: tiles(
-            filepath, tile_ids, index_filename=index_filename
-        ),
+        tiles=lambda tile_ids: tiles(filepath, tile_ids, index_filename=index_filename),
         **kwargs,
     )
 

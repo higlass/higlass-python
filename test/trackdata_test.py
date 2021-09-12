@@ -1,8 +1,8 @@
-from higlass.tracks import beditems
+from higlass.trackdata import bedtiles
 from tempfile import TemporaryDirectory
 from os.path import join
 
-def test_beditems():
+def test_bedtiles():
 	with TemporaryDirectory() as tmpdir:
 		chromfile = join(tmpdir, 'chrom.sizes')
 		with open(chromfile, 'w') as f:
@@ -15,15 +15,15 @@ def test_beditems():
 			("chr2", 10, 100, "a2", ".", "+"),
 		]
 
-		track = beditems(lines, chromfile)
+		data = bedtiles(lines, chromfile)
 
-		tsinfo = track.conf['data']['tilesetInfo']
+		tsinfo = data['tilesetInfo']
 
 		assert tsinfo['x']['max_width'] == 3000
 		assert tsinfo['x']['max_pos'][0] == 3000
 
 
-		tiles = track.conf['data']['tiles']
+		tiles = data['tiles']
 
 		assert 'x.0.0' in tiles
 		assert len(tiles['x.0.0']) == 2

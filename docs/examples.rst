@@ -131,7 +131,6 @@ directly into higlass using the `bedtiles` helper function:
 
 .. code-block:: python
 
-	from higlass.tracks import beditems
 	from higlass.client import View, Track
 	from higlass.trackdata import bedtiles
 	import higlass

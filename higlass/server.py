@@ -428,15 +428,20 @@ class Server:
 
         self._use_unix = self.host.startswith("unix://")
         if not self._use_unix:
+            # Use a regular TCP socket, host and port are as usual
             if self.port is None:
                 self.port = get_open_port()
             self._unix_filename = None
         else:
+            # Use a UNIX socket, host should be a file path prefixed with unix://
+            # If host is a directory, make it a filename by joining it with
+            # the port field.
             host_no_schema = self.host[7:]
             if host_no_schema[-1] == '/':
                 os.makedirs(host_no_schema, mode=0o700, exist_ok=True)
             if op.isdir(host_no_schema):
                 if self.port is None:
+                    # If no port is given, find a free filename and use that
                     self.port = get_free_socket(host_no_schema)
                 self.host = op.join(self.host, str(self.port))
             self._unix_filename = self.host[7:]

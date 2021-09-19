@@ -90,6 +90,32 @@ to use the proxy:
         proxy_base="http://my.remote.ip/proxy/{port}" # {port} will be replaced by the local HiGlass port
     )
 
+Using UNIX sockets
+------------------
+
+You can tell HiGlass to listen on a UNIX socket instead of opening a port. This can be useful for ensuring no remote access to the higlass daemon (since you need filesystem access) and to limit users from accessing each other’s higlass daemons (via filesystem permissions).
+
+To do that, simply pass the path to the socket in the `host` parameter, prefixed with `unix://`:
+
+.. code-block:: python
+
+    higlass.display(
+        ...,
+        host="unix:///tmp/higlass/socket.sock",
+        fuse=False
+    )
+
+You can also pass a directory (marked with a trailing slash) to `host`, and use `server_port` as the filename component. If `server_port` is `None`, a filename will be generated automatically:
+
+.. code-block:: python
+
+    higlass.display(
+        ...,
+        host="unix:///tmp/higlass_servers/",
+        server_port=None,
+        fuse=False
+    )
+
 View extent
 -----------
 

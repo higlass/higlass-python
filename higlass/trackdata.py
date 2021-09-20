@@ -39,12 +39,18 @@ def bedtiles(
 ) -> Track:
     """Generate a list of local tiles that can be used with a bedlike track.
 
-    Args:
-        lines: A list of bed style lines ([chrom, start, end, name, score, pos])
+    Parameters
+    -----------
+        lines: A list of bed style lines ([chrom, start, end, name, score, pos]).
+            Each line can contain more than the minimum values shown above. What
+            is displayed by HiGlass depends on which track this data is used with.
+            If used with the `bedlike track, the only other value past these that
+            is recognized is the `itemRgb` value in the 9th position.
         chromsizes: Either a Path or str pointing to a chromsizes file or a list
             of [name, length] pairs.
 
-    Returns:
+    Returns
+    -------
         A higlass Track that can be used with the viewer.
 
     """

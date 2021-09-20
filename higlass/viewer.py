@@ -11,6 +11,7 @@ import slugid
 
 from ._version import __version__
 
+from higlass.tilesets import ChromSizes
 
 def save_b64_image_to_png(filename, b64str):
     """Save a base64 encoded image to a file."""
@@ -186,6 +187,7 @@ def display(
 
     for view in cloned_views:
         for track in view.tracks:
+            print("track", track)
             if isinstance(track, CombinedTrack):
                 for track1 in track.tracks:
                     if "fromViewUid" in track1.conf:
@@ -194,6 +196,14 @@ def display(
                         pass
                     elif "server" not in track1.conf or track1.conf["server"] is None:
                         track1.conf["server"] = server.api_address
+            elif 'data' in track.conf:
+                # we can pass in the chromsizesUrl as a chromsizes tileset
+                if 'chromsizesUrl' in track.conf['data']:
+                    cs_url = track.conf['data']['chromsizesUrl']
+                    print("here")
+                    if isinstance(cs_url, ChromSizes):
+                        track.conf['data']['chromsizesUrl'] = f"{server.api_address}/chrom-sizes/?id={cs_url.uuid}"
+
             elif "fromViewUid" in track.conf:
                 pass
             elif "data" in track.conf:

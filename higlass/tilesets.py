@@ -71,10 +71,12 @@ class ChromSizes(Tileset):
         super().__init__(**kwargs)
         self.chromsizes = chromsizes  # TODO: add validation
 
+    def __repr__(self):
+        print("repr")
+        return json.dumps(chromsizes)
 
 def chromsizes(filepath, uuid=None, **kwargs):
     from clodius.tiles.chromsizes import get_tsv_chromsizes
-
     return ChromSizes(
         uuid=uuid,
         chromsizes=[(c[0], c[1]) for c in get_tsv_chromsizes(filepath)],

@@ -11,7 +11,7 @@ import slugid
 
 from ._version import __version__
 
-from higlass.tilesets import ChromSizes
+from higlass.tilesets import BAMUrlTileset
 
 def save_b64_image_to_png(filename, b64str):
     """Save a base64 encoded image to a file."""
@@ -173,6 +173,15 @@ def display(
             if track.tileset:
                 tilesets += [track.tileset]
 
+                if isinstance(track.tileset, BAMUrlTileset):
+                    track.conf['data'] = {
+                        "type": "bam",
+                        "bamUrl": track.tileset.url
+                    }
+
+                    if track.tileset.chromsizes:
+                        track.conf['data']['chromSizesUrl'] = "server_url"
+
     server = Server(
         tilesets,
         host=host,
@@ -185,9 +194,8 @@ def display(
 
     cloned_views = [View.from_dict(view.to_dict()) for view in views]
 
-    for view in cloned_views:
+    for view in views:
         for track in view.tracks:
-            print("track", track)
             if isinstance(track, CombinedTrack):
                 for track1 in track.tracks:
                     if "fromViewUid" in track1.conf:
@@ -196,14 +204,9 @@ def display(
                         pass
                     elif "server" not in track1.conf or track1.conf["server"] is None:
                         track1.conf["server"] = server.api_address
-            elif 'data' in track.conf:
-                # we can pass in the chromsizesUrl as a chromsizes tileset
-                if 'chromsizesUrl' in track.conf['data']:
-                    cs_url = track.conf['data']['chromsizesUrl']
-                    print("here")
-                    if isinstance(cs_url, ChromSizes):
-                        track.conf['data']['chromsizesUrl'] = f"{server.api_address}/chrom-sizes/?id={cs_url.uuid}"
-
+            elif "data" in track.conf and "type" in track.conf["data"] and 'chromSizesUrl' in track.conf["data"] and track.conf['data']['type'] == 'bam':
+                track.conf['data']['chromSizesUrl'] = f"{server.api_address}/chrom-sizes/?id={track.conf['tilesetUid']}"
+                del track.conf['tilesetUid']
             elif "fromViewUid" in track.conf:
                 pass
             elif "data" in track.conf:
@@ -215,7 +218,7 @@ def display(
                     track.conf["server"] = server.api_address
 
     viewconf = ViewConf(
-        cloned_views,
+        views,
         location_syncs=location_syncs,
         value_scale_syncs=value_scale_syncs,
         zoom_syncs=zoom_syncs,

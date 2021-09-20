@@ -71,9 +71,13 @@ class ChromSizes(Tileset):
         super().__init__(**kwargs)
         self.chromsizes = chromsizes  # TODO: add validation
 
-    def __repr__(self):
-        print("repr")
-        return json.dumps(chromsizes)
+
+class BAMUrlTileset(Tileset):
+    def __init__(self, url: str, chromsizes: ChromSizes):
+        super().__init__()
+        self.chromsizes = chromsizes.chromsizes
+        self.url = url
+
 
 def chromsizes(filepath, uuid=None, **kwargs):
     from clodius.tiles.chromsizes import get_tsv_chromsizes
@@ -84,6 +88,8 @@ def chromsizes(filepath, uuid=None, **kwargs):
         **kwargs,
     )
 
+def bamurl(bam_url, chromsizes=None):
+    return BAMUrlTileset(bam_url, chromsizes)
 
 def cooler(filepath, uuid=None, **kwargs):
     from clodius.tiles.cooler import tileset_info, tiles
@@ -109,7 +115,6 @@ def bam(filepath, index_filename=None, uuid=None, chromsizes=None, **kwargs):
         tiles=lambda tile_ids: tiles(filepath, tile_ids, index_filename=index_filename),
         **kwargs,
     )
-
 
 def beddb(filepath, uuid=None, **kwargs):
     from clodius.tiles.beddb import tileset_info, tiles

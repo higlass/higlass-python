@@ -161,3 +161,7 @@ directly into higlass using the `bedtiles` helper function:
 	d,s,v = higlass.display([[track]])
 	d
 
+
+Note that this function loads all the data into the viewconf and does
+not use a server. Do not use this function with more than ~3000 items of
+data.

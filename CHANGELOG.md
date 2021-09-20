@@ -1,9 +1,15 @@
 ## Next
 
+- Bumped React version dependency to ensure compatibility with latest
+  Juptyerlab
+
+## [v0.4.5](https://github.com/higlass/higlass-python/compare/v0.4.5...v0.4.4)
+
 - Add constructor for multivec tilesets
 - Added wrapper for bam tileset generator
 - Updated docs to include examples for bam and multivec tilesets
 - Add proxy support
+- Add support for listening on a unix socket
 
 ## [v0.4.4](https://github.com/higlass/higlass-python/compare/v0.4.4...v0.4.3)
 

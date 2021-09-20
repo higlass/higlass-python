@@ -6,30 +6,7 @@ from numpy import cumsum
 
 import itertools as it
 from pathlib import Path
-
-
-def chromsize_pairs(chromsizes_fn):
-    with open(chromsizes_fn, "r") as f:
-        chroms = [l.strip().split("\t") for l in f.readlines()]
-        chromnames = [c[0] for c in chroms]
-        chromlengths = [int(c[1]) for c in chroms]
-
-    return list(zip(chromnames, chromlengths))
-
-
-def load_chromsizes(chrom_names_lengths):
-    chromnames, chromlengths = zip(*chrom_names_lengths)
-
-    cumlengths = list(it.accumulate(chromlengths))
-    # we want the cumlengths to start 0
-    cumlengths = [0] + cumlengths[:-1]
-
-    return dict(
-        [
-            (name, {"name": name, "length": length, "start": start})
-            for name, length, start in zip(chromnames, chromlengths, cumlengths)
-        ]
-    )
+from higlass.chromsizes import load_chromsizes, chromsize_pairs
 
 
 def bedtiles(

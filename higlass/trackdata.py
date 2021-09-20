@@ -46,8 +46,9 @@ def bedtiles(
             is displayed by HiGlass depends on which track this data is used with.
             If used with the `bedlike track, the only other value past these that
             is recognized is the `itemRgb` value in the 9th position.
-        chromsizes: Either a Path or str pointing to a chromsizes file or a list
-            of [name, length] pairs.
+        chromsizes: Either a) Path or str pointing to a chromsizes file or b) a list
+            of [name, length] pairs or c) an (ordered) dictionary of chrom / size
+            values
 
     Returns
     -------
@@ -56,6 +57,8 @@ def bedtiles(
     """
     if isinstance(chroms, Path) or isinstance(chroms, str):
         chrom_names_lengths = chromsize_pairs(chroms)
+    if isinstance(chroms, dict):
+        chrom_names_lengths = list(chroms.items())
     if isinstance(chroms, list):
         chrom_names_lengths = chroms
     else:

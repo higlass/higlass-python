@@ -132,7 +132,7 @@ directly into higlass using the `bedtiles` helper function:
 .. code-block:: python
 
 	from higlass.client import View, Track
-	from higlass.trackdata import bedtiles
+	from higlass.inline_tiles import bedtiles
 	import higlass
 
 	bed = [['chr1', 1000, 2000, 'item #1', '.', '+'],

@@ -1,4 +1,4 @@
-from higlass.trackdata import bedtiles
+from higlass.inline_tiles import bedtiles
 from tempfile import TemporaryDirectory
 from os.path import join
 

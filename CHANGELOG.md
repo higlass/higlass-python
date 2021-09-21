@@ -1,6 +1,6 @@
 ## Next
 
--   Added tiledata support for bed-like items
+-   Added inline_tile support for bed-like items
 
 -   Add constructor for multivec tilesets
 -   Added wrapper for bam tileset generator

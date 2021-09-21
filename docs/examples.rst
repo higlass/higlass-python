@@ -42,7 +42,18 @@ and location change together in the provided list of views.
 BAM Files
 ---------
 
-View sequencing read mappings.
+View sequencing read mappings. First we must load the `higlass-pileup plugin track <https://github.com/higlass/higlass-pileup>`_:
+
+.. code-block:: python
+
+	%%javascript
+
+	require(["https://unpkg.com/higlass-pileup/dist/higlass-pileup.min.js"],
+	    function(hglib) {
+
+	});
+
+And then we can view pileups:
 
 .. code-block:: python
 
@@ -149,3 +160,7 @@ directly into higlass using the `bedtiles` helper function:
 	d,s,v = higlass.display([[track]])
 	d
 
+
+Note that this function loads all the data into the viewconf and does
+not use a server. Do not use this function with more than ~3000 items of
+data.

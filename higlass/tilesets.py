@@ -77,6 +77,8 @@ def chromsizes(filepath, uuid=None, **kwargs):
 
     return ChromSizes(
         uuid=uuid,
+        # .fai files can have more than two columns so we only take
+        # the first two for `chromsizes`
         chromsizes=[(c[0], c[1]) for c in get_tsv_chromsizes(filepath)],
         datatype="chromsizes",
         **kwargs,
@@ -103,8 +105,10 @@ def bam(filepath, index_filename=None, uuid=None, chromsizes=None, **kwargs):
 
     return Tileset(
         uuid=uuid,
-        tileset_info=lambda: tileset_info(filepath),
-        tiles=lambda tile_ids: tiles(filepath, tile_ids, index_filename=index_filename),
+        tileset_info=lambda: tileset_info(filepath, chromsizes=chromsizes),
+        tiles=lambda tile_ids: tiles(
+            filepath, tile_ids, index_filename=index_filename, chromsizes=chromsizes
+        ),
         **kwargs,
     )
 

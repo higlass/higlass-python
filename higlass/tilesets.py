@@ -73,10 +73,12 @@ class ChromSizes(Tileset):
 
 
 class BAMUrlTileset(Tileset):
-    def __init__(self, url: str, chromsizes: ChromSizes):
+    def __init__(self, url: str, chromsizes: ChromSizes, options:dict = None):
         super().__init__()
         self.chromsizes = chromsizes.chromsizes
         self.url = url
+        print("options", options)
+        self.options = options
 
 
 def chromsizes(filepath, uuid=None, **kwargs):
@@ -88,8 +90,8 @@ def chromsizes(filepath, uuid=None, **kwargs):
         **kwargs,
     )
 
-def bamurl(bam_url, chromsizes=None):
-    return BAMUrlTileset(bam_url, chromsizes)
+def bamurl(bam_url, chromsizes=None, options=None):
+    return BAMUrlTileset(bam_url, chromsizes, options)
 
 def cooler(filepath, uuid=None, **kwargs):
     from clodius.tiles.cooler import tileset_info, tiles

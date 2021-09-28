@@ -179,6 +179,13 @@ def display(
                         "bamUrl": track.tileset.url
                     }
 
+                    print("track", track.tileset.options)
+                    if track.tileset.options:
+                        print("hi")
+                        # track.conf['data']['options'] = 'hi'
+                        track.conf['data']['options'] = track.tileset.options
+
+                    print("track.conf", track.conf)
                     if track.tileset.chromsizes:
                         track.conf['data']['chromSizesUrl'] = "server_url"
 

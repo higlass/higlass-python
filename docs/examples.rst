@@ -131,3 +131,36 @@ Create the viewer:
 	      ])]
 	)
 	display
+
+Bed-like data
+-------------
+
+If you have data representing intervals in a Python object, you can load it
+directly into higlass using the `bedtiles` helper function:
+
+.. image:: img/beditems.png
+
+.. code-block:: python
+
+	from higlass.client import View, Track
+	from higlass.inline_tiles import bedtiles
+	import higlass
+
+	bed = [['chr1', 1000, 2000, 'item #1', '.', '+'],
+	       ['chr2', 3000, 3500, 'item #1', '.', '-']]
+
+	chroms = [['chr1', 2100], ['chr2', 4000]]
+
+
+	data = bedtiles(bed, chroms)
+	track = Track(track_type='bedlike', position='top',
+	              height=50, data=data, options={"minusStrandColor": "red"})
+
+
+	d,s,v = higlass.display([[track]])
+	d
+
+
+Note that this function loads all the data into the viewconf and does
+not use a server. Do not use this function with more than ~3000 items of
+data.

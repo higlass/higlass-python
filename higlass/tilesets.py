@@ -77,7 +77,9 @@ def chromsizes(filepath, uuid=None, **kwargs):
 
     return ChromSizes(
         uuid=uuid,
-        chromsizes=get_tsv_chromsizes(filepath),
+        # .fai files can have more than two columns so we only take
+        # the first two for `chromsizes`
+        chromsizes=[(c[0], c[1]) for c in get_tsv_chromsizes(filepath)],
         datatype="chromsizes",
         **kwargs,
     )

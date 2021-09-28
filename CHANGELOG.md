@@ -1,7 +1,7 @@
 ## Next
 
-- Bumped React version dependency to ensure compatibility with latest
-  Juptyerlab
+- Added inline_tile support for bed-like items
+- Bumped React version dependency to ensure compatibility with latest  Juptyerlab
 
 ## [v0.4.5](https://github.com/higlass/higlass-python/compare/v0.4.5...v0.4.4)
 
@@ -13,19 +13,19 @@
 
 ## [v0.4.4](https://github.com/higlass/higlass-python/compare/v0.4.4...v0.4.3)
 
-- Added default positions for non `horizontal-` tracks
-- Update docs to include Views import in simple example
-- Bump HiGlass to v1.11
+-   Added default positions for non `horizontal-` tracks
+-   Update docs to include Views import in simple example
+-   Bump HiGlass to v1.11
 
 ## [v0.4.2](https://github.com/higlass/higlass-python/compare/v0.4.2...v0.4.1)
 
-- Only load FUSE python package when it is called to avoid libfuse missing error
+-   Only load FUSE python package when it is called to avoid libfuse missing error
 
 ## [v0.4.1](https://github.com/higlass/higlass-python/compare/v0.4.1...v0.4.0)
 
-- Add missing `pixi.js` dependency from `higlass-jupyter`
-- Update `@jupyter-widgets/base` to support Jupyter Lab v2
-- Update simple-httpfs to fix the missing `boto3` error
+-   Add missing `pixi.js` dependency from `higlass-jupyter`
+-   Update `@jupyter-widgets/base` to support Jupyter Lab v2
+-   Update simple-httpfs to fix the missing `boto3` error
 
 ## [v0.4.0](https://github.com/higlass/higlass-python/compare/v0.4.0...v0.3.0)
 

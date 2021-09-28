@@ -472,13 +472,13 @@ according to the chromosome info in the specified file.
     bigwig_fp = '../data/wgEncodeCaltechRnaSeqHuvecR1x75dTh1014IlnaPlusSignalRep2.bigWig'
 
     with open(chromsizes_fp) as f:
-        chromsizes = []
+        chromsizes_arr = []
         for line in f.readlines():
             chrom, size = line.split('\t')
-            chromsizes.append((chrom, int(size)))
+            chromsizes_arr.append((chrom, int(size)))
 
-    cs = chromsizes(chromsizes)
-    ts = bigwig(bigwig_fp, chromsizes=chromsizes)
+    cs = chromsizes(chromsizes_fp)
+    ts = bigwig(bigwig_fp, chromsizes=chromsizes_arr)
 
     tr0 = Track('top-axis')
     tr1 = Track('horizontal-bar', tileset=ts)

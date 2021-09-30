@@ -2,6 +2,7 @@
 
 - Added inline_tile support for bed-like items
 - Bumped React version dependency to ensure compatibility with latest  Juptyerlab
+- Bumped higlass version to v11.1.8
 
 ## [v0.4.5](https://github.com/higlass/higlass-python/compare/v0.4.5...v0.4.4)
 

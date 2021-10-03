@@ -122,7 +122,8 @@ Creating a viewconf
 If you just want the viewconf without actually opening higlass, use the
 ``ViewConf`` class:
 
-```
+.. code-block:: python
+
   from higlass.client import ViewConf, Track, View
 
   ViewConf(
@@ -141,7 +142,6 @@ If you just want the viewconf without actually opening higlass, use the
           )
       ]
   ).to_dict()
-```
 
 View extent
 -----------

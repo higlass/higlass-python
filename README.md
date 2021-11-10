@@ -57,7 +57,7 @@ Take a look at [notebooks/Examples.ipynb](notebooks/Examples.ipynb) on how to ge
 
 ## Documentation
 
-There is more detailed documentation at [docs-python.higlass.io](https://docs.python.higlass.io).
+There is more detailed documentation at [docs-python.higlass.io](https://docs-python.higlass.io).
 
 ## Development
 

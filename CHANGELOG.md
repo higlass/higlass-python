@@ -1,3 +1,7 @@
+## [v0.4.7](https://github.com/higlass/higlass-python/compare/v0.4.7...v0.4.6)
+
+- Bumped pillow version
+
 ## [v0.4.6](https://github.com/higlass/higlass-python/compare/v0.4.6...v0.4.5)
 
 - Added inline_tile support for bed-like items

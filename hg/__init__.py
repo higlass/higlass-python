@@ -1,5 +1,6 @@
 from .model import *
 from .display import renderers
+from .mixins import _TrackTypeMixen
 
 class Config(HiglassViewconf):
 
@@ -15,3 +16,24 @@ class Config(HiglassViewconf):
         from IPython.display import display
 
         display(self)
+
+class Track(EnumTrack, _TrackTypeMixen):
+    def __init__(self, *args, **kwargs):
+        super().__init__(
+            *args,
+            type=kwargs.pop('type', 'horizontal-gene-annotations'),
+            **kwargs
+        )
+
+    def view(self, **kwargs):
+        copy = self.copy()
+        for key, val in kwargs.items():
+            setattr(copy, key, val)
+        return Config(
+            views=[
+                View(
+                    tracks={ "top": [copy] },
+                    layout=Layout(w=1, h=1, x=1, y=1)     
+                )
+            ]
+        )

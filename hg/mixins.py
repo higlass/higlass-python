@@ -1,353 +1,624 @@
 
-from typing import Protocol
+from typing import Protocol, Union, Any, Dict
 
-
-class _T(Protocol):
+class T(Protocol):
+    options: Union[Dict[str, Any], None]
     type: str
 
-    def copy(self) -> '_T':
+    def copy(self) -> 'T':
         ...
 
+class _TrackTypeMixen:
 
-class _TypeMixen:
 
-    def multivec(self: _T):
+    def multivec(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'multivec'
+        copy.type = "multivec"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def field_1d_heatmap(self: _T):
+    def heatmap_1d(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = '1d-heatmap'
+        copy.type = "1d-heatmap"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def line(self: _T):
+    def line(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'line'
+        copy.type = "line"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def point(self: _T):
+    def point(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'point'
+        copy.type = "point"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def bar(self: _T):
+    def bar(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'bar'
+        copy.type = "bar"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def divergent_bar(self: _T):
+    def divergent_bar(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'divergent-bar'
+        copy.type = "divergent-bar"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def stacked_interval(self: _T):
+    def stacked_interval(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'stacked-interval'
+        copy.type = "stacked-interval"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def gene_annotations(self: _T):
+    def gene_annotations(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'gene-annotations'
+        copy.type = "gene-annotations"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def linear_2d_rectangle_domains(self: _T):
+    def linear_2d_rectangle_domains(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'linear-2d-rectangle-domains'
+        copy.type = "linear-2d-rectangle-domains"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def chromosome_labels(self: _T):
+    def chromosome_labels(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'chromosome-labels'
+        copy.type = "chromosome-labels"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def linear_heatmap(self: _T):
+    def linear_heatmap(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'linear-heatmap'
+        copy.type = "linear-heatmap"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def field_1d_value_interval(self: _T):
+    def value_interval_1d(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = '1d-value-interval'
+        copy.type = "1d-value-interval"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def field_2d_annotations(self: _T):
+    def annotations_2d(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = '2d-annotations'
+        copy.type = "2d-annotations"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def field_2d_chromosome_annotations(self: _T):
+    def chromosome_annotations_2d(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = '2d-chromosome-annotations'
+        copy.type = "2d-chromosome-annotations"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def field_2d_chromosome_grid(self: _T):
+    def chromosome_grid_2d(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = '2d-chromosome-grid'
+        copy.type = "2d-chromosome-grid"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def field_2d_chromosome_labels(self: _T):
+    def chromosome_labels_2d(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = '2d-chromosome-labels'
+        copy.type = "2d-chromosome-labels"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def field_2d_rectangle_domains(self: _T):
+    def rectangle_domains_2d(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = '2d-rectangle-domains'
+        copy.type = "2d-rectangle-domains"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def field_2d_tiles(self: _T):
+    def tiles_2d(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = '2d-tiles'
+        copy.type = "2d-tiles"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def arrowhead_domains(self: _T):
+    def arrowhead_domains(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'arrowhead-domains'
+        copy.type = "arrowhead-domains"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def bedlike(self: _T):
+    def bedlike(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'bedlike'
+        copy.type = "bedlike"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def cross_rule(self: _T):
+    def cross_rule(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'cross-rule'
+        copy.type = "cross-rule"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def dummy(self: _T):
+    def dummy(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'dummy'
+        copy.type = "dummy"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def horizontal_1d_annotations(self: _T):
+    def horizontal_1d_annotations(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'horizontal-1d-annotations'
+        copy.type = "horizontal-1d-annotations"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def horizontal_1d_heatmap(self: _T):
+    def horizontal_1d_heatmap(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'horizontal-1d-heatmap'
+        copy.type = "horizontal-1d-heatmap"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def horizontal_1d_tiles(self: _T):
+    def horizontal_1d_tiles(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'horizontal-1d-tiles'
+        copy.type = "horizontal-1d-tiles"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def horizontal_1d_value_interval(self: _T):
+    def horizontal_1d_value_interval(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'horizontal-1d-value-interval'
+        copy.type = "horizontal-1d-value-interval"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def horizontal_2d_rectangle_domains(self):
+    def horizontal_2d_rectangle_domains(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'horizontal-2d-rectangle-domains'
+        copy.type = "horizontal-2d-rectangle-domains"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def horizontal_bar(self):
+    def horizontal_bar(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'horizontal-bar'
+        copy.type = "horizontal-bar"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def horizontal_chromosome_grid(self):
+    def horizontal_chromosome_grid(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'horizontal-chromosome-grid'
+        copy.type = "horizontal-chromosome-grid"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def horizontal_chromosome_labels(self):
+    def horizontal_chromosome_labels(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'horizontal-chromosome-labels'
+        copy.type = "horizontal-chromosome-labels"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def horizontal_divergent_bar(self):
+    def horizontal_divergent_bar(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'horizontal-divergent-bar'
+        copy.type = "horizontal-divergent-bar"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def horizontal_gene_annotations(self):
+    def horizontal_gene_annotations(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'horizontal-gene-annotations'
+        copy.type = "horizontal-gene-annotations"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def horizontal_heatmap(self):
+    def horizontal_heatmap(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'horizontal-heatmap'
+        copy.type = "horizontal-heatmap"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def horizontal_line(self):
+    def horizontal_line(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'horizontal-line'
+        copy.type = "horizontal-line"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def horizontal_multivec(self):
+    def horizontal_multivec(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'horizontal-multivec'
+        copy.type = "horizontal-multivec"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def horizontal_point(self):
+    def horizontal_point(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'horizontal-point'
+        copy.type = "horizontal-point"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def horizontal_rule(self):
+    def horizontal_rule(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'horizontal-rule'
+        copy.type = "horizontal-rule"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def horizontal_vector_heatmap(self):
+    def horizontal_vector_heatmap(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'horizontal-vector-heatmap'
+        copy.type = "horizontal-vector-heatmap"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def image_tiles(self):
+    def image_tiles(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'image-tiles'
+        copy.type = "image-tiles"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def left_axis(self):
+    def left_axis(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'left-axis'
+        copy.type = "left-axis"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def left_stacked_interval(self):
+    def left_stacked_interval(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'left-stacked-interval'
+        copy.type = "left-stacked-interval"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def mapbox_tiles(self):
+    def mapbox_tiles(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'mapbox-tiles'
+        copy.type = "mapbox-tiles"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def osm_2d_tile_ids(self):
+    def osm_2d_tile_ids(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'osm-2d-tile-ids'
+        copy.type = "osm-2d-tile-ids"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def osm_tiles(self):
+    def osm_tiles(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'osm-tiles'
+        copy.type = "osm-tiles"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def raster_tiles(self):
+    def raster_tiles(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'raster-tiles'
+        copy.type = "raster-tiles"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def simple_svg(self):
+    def simple_svg(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'simple-svg'
+        copy.type = "simple-svg"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def square_markers(self):
+    def square_markers(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'square-markers'
+        copy.type = "square-markers"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def top_axis(self):
+    def top_axis(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'top-axis'
+        copy.type = "top-axis"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def top_stacked_interval(self):
+    def top_stacked_interval(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'top-stacked-interval'
+        copy.type = "top-stacked-interval"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def vertical_1d_annotations(self):
+    def vertical_1d_annotations(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'vertical-1d-annotations'
+        copy.type = "vertical-1d-annotations"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def vertical_1d_heatmap(self):
+    def vertical_1d_heatmap(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'vertical-1d-heatmap'
+        copy.type = "vertical-1d-heatmap"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def vertical_1d_tiles(self):
+    def vertical_1d_tiles(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'vertical-1d-tiles'
+        copy.type = "vertical-1d-tiles"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def vertical_1d_value_interval(self):
+    def vertical_1d_value_interval(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'vertical-1d-value-interval'
+        copy.type = "vertical-1d-value-interval"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def vertical_2d_rectangle_domains(self):
+    def vertical_2d_rectangle_domains(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'vertical-2d-rectangle-domains'
+        copy.type = "vertical-2d-rectangle-domains"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def vertical_bar(self):
+    def vertical_bar(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'vertical-bar'
+        copy.type = "vertical-bar"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def vertical_bedlike(self):
+    def vertical_bedlike(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'vertical-bedlike'
+        copy.type = "vertical-bedlike"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def vertical_chromosome_grid(self: _T):
+    def vertical_chromosome_grid(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'vertical-chromosome-grid'
+        copy.type = "vertical-chromosome-grid"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def vertical_chromosome_labels(self):
+    def vertical_chromosome_labels(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'vertical-chromosome-labels'
+        copy.type = "vertical-chromosome-labels"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def vertical_gene_annotations(self):
+    def vertical_gene_annotations(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'vertical-gene-annotations'
+        copy.type = "vertical-gene-annotations"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def vertical_heatmap(self):
+    def vertical_heatmap(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'vertical-heatmap'
+        copy.type = "vertical-heatmap"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def vertical_line(self):
+    def vertical_line(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'vertical-line'
+        copy.type = "vertical-line"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def vertical_multivec(self):
+    def vertical_multivec(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'vertical-multivec'
+        copy.type = "vertical-multivec"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def vertical_point(self):
+    def vertical_point(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'vertical-point'
+        copy.type = "vertical-point"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def vertical_rule(self):
+    def vertical_rule(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'vertical-rule'
+        copy.type = "vertical-rule"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def vertical_vector_heatmap(self):
+    def vertical_vector_heatmap(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'vertical-vector-heatmap'
+        copy.type = "vertical-vector-heatmap"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def viewport_projection_center(self):
+    def viewport_projection_center(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'viewport-projection-center'
+        copy.type = "viewport-projection-center"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def viewport_projection_horizontal(self):
+    def viewport_projection_horizontal(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'viewport-projection-horizontal'
+        copy.type = "viewport-projection-horizontal"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
 
-    def viewport_projection_vertical(self):
+    def viewport_projection_vertical(self: T, **kwargs) -> T:
         copy = self.copy()
-        copy.type = 'viewport-projection-vertical'
+        copy.type = "viewport-projection-vertical"
+        if copy.options is None:
+            copy.options = kwargs
+        else:
+            copy.options.update(kwargs)
         return copy
-

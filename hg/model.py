@@ -4,9 +4,9 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
-from pydantic import BaseModel, Extra, Field, constr
+from pydantic import BaseModel, Extra, Field
 from typing_extensions import Literal
 
 
@@ -37,16 +37,16 @@ class Domain(BaseModel):
 
 
 class GenomePositionSearchBox(BaseModel):
-    autocompleteServer: Optional[constr(regex=r'^(.*)$')] = Field(
+    autocompleteServer: Optional[str] = Field(
         '', examples=['//higlass.io/api/v1'], title='The Autocomplete Server URL'
     )
-    autocompleteId: Optional[constr(regex=r'^(.*)$')] = Field(
+    autocompleteId: Optional[str] = Field(
         '', examples=['OHJakQICQD6gTD7skx4EWA'], title='The Autocomplete ID'
     )
-    chromInfoServer: constr(regex=r'^(.*)$') = Field(
+    chromInfoServer: str = Field(
         ..., examples=['//higlass.io/api/v1'], title='The Chrominfo Server URL'
     )
-    chromInfoId: constr(regex=r'^(.*)$') = Field(
+    chromInfoId: str = Field(
         ..., examples=['hg19'], title='The Chromosome Info ID'
     )
     visible: Optional[bool] = Field(False, title='The Visible Schema')
@@ -90,23 +90,14 @@ class Overlay(BaseModel):
     uid: Optional[str] = None
 
 
-class LocationLocksByViewUid(BaseModel):
-    pass
-
-    class Config:
-        extra = Extra.forbid
-
-
-class LocksByViewUid(BaseModel):
-    pass
-
-    class Config:
-        extra = Extra.forbid
-
-
-class Slug(BaseModel):
-    __root__: str
-
+LocationLocksByViewUid = Dict[str, str]
+LocksByViewUid = Dict[str, str]
+Slug = str
+# Edited to allow user-defined keys with explicit keys; not sure how to do this in Pydantic
+# 'uid' -> str
+# 'ignoreOffScreenValues' -> bool
+# '(uid)' -> [float, float, float]
+LocksDict = Dict[str, Union[Tuple[float, float, float], str, bool]]
 
 class AxisSpecificLocks(BaseModel):
     class Config:
@@ -241,27 +232,12 @@ class IndependentViewportProjectionTrack(BaseModel):
     y: Optional[float] = None
 
 
-class LocksDict(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    uid: Optional[Slug] = None
-
-
 class LocationLocks(BaseModel):
     class Config:
         extra = Extra.forbid
 
     locksByViewUid: Optional[LocationLocksByViewUid] = None
-    locksDict: Optional[Dict[constr(regex=r'.'), LocksDict]] = None
-
-
-class LocksDict1(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    uid: Optional[Slug] = None
-    ignoreOffScreenValues: Optional[bool] = None
+    locksDict: Optional[Dict[str, LocksDict]] = None
 
 
 class ValueScaleLocks(BaseModel):
@@ -269,14 +245,7 @@ class ValueScaleLocks(BaseModel):
         extra = Extra.forbid
 
     locksByViewUid: LocksByViewUid
-    locksDict: Dict[constr(regex=r'.'), LocksDict1]
-
-
-class LocksDict2(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    uid: Optional[Slug] = None
+    locksDict: Dict[str, LocksDict]
 
 
 class ZoomLocks(BaseModel):
@@ -284,7 +253,7 @@ class ZoomLocks(BaseModel):
         extra = Extra.forbid
 
     locksByViewUid: Optional[LocksByViewUid] = None
-    locksDict: Optional[Dict[constr(regex=r'.'), LocksDict2]] = None
+    locksDict: Optional[Dict[str, LocksDict]] = None
 
 
 class HiglassViewconf(BaseModel):
@@ -297,11 +266,11 @@ class HiglassViewconf(BaseModel):
     zoomFixed: Optional[bool] = None
     compactLayout: Optional[bool] = None
     exportViewUrl: Optional[str] = None
-    trackSourceServers: Optional[List[str]] = Field(None, min_length=1)
+    trackSourceServers: Optional[List[str]] = None
     zoomLocks: Optional[ZoomLocks] = None
     locationLocks: Optional[LocationLocks] = None
     valueScaleLocks: Optional[ValueScaleLocks] = None
-    views: Optional[List[View]] = Field(None, min_length=1)
+    views: Optional[List[View]] = None
     chromInfoPath: Optional[str] = None
 
 
@@ -321,7 +290,7 @@ class View(BaseModel):
     tracks: TracksObject
     uid: Optional[str] = None
     zoomFixed: Optional[bool] = None
-    zoomLimits: Optional[List] = Field([1, None], max_length=2, min_length=2)
+    zoomLimits: Optional[List] = [1, None]
 
 
 class TracksObject(BaseModel):

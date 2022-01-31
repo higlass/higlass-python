@@ -1,5 +1,3 @@
 from .core import *
 from .api import *
-
-class Config(HiglassViewconf):
-    ...
+from .server import server, HgServer

@@ -4,14 +4,13 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, NamedTuple, Optional, Union, Tuple, Literal
+from typing import Any, Dict, List, Optional, Union, Tuple, Literal
 
 from pydantic import BaseModel as _BaseModel, Extra, Field, conlist, validator
 from .display import renderers
 
 # Switch default of exclude_unset to false
 class BaseModel(_BaseModel):
-
     def __rich_repr__(self):
         return self.__iter__()
 
@@ -22,14 +21,14 @@ class BaseModel(_BaseModel):
         return super().json(exclude_unset=exclude_unset, **kwargs)
 
 
-class BaseModelForceExcludeUnset(BaseModel):
-
-    def dict(self, exclude_unset = False, **kwargs):
+# Force model to include unset values when serialized
+class BaseModelForceIncludeUnset(BaseModel):
+    def dict(self, exclude_unset=False, **kwargs):
         # force
         exclude_unset = False
         return super().dict(exclude_unset=exclude_unset, **kwargs)
 
-    def json(self, exclude_unset = False, **kwargs):
+    def json(self, exclude_unset=False, **kwargs):
         # force
         exclude_unset = False
         return super().json(exclude_unset=exclude_unset, **kwargs)
@@ -45,37 +44,32 @@ class Data(BaseModel):
     tiles: Optional[Dict[str, Any]] = None
 
 
-class Domain(NamedTuple):
-    start: float
-    end: float
-
-
 class GenomePositionSearchBox(BaseModel):
     autocompleteServer: Optional[str] = Field(
-        default=None, examples=['//higlass.io/api/v1'], title='The Autocomplete Server URL'
+        default=None,
+        examples=["//higlass.io/api/v1"],
+        title="The Autocomplete Server URL",
     )
     autocompleteId: Optional[str] = Field(
-        default=None, examples=['OHJakQICQD6gTD7skx4EWA'], title='The Autocomplete ID'
+        default=None, examples=["OHJakQICQD6gTD7skx4EWA"], title="The Autocomplete ID"
     )
     chromInfoServer: str = Field(
-        ..., examples=['//higlass.io/api/v1'], title='The Chrominfo Server URL'
+        ..., examples=["//higlass.io/api/v1"], title="The Chrominfo Server URL"
     )
-    chromInfoId: str = Field(
-        ..., examples=['hg19'], title='The Chromosome Info ID'
-    )
-    visible: Optional[bool] = Field(False, title='The Visible Schema')
+    chromInfoId: str = Field(..., examples=["hg19"], title="The Chromosome Info ID")
+    visible: Optional[bool] = Field(False, title="The Visible Schema")
 
 
 # keep default values
 # layout MUST be defined for a view
-class Layout(BaseModelForceExcludeUnset):
+class Layout(BaseModelForceIncludeUnset):
     class Config:
         extra = Extra.forbid
 
-    x: int = Field(default=0, title='The X Position')
-    y: int = Field(default=0, title='The Y Position')
-    w: int = Field(default=12, title='Width')
-    h: int = Field(default=12, title='Height')
+    x: int = Field(default=0, title="The X Position")
+    y: int = Field(default=0, title="The Y Position")
+    w: int = Field(default=12, title="Width")
+    h: int = Field(default=12, title="Height")
     moved: Optional[bool] = None
     static: Optional[bool] = None
 
@@ -84,7 +78,6 @@ class Layout(BaseModelForceExcludeUnset):
         copy.x += x
         copy.y += y
         return copy
-
 
 
 class Options(BaseModel):
@@ -127,85 +120,90 @@ class LocksByViewUid(BaseModel):
         extra = Extra.forbid
 
 
+# Simplified aliases
+Domain = Tuple[int, int]
 Slug = str
+
 
 class AxisSpecificLocks(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    axis: Literal['x', 'y']
+    axis: Literal["x", "y"]
     lock: str
 
+
 EnumTrackType = Literal[
-    'multivec',
-    '1d-heatmap',
-    'line',
-    'point',
-    'bar',
-    'divergent-bar',
-    'stacked-interval',
-    'gene-annotations',
-    'linear-2d-rectangle-domains',
-    'chromosome-labels',
-    'linear-heatmap',
-    '1d-value-interval',
-    '2d-annotations',
-    '2d-chromosome-annotations',
-    '2d-chromosome-grid',
-    '2d-chromosome-labels',
-    '2d-rectangle-domains',
-    '2d-tiles',
-    'arrowhead-domains',
-    'bedlike',
-    'cross-rule',
-    'dummy',
-    'horizontal-1d-annotations',
-    'horizontal-1d-heatmap',
-    'horizontal-1d-tiles',
-    'horizontal-1d-value-interval',
-    'horizontal-2d-rectangle-domains',
-    'horizontal-bar',
-    'horizontal-chromosome-grid',
-    'horizontal-chromosome-labels',
-    'horizontal-divergent-bar',
-    'horizontal-gene-annotations',
-    'horizontal-heatmap',
-    'horizontal-line',
-    'horizontal-multivec',
-    'horizontal-point',
-    'horizontal-rule',
-    'horizontal-vector-heatmap',
-    'image-tiles',
-    'left-axis',
-    'left-stacked-interval',
-    'mapbox-tiles',
-    'osm-2d-tile-ids',
-    'osm-tiles',
-    'raster-tiles',
-    'simple-svg',
-    'square-markers',
-    'top-axis',
-    'top-stacked-interval',
-    'vertical-1d-annotations',
-    'vertical-1d-heatmap',
-    'vertical-1d-tiles',
-    'vertical-1d-value-interval',
-    'vertical-2d-rectangle-domains',
-    'vertical-bar',
-    'vertical-bedlike',
-    'vertical-chromosome-grid',
-    'vertical-chromosome-labels',
-    'vertical-gene-annotations',
-    'vertical-heatmap',
-    'vertical-line',
-    'vertical-multivec',
-    'vertical-point',
-    'vertical-rule',
-    'vertical-vector-heatmap',
-    'viewport-projection-center',
-    'viewport-projection-horizontal',
-    'viewport-projection-vertical',
+    "multivec",
+    "1d-heatmap",
+    "line",
+    "point",
+    "bar",
+    "divergent-bar",
+    "stacked-interval",
+    "gene-annotations",
+    "linear-2d-rectangle-domains",
+    "chromosome-labels",
+    "linear-heatmap",
+    "1d-value-interval",
+    "2d-annotations",
+    "2d-chromosome-annotations",
+    "2d-chromosome-grid",
+    "2d-chromosome-labels",
+    "2d-rectangle-domains",
+    "2d-tiles",
+    "arrowhead-domains",
+    "bedlike",
+    "cross-rule",
+    "dummy",
+    "horizontal-1d-annotations",
+    "horizontal-1d-heatmap",
+    "horizontal-1d-tiles",
+    "horizontal-1d-value-interval",
+    "horizontal-2d-rectangle-domains",
+    "horizontal-bar",
+    "horizontal-chromosome-grid",
+    "horizontal-chromosome-labels",
+    "horizontal-divergent-bar",
+    "horizontal-gene-annotations",
+    "horizontal-heatmap",
+    "horizontal-line",
+    "horizontal-multivec",
+    "horizontal-point",
+    "horizontal-rule",
+    "horizontal-vector-heatmap",
+    "image-tiles",
+    "left-axis",
+    "left-stacked-interval",
+    "mapbox-tiles",
+    "osm-2d-tile-ids",
+    "osm-tiles",
+    "raster-tiles",
+    "simple-svg",
+    "square-markers",
+    "top-axis",
+    "top-stacked-interval",
+    "vertical-1d-annotations",
+    "vertical-1d-heatmap",
+    "vertical-1d-tiles",
+    "vertical-1d-value-interval",
+    "vertical-2d-rectangle-domains",
+    "vertical-bar",
+    "vertical-bedlike",
+    "vertical-chromosome-grid",
+    "vertical-chromosome-labels",
+    "vertical-gene-annotations",
+    "vertical-heatmap",
+    "vertical-line",
+    "vertical-multivec",
+    "vertical-point",
+    "vertical-rule",
+    "vertical-vector-heatmap",
+    "viewport-projection-center",
+    "viewport-projection-horizontal",
+    "viewport-projection-vertical",
 ]
+
 
 class EnumTrack(BaseModel):
     class Config:
@@ -229,7 +227,7 @@ class HeatmapTrack(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    type: Literal['heatmap']
+    type: Literal["heatmap"]
     uid: Optional[str] = None
     data: Optional[Data] = None
     height: Optional[float] = None
@@ -246,9 +244,9 @@ class IndependentViewportProjectionTrack(BaseModel):
         extra = Extra.forbid
 
     type: Literal[
-        'viewport-projection-horizontal',
-        'viewport-projection-vertical',
-        'viewport-projection-center',
+        "viewport-projection-horizontal",
+        "viewport-projection-vertical",
+        "viewport-projection-center",
     ]
     fromViewUid: None = None
     uid: Optional[str] = None
@@ -267,9 +265,6 @@ class Lock(BaseModel):
 
     uid: Optional[Slug] = None
     ignoreOffScreenValues: Optional[bool] = None
-
-    def __call__(self, name: str, value) -> None:
-        setattr(self, name, value)
 
 
 class LocationLocks(BaseModel):
@@ -300,19 +295,48 @@ class CombinedTrack(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    type: Literal['combined']
-    contents: List['Track']
+    type: Literal["combined"]
+    contents: List["Track"]
     height: Optional[float] = None
     options: Optional[Any] = None
     position: Optional[str] = None
     uid: Optional[str] = None
     width: Optional[float] = None
 
+
+# Manual entry because not in schema.json
+class Tileset(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    tilesetUid: str
+    server: str
+
+
+# Manual entry because not in schema.json
+class DividedTrack(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    type: Literal["divided"]
+    children: List[Tileset]
+    height: Optional[float] = None
+    options: Optional[Any] = None
+    position: Optional[str] = None
+    uid: Optional[str] = None
+    width: Optional[float] = None
+
+
 Track = Union[
-    EnumTrack, CombinedTrack, HeatmapTrack, IndependentViewportProjectionTrack
+    DividedTrack,
+    EnumTrack,
+    CombinedTrack,
+    HeatmapTrack,
+    IndependentViewportProjectionTrack,
 ]
 
-class HiglassViewconf(BaseModel):
+
+class Viewconf(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -331,7 +355,7 @@ class HiglassViewconf(BaseModel):
 
     def _repr_mimebundle_(self, include=None, exclude=None):
         renderer = renderers.get()
-        return renderer(self.json()) if renderer else {}
+        return renderer(self.json())
 
     def display(self):
         """Render top-level chart using IPython.display."""
@@ -344,6 +368,8 @@ class View(BaseModel):
     class Config:
         extra = Extra.forbid
 
+    layout: Layout
+    tracks: TrackLayout
     uid: Optional[str] = None
     autocompleteSource: Optional[str] = None
     chromInfoPath: Optional[str] = None
@@ -351,18 +377,21 @@ class View(BaseModel):
     genomePositionSearchBoxVisible: Optional[bool] = None
     initialXDomain: Optional[Domain] = None
     initialYDomain: Optional[Domain] = None
-    layout: Layout
     overlays: Optional[List[Overlay]] = None
     selectionView: Optional[bool] = None
-    tracks: Tracks
     zoomFixed: Optional[bool] = None
     zoomLimits: Tuple[float, Optional[float]] = (1, None)
 
-    def config(self, **kwargs):
-        return HiglassViewconf(views=[self], **kwargs)
+    def domain(self, x: Optional[Domain] = None, y: Optional[Domain] = None):
+        copy = self.copy()
+        if x is not None:
+            copy.initialXDomain = x
+        if y is not None:
+            copy.initialYDomain = y
+        return copy
 
 
-class Tracks(BaseModel):
+class TrackLayout(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -374,15 +403,15 @@ class Tracks(BaseModel):
     whole: Optional[List[Track]] = None
     gallery: Optional[List[Track]] = None
 
-
     @validator("*", pre=True)
     def ensure_list(cls, v):
-        if not isinstance(v, (tuple, list)):
+        if v is not None and not isinstance(v, (tuple, list)):
             v = [v]
         return v
 
 
-HiglassViewconf.update_forward_refs()
+Viewconf.update_forward_refs()
 View.update_forward_refs()
-Tracks.update_forward_refs()
+TrackLayout.update_forward_refs()
 CombinedTrack.update_forward_refs()
+DividedTrack.update_forward_refs()

@@ -4,34 +4,23 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Union, Tuple, Literal
+from typing import Any, Dict, List, Optional, Union, Tuple, Literal, Sequence
 
 from pydantic import BaseModel as _BaseModel, Extra, Field, conlist, validator
 from .display import renderers
 
-# Switch default of exclude_unset to false
+import slugid
+
+# Switch default of `exclude_none` to True
 class BaseModel(_BaseModel):
     def __rich_repr__(self):
         return self.__iter__()
 
-    def dict(self, exclude_unset=True, **kwargs):
-        return super().dict(exclude_unset=exclude_unset, **kwargs)
+    def dict(self, exclude_none=True, **kwargs):
+        return super().dict(exclude_none=exclude_none, **kwargs)
 
-    def json(self, exclude_unset=True, **kwargs):
-        return super().json(exclude_unset=exclude_unset, **kwargs)
-
-
-# Force model to include unset values when serialized
-class BaseModelForceIncludeUnset(BaseModel):
-    def dict(self, exclude_unset=False, **kwargs):
-        # force
-        exclude_unset = False
-        return super().dict(exclude_unset=exclude_unset, **kwargs)
-
-    def json(self, exclude_unset=False, **kwargs):
-        # force
-        exclude_unset = False
-        return super().json(exclude_unset=exclude_unset, **kwargs)
+    def json(self, exclude_none=True, **kwargs):
+        return super().json(exclude_none=exclude_none, **kwargs)
 
 
 class Data(BaseModel):
@@ -60,24 +49,16 @@ class GenomePositionSearchBox(BaseModel):
     visible: Optional[bool] = Field(False, title="The Visible Schema")
 
 
-# keep default values
-# layout MUST be defined for a view
-class Layout(BaseModelForceIncludeUnset):
+class Layout(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    x: int = Field(default=0, title="The X Position")
-    y: int = Field(default=0, title="The Y Position")
-    w: int = Field(default=12, title="Width")
-    h: int = Field(default=12, title="Height")
+    x: int = Field(..., title="The X Position")
+    y: int = Field(..., title="The Y Position")
+    w: int = Field(..., title="Width")
+    h: int = Field(..., title="Height")
     moved: Optional[bool] = None
     static: Optional[bool] = None
-
-    def offset(self, x: int = 0, y: int = 0):
-        copy = self.copy()
-        copy.x += x
-        copy.y += y
-        return copy
 
 
 class Options(BaseModel):
@@ -104,20 +85,6 @@ class Overlay(BaseModel):
     options: Optional[Options] = None
     type: Optional[str] = None
     uid: Optional[str] = None
-
-
-class LocationLocksByViewUid(BaseModel):
-    pass
-
-    class Config:
-        extra = Extra.forbid
-
-
-class LocksByViewUid(BaseModel):
-    pass
-
-    class Config:
-        extra = Extra.forbid
 
 
 # Simplified aliases
@@ -266,20 +233,25 @@ class Lock(BaseModel):
     uid: Optional[Slug] = None
     ignoreOffScreenValues: Optional[bool] = None
 
+    def iter_uids(self):
+        for key, _ in self:
+            if key not in ("uid", "ignoreOffScreenValues"):
+                yield key
+
 
 class LocationLocks(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    locksByViewUid: Optional[LocationLocksByViewUid] = None
-    locksDict: Optional[Dict[str, Lock]] = None
+    locksByViewUid: Dict[str, Union[str, AxisSpecificLocks]] = {}
+    locksDict: Dict[str, Lock] = {}
 
 
 class ValueScaleLocks(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    locksByViewUid: LocksByViewUid
+    locksByViewUid: Dict[str, str]
     locksDict: Dict[str, Lock]
 
 
@@ -287,8 +259,8 @@ class ZoomLocks(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    locksByViewUid: Optional[LocksByViewUid] = None
-    locksDict: Optional[Dict[str, Lock]] = None
+    locksByViewUid: Dict[str, str] = {}
+    locksDict: Dict[str, Lock] = {}
 
 
 class CombinedTrack(BaseModel):
@@ -363,13 +335,58 @@ class Viewconf(BaseModel):
 
         display(self)
 
+    def lock(
+        self,
+        *locks: Lock,
+        zoom: Optional[Union[Sequence[Lock], Lock]] = None,
+        location: Optional[Union[Sequence[Lock], Lock]] = None,
+    ):
+        copy = Viewconf(**self.dict())
+
+        if zoom is None:
+            zoom = []
+        elif isinstance(zoom, Lock):
+            zoom = [zoom]
+        else:
+            zoom = list(zoom)
+
+        if location is None:
+            location = []
+        elif isinstance(location, Lock):
+            location = [location]
+        else:
+            location = list(location)
+
+        zoom.extend(locks)
+        location.extend(locks)
+
+        if copy.zoomLocks is None:
+            copy.zoomLocks = ZoomLocks()
+
+        for lock in zoom:
+            assert isinstance(lock.uid, str)
+            copy.zoomLocks.locksDict[lock.uid] = lock
+            for vuid in lock.iter_uids():
+                copy.zoomLocks.locksByViewUid[vuid] = lock.uid
+
+        if copy.locationLocks is None:
+            copy.locationLocks = LocationLocks()
+
+        for lock in location:
+            assert isinstance(lock.uid, str)
+            copy.locationLocks.locksDict[lock.uid] = lock
+            for vuid in lock.iter_uids():
+                copy.locationLocks.locksByViewUid[vuid] = lock.uid
+
+        return copy
+
 
 class View(BaseModel):
     class Config:
         extra = Extra.forbid
 
     layout: Layout
-    tracks: TrackLayout
+    tracks: Tracks
     uid: Optional[str] = None
     autocompleteSource: Optional[str] = None
     chromInfoPath: Optional[str] = None
@@ -382,16 +399,44 @@ class View(BaseModel):
     zoomFixed: Optional[bool] = None
     zoomLimits: Tuple[float, Optional[float]] = (1, None)
 
-    def domain(self, x: Optional[Domain] = None, y: Optional[Domain] = None):
-        copy = self.copy()
+    def __copy_unique__(self):
+        copy = View(**self.dict())
+        copy.uid = str(slugid.nice())
+        return copy
+
+    def domain(
+        self,
+        x: Optional[Domain] = None,
+        y: Optional[Domain] = None,
+    ):
+        copy = self.__copy_unique__()
         if x is not None:
             copy.initialXDomain = x
         if y is not None:
             copy.initialYDomain = y
         return copy
 
+    # TODO: better name? adjust_layout, resize
+    def move(
+        self,
+        x: Optional[int] = None,
+        y: Optional[int] = None,
+        width: Optional[int] = None,
+        height: Optional[int] = None,
+    ):
+        copy = self.__copy_unique__()
+        if x is not None:
+            copy.layout.x = x
+        if y is not None:
+            copy.layout.y = y
+        if width is not None:
+            copy.layout.w = width
+        if height is not None:
+            copy.layout.h = height
+        return copy
 
-class TrackLayout(BaseModel):
+
+class Tracks(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -412,6 +457,6 @@ class TrackLayout(BaseModel):
 
 Viewconf.update_forward_refs()
 View.update_forward_refs()
-TrackLayout.update_forward_refs()
+Tracks.update_forward_refs()
 CombinedTrack.update_forward_refs()
 DividedTrack.update_forward_refs()

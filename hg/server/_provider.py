@@ -17,6 +17,16 @@ from ._background_server import BackgroundServer
 from hg.tilesets import LocalTileset
 from hg.api import track, TrackType
 
+_datatype_default_track = {
+    "2d-rectangle-domains": "2d-rectangle-domains",
+    "bedlike": "bedlike",
+    "chromsizes": "horizontal-chromosome-labels",
+    "gene-annotations": "horizontal-gene-annotations",
+    "matrix": "heatmap",
+    "vector": "horizontal-bar",
+    "multivec": "horizontal-multivec",
+}
+
 
 @dataclass(frozen=True)
 class TilesetResource:
@@ -27,9 +37,15 @@ class TilesetResource:
     def server(self) -> str:
         return f"{self.provider.url}/api/v1/"
 
-    def track(self, type: TrackType, **kwargs):
+    def track(self, type: Optional[TrackType] = None, **kwargs):
+        # use default track based on datatype if available
+        if type is None:
+            if self.tileset.datatype is None:
+                raise ValueError("No default track for tileset")
+            else:
+                type = _datatype_default_track[self.tileset.datatype]  # type: ignore
         return track(
-            type=type,
+            type=type,  # type: ignore
             server=self.server,
             tilsetUid=self.tileset.uid,
             **kwargs,

@@ -1,4 +1,4 @@
-from typing import Any, Callable, Sequence, List, Dict, Optional
+from typing import Any, Callable, Sequence, List, Dict, Optional, Literal
 from dataclasses import dataclass
 
 from .api import track, TrackType
@@ -11,13 +11,15 @@ TileId = str
 Tile = Dict[str, Any]
 TilesetInfo = Dict[str, Any]
 
+DataType = Literal["vector", "multivec", "matrix"]
+
 
 @dataclass
 class LocalTileset:
     tiles: Callable[[Sequence[TileId]], List[Tile]]
     info: Callable[[], TilesetInfo]
     uid: str
-    type: Optional[str]
+    datatype: Optional[DataType] = None
 
 
 @dataclass
@@ -49,23 +51,6 @@ def hash_absolute_filepath_as_default_uid(fn: Callable[[str, str], LocalTileset]
 
 
 @hash_absolute_filepath_as_default_uid
-def beddb(filepath: str, uid: str):
-    try:
-        from clodius.tiles.beddb import tiles, tileset_info
-    except ImportError:
-        raise ImportError(
-            'You must have `clodius` installed to use "beddb" data-server.'
-        )
-
-    return LocalTileset(
-        type="beddb",
-        tiles=functools.partial(tiles, filepath),
-        info=functools.partial(tileset_info, filepath),
-        uid=uid,
-    )
-
-
-@hash_absolute_filepath_as_default_uid
 def bigwig(filepath: str, uid: str):
     try:
         from clodius.tiles.bigwig import tiles, tileset_info
@@ -75,7 +60,7 @@ def bigwig(filepath: str, uid: str):
         )
 
     return LocalTileset(
-        type="bigwig",
+        datatype="vector",
         tiles=functools.partial(tiles, filepath),
         info=functools.partial(tileset_info, filepath),
         uid=uid,
@@ -92,7 +77,7 @@ def multivec(filepath: str, uid: str):
         )
 
     return LocalTileset(
-        type="multivec",
+        datatype="multivec",
         tiles=functools.partial(tiles, filepath),
         info=functools.partial(tileset_info, filepath),
         uid=uid,
@@ -109,7 +94,7 @@ def cooler(filepath: str, uid: str):
         )
 
     return LocalTileset(
-        type="cooler",
+        datatype="matrix",
         tiles=functools.partial(tiles, filepath),
         info=functools.partial(tileset_info, filepath),
         uid=uid,

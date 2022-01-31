@@ -1,4 +1,6 @@
-from typing import Dict, List, Literal, Optional, Tuple, Union
+from typing import Dict, List, Literal, Optional, Tuple, Union, Any
+from copy import deepcopy
+from collections import defaultdict
 
 import slugid
 
@@ -11,10 +13,11 @@ from .core import (
     IndependentViewportProjectionTrack,
     Layout,
     Track,
-    TrackLayout,
+    Tracks,
     View,
     Viewconf,
     Tileset,
+    Lock,
 )
 
 TrackPosition = Literal["center", "top", "left", "bottom", "center", "whole", "gallery"]
@@ -77,35 +80,47 @@ def track(
 
 
 def view(
-    *_tracks: Union[Track, Tuple[Track, TrackPosition]],
+    *_tracks: Union[Track, Tracks, Tuple[Track, TrackPosition]],
+    x: int = 0,
+    y: int = 0,
+    width: int = 12,
+    height: int = 6,
+    tracks: Optional[Tracks] = None,
     layout: Optional[Layout] = None,
-    tracks: Optional[TrackLayout] = None,
     uid: Optional[str] = None,
     **kwargs,
 ) -> View:
 
-    layout = Layout() if layout is None else layout.copy()
-    tracks = TrackLayout() if tracks is None else tracks.copy()
+    if layout is None:
+        layout = Layout(x=x, y=y, w=width, h=height)
+    else:
+        layout = Layout(**layout.dict())
+
+    if tracks is None:
+        data  = defaultdict(list)
+    else:
+        data = defaultdict(list, tracks.dict())
 
     for track in _tracks:
-        if isinstance(track, tuple):
-            track, position = track
+        if isinstance(track, Tracks):
+            track = track.dict()
+            for position, track_list in track.items():
+                data[position].extend(track_list)
         else:
-            if track.type is None:
-                raise ValueError("No default track type")
-            position = _track_default_position[track.type]
-
-        if getattr(tracks, position) is None:
-            setattr(tracks, position, [])
-
-        getattr(tracks, position).append(track)
+            if isinstance(track, tuple):
+                track, position = track
+            else:
+                if track.type is None:
+                    raise ValueError("No default track type")
+                position = _track_default_position[track.type]
+            data[position].append(track)
 
     if uid is None:
         uid = str(slugid.nice())
 
     return View(
         layout=layout,
-        tracks=tracks,
+        tracks=Tracks(**data),
         uid=uid,
         **kwargs,
     )
@@ -116,8 +131,8 @@ def combine(t1: Track, t2: Track, uid: Optional[str] = None, **kwargs) -> Combin
         uid = str(slugid.nice())
 
     if isinstance(t1, CombinedTrack):
-        copy = t1.copy()
-        t1.contents.append(t2.copy())
+        copy = CombinedTrack(**t1.dict())
+        copy.contents.append(t2.__class__(**t2.dict()))
         for key, val in kwargs.items():
             setattr(copy, key, val)
         return copy
@@ -125,21 +140,31 @@ def combine(t1: Track, t2: Track, uid: Optional[str] = None, **kwargs) -> Combin
     return CombinedTrack(
         type="combined",
         uid=uid,
-        contents=[t1.copy(), t2.copy()],
+        contents=[track.__class__(**track.dict()) for track in (t1, t2)],
         **kwargs,
     )
 
 
-def divide(t1: Track, t2: Track, uid: Optional[str] = None, **kwargs) -> DividedTrack:
+def divide(
+    t1: Track,
+    t2: Track,
+    uid: Optional[str] = None,
+    options: Optional[Dict[str, Any]] = None,
+    **kwargs,
+) -> DividedTrack:
     assert t1.type == t2.type, "divided tracks must be same type"
-    if "options" in kwargs:
-        options = kwargs["options"]
-    else:
-        # TODO: add logging warning
-        options = t1.options
 
-    if uid is None:
-        uid = str(slugid.nice())
+    if options is None:
+        # TODO: add logging warning
+        if isinstance(t1.options, dict):
+            options = deepcopy(t1.options)
+        else:
+            options = {}
+    else:
+        options = deepcopy(options)
+
+    if isinstance(options, dict):
+        options = deepcopy(options)
 
     children = [
         Tileset(
@@ -189,10 +214,10 @@ def viewconf(
     exportViewUrl: str = "http://higlass.io/api/v1/viewconfs",
     **kwargs,
 ):
-    views = [] if views is None else [v.copy() for v in views]
+    views = [] if views is None else [View(**v.dict()) for v in views]
 
-    for v in _views:
-        views.append(v.copy())
+    for view in _views:
+        views.append(View(**view.dict()))
 
     if trackSourceServers is None:
         trackSourceServers = ["http://higlass.io/api/v1"]
@@ -204,3 +229,11 @@ def viewconf(
         trackSourceServers=trackSourceServers,
         **kwargs,
     )
+
+
+def lock(*views: View, **kwargs):
+    lck = Lock(uid=str(slugid.nice()), **kwargs)
+    for view in views:
+        assert isinstance(view.uid, str)
+        setattr(lck, view.uid, (1, 1, 1))
+    return lck

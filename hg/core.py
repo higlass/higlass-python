@@ -386,7 +386,7 @@ class View(BaseModel):
         extra = Extra.forbid
 
     layout: Layout
-    tracks: TrackLayout
+    tracks: Tracks
     uid: Optional[str] = None
     autocompleteSource: Optional[str] = None
     chromInfoPath: Optional[str] = None
@@ -436,7 +436,7 @@ class View(BaseModel):
         return copy
 
 
-class TrackLayout(BaseModel):
+class Tracks(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -457,6 +457,6 @@ class TrackLayout(BaseModel):
 
 Viewconf.update_forward_refs()
 View.update_forward_refs()
-TrackLayout.update_forward_refs()
+Tracks.update_forward_refs()
 CombinedTrack.update_forward_refs()
 DividedTrack.update_forward_refs()

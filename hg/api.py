@@ -1,5 +1,6 @@
 from typing import Dict, List, Literal, Optional, Tuple, Union, Any
 from copy import deepcopy
+from collections import defaultdict
 
 import slugid
 
@@ -12,7 +13,7 @@ from .core import (
     IndependentViewportProjectionTrack,
     Layout,
     Track,
-    TrackLayout,
+    Tracks,
     View,
     Viewconf,
     Tileset,
@@ -79,12 +80,12 @@ def track(
 
 
 def view(
-    *_tracks: Union[Track, Tuple[Track, TrackPosition]],
+    *_tracks: Union[Track, Tracks, Tuple[Track, TrackPosition]],
     x: int = 0,
     y: int = 0,
     width: int = 12,
     height: int = 6,
-    tracks: Optional[TrackLayout] = None,
+    tracks: Optional[Tracks] = None,
     layout: Optional[Layout] = None,
     uid: Optional[str] = None,
     **kwargs,
@@ -96,29 +97,30 @@ def view(
         layout = Layout(**layout.dict())
 
     if tracks is None:
-        tracks = TrackLayout()
+        data  = defaultdict(list)
     else:
-        tracks = TrackLayout(**tracks.dict())
+        data = defaultdict(list, tracks.dict())
 
     for track in _tracks:
-        if isinstance(track, tuple):
-            track, position = track
+        if isinstance(track, Tracks):
+            track = track.dict()
+            for position, track_list in track.items():
+                data[position].extend(track_list)
         else:
-            if track.type is None:
-                raise ValueError("No default track type")
-            position = _track_default_position[track.type]
-
-        if getattr(tracks, position) is None:
-            setattr(tracks, position, [])
-
-        getattr(tracks, position).append(track)
+            if isinstance(track, tuple):
+                track, position = track
+            else:
+                if track.type is None:
+                    raise ValueError("No default track type")
+                position = _track_default_position[track.type]
+            data[position].append(track)
 
     if uid is None:
         uid = str(slugid.nice())
 
     return View(
         layout=layout,
-        tracks=tracks,
+        tracks=Tracks(**data),
         uid=uid,
         **kwargs,
     )

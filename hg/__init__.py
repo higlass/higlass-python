@@ -1,4 +1,4 @@
-from .model import *
+from .core import *
 from .api import *
 
 class Config(HiglassViewconf):

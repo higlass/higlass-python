@@ -3,3 +3,4 @@ __pycache__/
 hg.egg-info/
 
 .ipynb_checkpoints/
+demo/

@@ -6,6 +6,13 @@ setuptools.setup(
     author='Trevor Manz',
     author_email='trevor.j.manz@gmail.com',
     description='python bindings for higlass',
-    packages=setuptools.find_packages(),    
-    install_requires=['pydantic'],
+    packages=setuptools.find_packages(),
+    install_requires=[
+        'pydantic',
+        'jinja2',
+        'portpicker',
+        'uvicorn',
+        'starlette',
+        'slugid',
+    ],
 )

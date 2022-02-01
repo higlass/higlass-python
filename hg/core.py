@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 from functools import wraps
-from typing import Any, Dict, List, Literal, Optional, Tuple, TypeVar, Union
+from typing import Any, Dict, List, Optional, Tuple, TypeVar, Union
+from typing_extensions import Literal
 
 import slugid
 from pydantic import BaseModel as _BaseModel

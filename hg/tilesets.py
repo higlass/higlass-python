@@ -2,7 +2,8 @@ import functools
 import hashlib
 import pathlib
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Literal, Optional, Sequence
+from typing import Any, Callable, Dict, List, Optional, Sequence
+from typing_extensions import Literal
 
 from .api import TrackType, track
 
@@ -35,7 +36,7 @@ class RemoteTileset:
         )
 
 
-def remote(uid: str, server: str = "//higlass.io/api/v1"):
+def remote(uid: str, server: str = "https://higlass.io/api/v1"):
     return RemoteTileset(uid, server)
 
 

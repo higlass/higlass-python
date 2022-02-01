@@ -4,11 +4,6 @@ from hg.tilesets import LocalTileset
 
 from ._provider import TilesetProvider, TilesetResource
 
-__all__ = [
-    "HgServer",
-    "server",
-]
-
 
 class HgServer:
     def __init__(self):
@@ -39,10 +34,10 @@ class HgServer:
         if port is not None and port != self._provider.port:
             self._provider.stop().start(port=port)
 
-        if tileset.uid not in self._resources:
-            self._resources[tileset.uid] = self._provider.create(tileset)
+        if tileset.uid not in self._tilesets:
+            self._tilesets[tileset.uid] = self._provider.create(tileset)
 
-        return self._resources[tileset.uid]
+        return self._tilesets[tileset.uid]
 
     def __rich_repr__(self):
         yield "tilesets", self._tilesets

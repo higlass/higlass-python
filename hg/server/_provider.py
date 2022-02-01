@@ -47,7 +47,7 @@ class TilesetResource:
         return track(
             type=type,  # type: ignore
             server=self.server,
-            tilsetUid=self.tileset.uid,
+            tilesetUid=self.tileset.uid,
             **kwargs,
         )
 

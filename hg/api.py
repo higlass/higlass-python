@@ -1,4 +1,4 @@
-from typing import Dict, List, Literal, Optional, Tuple, Union, Any
+from typing import Dict, List, Literal, Optional, Tuple, TypeVar, Union, Any, overload
 from copy import deepcopy
 from collections import defaultdict
 
@@ -6,7 +6,6 @@ import slugid
 
 from .core import (
     CombinedTrack,
-    DividedTrack,
     EnumTrack,
     EnumTrackType,
     HeatmapTrack,
@@ -16,8 +15,9 @@ from .core import (
     Tracks,
     View,
     Viewconf,
-    Tileset,
+    Data,
     Lock,
+    ValueScaleLock,
 )
 
 TrackPosition = Literal["center", "top", "left", "bottom", "center", "whole", "gallery"]
@@ -97,7 +97,7 @@ def view(
         layout = Layout(**layout.dict())
 
     if tracks is None:
-        data  = defaultdict(list)
+        data = defaultdict(list)
     else:
         data = defaultdict(list, tracks.dict())
 
@@ -145,42 +145,34 @@ def combine(t1: Track, t2: Track, uid: Optional[str] = None, **kwargs) -> Combin
     )
 
 
-def divide(
-    t1: Track,
-    t2: Track,
-    uid: Optional[str] = None,
-    options: Optional[Dict[str, Any]] = None,
-    **kwargs,
-) -> DividedTrack:
+T = TypeVar("T", bound=Union[EnumTrack, HeatmapTrack])
+
+
+def divide(t1: T, t2: T, **kwargs) -> T:
     assert t1.type == t2.type, "divided tracks must be same type"
+    assert isinstance(t1.tilesetUid, str)
+    assert isinstance(t1.server, str)
 
-    if options is None:
-        # TODO: add logging warning
-        if isinstance(t1.options, dict):
-            options = deepcopy(t1.options)
-        else:
-            options = {}
-    else:
-        options = deepcopy(options)
+    assert isinstance(t2.tilesetUid, str)
+    assert isinstance(t2.server, str)
 
-    if isinstance(options, dict):
-        options = deepcopy(options)
-
-    children = [
-        Tileset(
-            tilesetUid=track.tilesetUid,  # type: ignore
-            server=track.server,  # type: ignore
-        )
-        for track in (t1, t2)
-    ]
-
-    return DividedTrack(
+    copy = t1.opts()  # copy first track with new uid
+    copy.tilesetUid = None
+    copy.server = None
+    copy.data = Data(
         type="divided",
-        uid=uid,
-        options=options,
-        children=children,
-        **kwargs,
+        children=[
+            {
+                "tilesetUid": track.tilesetUid,
+                "server": track.server,
+            }
+            for track in (t1, t2)
+        ],
     )
+    # overrides
+    for key, val in kwargs.items():
+        setattr(copy, key, val)
+    return copy
 
 
 def project(
@@ -231,9 +223,30 @@ def viewconf(
     )
 
 
-def lock(*views: View, **kwargs):
-    lck = Lock(uid=str(slugid.nice()), **kwargs)
-    for view in views:
-        assert isinstance(view.uid, str)
-        setattr(lck, view.uid, (1, 1, 1))
-    return lck
+@overload
+def lock(*views: View, **kwargs) -> Lock:
+    ...
+
+
+@overload
+def lock(*pairs: Tuple[View, Track], **kwargs) -> ValueScaleLock:
+    ...
+
+
+def lock(*data, **kwargs):
+    assert len(data) >= 1
+    uid = str(slugid.nice())
+    if isinstance(data[0], View):
+        lck = Lock(uid=uid, **kwargs)
+        for view in data:
+            assert isinstance(view.uid, str)
+            setattr(lck, view.uid, (1, 1, 1))
+        return lck
+    else:
+        lck = ValueScaleLock(uid=uid, **kwargs)
+        for view, track in data:
+            assert isinstance(view.uid, str)
+            assert isinstance(track.uid, str)
+            vtuid = f"{view.uid}.{track.uid}"
+            setattr(lck, vtuid, {"track": track.uid, "view": view.uid})
+        return lck

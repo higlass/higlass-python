@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Union, Tuple, Literal, Sequence
+from typing import Any, Dict, List, Optional, Union, Tuple, Literal, Sequence, TypeVar
 
 from pydantic import BaseModel as _BaseModel, Extra, Field, conlist, validator
 from .display import renderers
@@ -172,58 +172,72 @@ EnumTrackType = Literal[
 ]
 
 
-class EnumTrack(BaseModel):
+class BaseTrack(BaseModel):
     class Config:
         extra = Extra.forbid
 
+    uid: Optional[str] = None
+    width: Optional[int] = None
+    height: Optional[int] = None
+    options: Optional[Dict[str, Any]] = None
+
+    # TODO: rename ?
+    def opts(self, **options):
+        copy = _copy_with_unique_id(self)
+        if copy.options is None:
+            copy.options = {}
+        copy.options.update(options)
+        return copy
+
+
+class EnumTrack(BaseTrack):
     type: EnumTrackType
     server: Optional[str] = None
     tilesetUid: Optional[str] = None
     data: Optional[Data] = None
-    uid: Optional[str] = None
     chromInfoPath: Optional[str] = None
     fromViewUid: Optional[str] = None
-    height: Optional[float] = None
-    options: Optional[Dict[str, Any]] = None
-    width: Optional[float] = None
     x: Optional[float] = None
     y: Optional[float] = None
 
 
-class HeatmapTrack(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
+class HeatmapTrack(BaseTrack):
     type: Literal["heatmap"]
-    uid: Optional[str] = None
     data: Optional[Data] = None
-    height: Optional[float] = None
     options: Optional[Dict[str, Any]] = None
     position: Optional[str] = None
     server: Optional[str] = None
     tilesetUid: Optional[str] = None
-    width: Optional[float] = None
     transforms: Optional[List] = None
 
 
-class IndependentViewportProjectionTrack(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
+class IndependentViewportProjectionTrack(BaseTrack):
     type: Literal[
         "viewport-projection-horizontal",
         "viewport-projection-vertical",
         "viewport-projection-center",
     ]
     fromViewUid: None = None
-    uid: Optional[str] = None
     projectionXDomain: Optional[Domain] = None
     projectionYDomain: Optional[Domain] = None
     options: Optional[Dict[str, Any]] = None
     transforms: Optional[List] = None
-    width: Optional[float] = None
     x: Optional[float] = None
     y: Optional[float] = None
+
+
+class CombinedTrack(BaseTrack):
+    type: Literal["combined"]
+    contents: List["Track"]
+    position: Optional[str] = None
+
+
+Track = Union[
+    EnumTrack,
+    CombinedTrack,
+    HeatmapTrack,
+    IndependentViewportProjectionTrack,
+]
 
 
 class Lock(BaseModel):
@@ -231,12 +245,11 @@ class Lock(BaseModel):
         extra = Extra.allow
 
     uid: Optional[Slug] = None
-    ignoreOffScreenValues: Optional[bool] = None
 
-    def iter_uids(self):
-        for key, _ in self:
-            if key not in ("uid", "ignoreOffScreenValues"):
-                yield key
+    def __iter_uids__(self):
+        for uid, val in self:
+            if not uid == "uid":
+                yield uid, val
 
 
 class LocationLocks(BaseModel):
@@ -247,14 +260,6 @@ class LocationLocks(BaseModel):
     locksDict: Dict[str, Lock] = {}
 
 
-class ValueScaleLocks(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    locksByViewUid: Dict[str, str]
-    locksDict: Dict[str, Lock]
-
-
 class ZoomLocks(BaseModel):
     class Config:
         extra = Extra.forbid
@@ -263,49 +268,25 @@ class ZoomLocks(BaseModel):
     locksDict: Dict[str, Lock] = {}
 
 
-class CombinedTrack(BaseModel):
+class ValueScaleLock(BaseModel):
+    class Config:
+        extra = Extra.allow
+
+    uid: Optional[Slug] = None
+    ignoreOffScreenValues: Optional[bool] = None
+
+    def __iter_uids__(self):
+        for uid, val in self:
+            if uid not in ("uid", "ignoreOffScreenValues"):
+                yield uid, val
+
+
+class ValueScaleLocks(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    type: Literal["combined"]
-    contents: List["Track"]
-    height: Optional[float] = None
-    options: Optional[Any] = None
-    position: Optional[str] = None
-    uid: Optional[str] = None
-    width: Optional[float] = None
-
-
-# Manual entry because not in schema.json
-class Tileset(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    tilesetUid: str
-    server: str
-
-
-# Manual entry because not in schema.json
-class DividedTrack(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    type: Literal["divided"]
-    children: List[Tileset]
-    height: Optional[float] = None
-    options: Optional[Any] = None
-    position: Optional[str] = None
-    uid: Optional[str] = None
-    width: Optional[float] = None
-
-
-Track = Union[
-    DividedTrack,
-    EnumTrack,
-    CombinedTrack,
-    HeatmapTrack,
-    IndependentViewportProjectionTrack,
-]
+    locksByViewUid: Dict[str, str] = {}
+    locksDict: Dict[str, ValueScaleLock] = {}
 
 
 class Viewconf(BaseModel):
@@ -335,11 +316,12 @@ class Viewconf(BaseModel):
 
         display(self)
 
-    def lock(
+    def locks(
         self,
-        *locks: Lock,
+        *locks: Union[Lock, ValueScaleLock],
         zoom: Optional[Union[Sequence[Lock], Lock]] = None,
         location: Optional[Union[Sequence[Lock], Lock]] = None,
+        value_scale: Optional[Union[Sequence[ValueScaleLock], ValueScaleLock]] = None,
     ):
         copy = Viewconf(**self.dict())
 
@@ -357,8 +339,22 @@ class Viewconf(BaseModel):
         else:
             location = list(location)
 
-        zoom.extend(locks)
-        location.extend(locks)
+        if value_scale is None:
+            value_scale = []
+        elif isinstance(value_scale, ValueScaleLock):
+            value_scale = [value_scale]
+        else:
+            value_scale = list(value_scale)
+
+        shared_locks: List[Lock] = []
+        for lock in locks:
+            if isinstance(lock, Lock):
+                shared_locks.append(lock)
+            else:
+                value_scale.append(lock)
+
+        zoom.extend(shared_locks)
+        location.extend(shared_locks)
 
         if copy.zoomLocks is None:
             copy.zoomLocks = ZoomLocks()
@@ -366,7 +362,7 @@ class Viewconf(BaseModel):
         for lock in zoom:
             assert isinstance(lock.uid, str)
             copy.zoomLocks.locksDict[lock.uid] = lock
-            for vuid in lock.iter_uids():
+            for vuid, _ in lock.__iter_uids__():
                 copy.zoomLocks.locksByViewUid[vuid] = lock.uid
 
         if copy.locationLocks is None:
@@ -375,8 +371,17 @@ class Viewconf(BaseModel):
         for lock in location:
             assert isinstance(lock.uid, str)
             copy.locationLocks.locksDict[lock.uid] = lock
-            for vuid in lock.iter_uids():
+            for vuid, _ in lock.__iter_uids__():
                 copy.locationLocks.locksByViewUid[vuid] = lock.uid
+
+        if copy.valueScaleLocks is None:
+            copy.valueScaleLocks = ValueScaleLocks()
+
+        for lock in value_scale:
+            assert isinstance(lock.uid, str)
+            copy.valueScaleLocks.locksDict[lock.uid] = lock
+            for vuid, _ in lock.__iter_uids__():
+                copy.valueScaleLocks.locksByViewUid[vuid] = lock.uid
 
         return copy
 
@@ -399,17 +404,12 @@ class View(BaseModel):
     zoomFixed: Optional[bool] = None
     zoomLimits: Tuple[float, Optional[float]] = (1, None)
 
-    def __copy_unique__(self):
-        copy = View(**self.dict())
-        copy.uid = str(slugid.nice())
-        return copy
-
     def domain(
         self,
         x: Optional[Domain] = None,
         y: Optional[Domain] = None,
     ):
-        copy = self.__copy_unique__()
+        copy = _copy_with_unique_id(self)
         if x is not None:
             copy.initialXDomain = x
         if y is not None:
@@ -424,7 +424,7 @@ class View(BaseModel):
         width: Optional[int] = None,
         height: Optional[int] = None,
     ):
-        copy = self.__copy_unique__()
+        copy = _copy_with_unique_id(self)
         if x is not None:
             copy.layout.x = x
         if y is not None:
@@ -434,6 +434,15 @@ class View(BaseModel):
         if height is not None:
             copy.layout.h = height
         return copy
+
+
+T = TypeVar("T", bound=Union[View, BaseTrack])
+
+
+def _copy_with_unique_id(t: T) -> T:
+    copy = t.__class__(**t.dict())
+    copy.uid = str(slugid.nice())
+    return copy
 
 
 class Tracks(BaseModel):
@@ -459,4 +468,3 @@ Viewconf.update_forward_refs()
 View.update_forward_refs()
 Tracks.update_forward_refs()
 CombinedTrack.update_forward_refs()
-DividedTrack.update_forward_refs()

@@ -1,11 +1,10 @@
-from typing import Any, Callable, Sequence, List, Dict, Optional, Literal
-from dataclasses import dataclass
-
-from .api import track, TrackType
-
 import functools
-import pathlib
 import hashlib
+import pathlib
+from dataclasses import dataclass
+from typing import Any, Callable, Dict, List, Literal, Optional, Sequence
+
+from .api import TrackType, track
 
 TileId = str
 Tile = Dict[str, Any]

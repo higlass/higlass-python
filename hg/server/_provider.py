@@ -1,11 +1,7 @@
 import itertools
 import weakref
 from dataclasses import dataclass
-from typing import (
-    List,
-    MutableMapping,
-    Optional,
-)
+from typing import List, MutableMapping, Optional
 
 import starlette.applications
 import starlette.middleware.cors
@@ -13,9 +9,10 @@ import starlette.requests
 import starlette.responses
 import starlette.routing
 
-from ._background_server import BackgroundServer
+from hg.api import TrackType, track
 from hg.tilesets import LocalTileset
-from hg.api import track, TrackType
+
+from ._background_server import BackgroundServer
 
 _datatype_default_track = {
     "2d-rectangle-domains": "2d-rectangle-domains",

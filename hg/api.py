@@ -1,23 +1,23 @@
-from typing import Dict, List, Literal, Optional, Tuple, TypeVar, Union, Any, overload
-from copy import deepcopy
 from collections import defaultdict
+from copy import deepcopy
+from typing import Any, Dict, List, Literal, Optional, Tuple, TypeVar, Union, overload
 
 import slugid
 
 from .core import (
     CombinedTrack,
+    Data,
     EnumTrack,
     EnumTrackType,
     HeatmapTrack,
     IndependentViewportProjectionTrack,
     Layout,
+    Lock,
     Track,
     Tracks,
+    ValueScaleLock,
     View,
     Viewconf,
-    Data,
-    Lock,
-    ValueScaleLock,
 )
 
 TrackPosition = Literal["center", "top", "left", "bottom", "center", "whole", "gallery"]

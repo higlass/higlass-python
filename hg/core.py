@@ -2,14 +2,15 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Union, Tuple, Literal, TypeVar
-
-from pydantic import BaseModel as _BaseModel, Extra, Field, conlist, validator
-from .display import renderers
-
 from functools import wraps
+from typing import Any, Dict, List, Literal, Optional, Tuple, TypeVar, Union
 
 import slugid
+from pydantic import BaseModel as _BaseModel
+from pydantic import Extra, Field, conlist, validator
+
+from .display import renderers
+
 
 # Switch pydantic defaults
 class BaseModel(_BaseModel):

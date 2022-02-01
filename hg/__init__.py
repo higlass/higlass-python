@@ -1,3 +1,3 @@
-from .core import *
 from .api import *
-from .server import server, HgServer
+from .core import *
+from .server import HgServer, server

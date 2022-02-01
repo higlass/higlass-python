@@ -1,0 +1,6 @@
+__pycache__/*
+*.pyc
+.eggs/*
+*.egg-info/*
+
+higlass_schema/_version.py

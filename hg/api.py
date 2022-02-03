@@ -1,6 +1,16 @@
 from collections import defaultdict
 from functools import wraps
-from typing import Dict, List, Optional, Tuple, TypeVar, Union, overload
+from typing import (
+    Dict,
+    List,
+    Optional,
+    Tuple,
+    TypeVar,
+    Union,
+    overload,
+    ClassVar,
+    Generic,
+)
 
 import slugid
 import higlass_schema as hgs
@@ -79,6 +89,7 @@ def _copy_unique(model: ModelT) -> ModelT:
 
 # Mixins
 
+
 class _PropertiesMixin:
     def properties(self: ModelT, inplace: bool = False, **fields) -> ModelT:  # type: ignore
         model = self if inplace else _copy_unique(self)
@@ -95,8 +106,6 @@ class _OptionsMixin:
         track.options.update(options)
         return track
 
-
-# Extended pydantic models from higlass_schema
 
 class EnumTrack(hgs.EnumTrack, _OptionsMixin, _PropertiesMixin):
     ...
@@ -116,6 +125,15 @@ class CombinedTrack(hgs.CombinedTrack, _OptionsMixin, _PropertiesMixin):
     ...
 
 
+TrackType = TypeVar("TrackType", bound=str)
+
+
+class PluginTrack(
+    hgs.BaseTrack[TrackType], _OptionsMixin, _PropertiesMixin, Generic[TrackType]
+):
+    plugin_url: ClassVar[str]
+
+
 Track = Union[
     EnumTrack,
     HeatmapTrack,
@@ -123,8 +141,10 @@ Track = Union[
     CombinedTrack,
 ]
 
+TrackT = TypeVar("TrackT", bound=Track)
 
-class View(hgs.View[Track], _PropertiesMixin):
+
+class View(hgs.View[TrackT], _PropertiesMixin, Generic[TrackT]):
     def domain(
         self,
         x: Optional[hgs.Domain] = None,
@@ -159,10 +179,34 @@ class View(hgs.View[Track], _PropertiesMixin):
         return view
 
 
-class Viewconf(hgs.Viewconf[View], _PropertiesMixin):
+ViewT = TypeVar("ViewT", bound=View)
+
+
+def gather_plugin_urls(views: List[ViewT]) -> List[str]:
+    plugin_urls = {}
+    for view in views:
+        track_lists = [
+            view.tracks.top,
+            view.tracks.bottom,
+            view.tracks.top,
+            view.tracks.left,
+            view.tracks.right,
+            view.tracks.center,
+        ]
+        for tracks in track_lists:
+            if tracks is None:
+                continue
+            for track in tracks:
+                if isinstance(track, PluginTrack):
+                    plugin_urls[track.type] = track.plugin_url
+    return list(plugin_urls.values())
+
+
+class Viewconf(hgs.Viewconf[ViewT], _PropertiesMixin, Generic[ViewT]):
     def _repr_mimebundle_(self, include=None, exclude=None):
         renderer = renderers.get()
-        return renderer(self.json())
+        plugin_urls = [] if self.views is None else gather_plugin_urls(self.views)
+        return renderer(self.json(), plugin_urls=plugin_urls)
 
     def display(self):
         """Render top-level chart using IPython.display."""
@@ -181,7 +225,9 @@ class Viewconf(hgs.Viewconf[View], _PropertiesMixin):
         *locks: Union[hgs.Lock, hgs.ValueScaleLock],
         zoom: Optional[Union[List[hgs.Lock], hgs.Lock]] = None,
         location: Optional[Union[List[hgs.Lock], hgs.Lock]] = None,
-        value_scale: Optional[Union[List[hgs.ValueScaleLock], hgs.ValueScaleLock]] = None,
+        value_scale: Optional[
+            Union[List[hgs.ValueScaleLock], hgs.ValueScaleLock]
+        ] = None,
         inplace: bool = False,
     ):
         conf = self if inplace else _copy_unique(self)

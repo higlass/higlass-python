@@ -5,5 +5,5 @@ except ImportError:
 
 from higlass_schema import *
 
-from .api import * # overrides classes with same name from higlass_schema
+from .api import *  # overrides classes with same name from higlass_schema
 from .server import HgServer, server

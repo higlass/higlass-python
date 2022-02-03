@@ -48,6 +48,7 @@ HTML_TEMPLATE = jinja2.Template(
                 "{{ base_url }}/pixi.js@{{ pixijs_version }}/dist/browser/pixi.min.js",
                 "https://unpkg.com/react-bootstrap@0.32.1/dist/react-bootstrap.min.js",
                 "{{ base_url }}/higlass@{{ higlass_version }}/dist/hglib.js",
+                {% for plugin_url in plugin_urls %}"{{ plugin_url }}",{% endfor %}
             ];
 
             for (const src of sources) await loadScript(src);
@@ -81,6 +82,7 @@ def spec_to_html(
     output_div="vis",
     embed_options=None,
     json_kwds=None,
+    plugin_urls=[],
 ):
     embed_options = embed_options or dict(padding=0)
     json_kwds = json_kwds or {}
@@ -93,6 +95,7 @@ def spec_to_html(
         pixijs_version=pixijs_version,
         base_url=base_url,
         output_div=output_div,
+        plugin_urls=plugin_urls,
     )
 
 

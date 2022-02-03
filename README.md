@@ -13,7 +13,8 @@ pip install higlass-schema
 
 ```
 $ pip install -e .
-$ python -m higlass_schema.main | jq
+$ hgschema export # prints json schema
+$ hgschema check ./example.json # validates json
 ```
 
 

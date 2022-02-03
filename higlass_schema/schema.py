@@ -283,14 +283,14 @@ class Data(BaseModel):
 
 class BaseTrack(GenericModel, Generic[TrackTypeT]):
     class Config:
-        extra = Extra.forbid
+        extra = Extra.allow
 
         @staticmethod
         def schema_extra(schema: Dict[str, Any], _: Any) -> None:
             exclude_properties_titles(schema)
-            schema["properties"]["type"] = simplify_enum_schema(
-                schema["properties"]["type"]
-            )
+            props = schema["properties"]
+            if "enum" in props["type"] or "allOf" in props["type"]:
+                props["type"] = simplify_enum_schema(props["type"])
 
     type: TrackTypeT
     uid: Optional[str] = None
@@ -300,9 +300,6 @@ class BaseTrack(GenericModel, Generic[TrackTypeT]):
 
 
 class Tileset(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
     tilesetUid: Optional[str] = None
     server: Optional[str] = None
 
@@ -386,6 +383,9 @@ EnumTrackType = Union[
 
 
 class EnumTrack(BaseTrack[EnumTrackType], Tileset):
+    class Config:
+        extra = Extra.forbid
+
     data: Optional[Data] = None
     chromInfoPath: Optional[str] = None
     fromViewUid: Optional[str] = None
@@ -394,12 +394,18 @@ class EnumTrack(BaseTrack[EnumTrackType], Tileset):
 
 
 class HeatmapTrack(BaseTrack[Literal["heatmap"]], Tileset):
+    class Config:
+        extra = Extra.forbid
+
     data: Optional[Data] = None
     position: Optional[str] = None
     transforms: Optional[List] = None
 
 
 class IndependentViewportProjectionTrack(BaseTrack[ViewportProjectionTrackType]):
+    class Config:
+        extra = Extra.forbid
+
     fromViewUid: None = None
     projectionXDomain: Optional[Domain] = None
     projectionYDomain: Optional[Domain] = None
@@ -409,6 +415,9 @@ class IndependentViewportProjectionTrack(BaseTrack[ViewportProjectionTrackType])
 
 
 class CombinedTrack(BaseTrack[Literal["combined"]]):
+    class Config:
+        extra = Extra.forbid
+
     contents: List[Track]
     position: Optional[str] = None
 
@@ -418,6 +427,7 @@ Track = Union[
     CombinedTrack,
     HeatmapTrack,
     IndependentViewportProjectionTrack,
+    BaseTrack,
 ]
 
 # CombinedTrack is recursive and needs delayed evaluation of annoations

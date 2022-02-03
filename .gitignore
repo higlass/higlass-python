@@ -1,6 +1,7 @@
 __pycache__/
 
-hg.egg-info/
+*.egg-info/
+.eggs/*
 
 .ipynb_checkpoints/
 demo/

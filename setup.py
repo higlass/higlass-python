@@ -1,18 +1,4 @@
-import setuptools
+from setuptools import setup
 
-setuptools.setup(
-    name='hg',
-    version='0.0.0',
-    author='Trevor Manz',
-    author_email='trevor.j.manz@gmail.com',
-    description='python bindings for higlass',
-    packages=setuptools.find_packages(),
-    install_requires=[
-        'pydantic',
-        'jinja2',
-        'portpicker',
-        'uvicorn',
-        'starlette',
-        'slugid',
-    ],
-)
+if __name__ == '__main__':
+    setup(use_scm_version=True)

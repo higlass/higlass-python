@@ -1,25 +1,15 @@
 from collections import defaultdict
+from functools import wraps
 from typing import Dict, List, Optional, Tuple, TypeVar, Union, overload
-from typing_extensions import Literal
 
 import slugid
+import higlass_schema as hgs
+from pydantic import BaseModel as PydanticBaseModel
+from typing_extensions import Literal
 
-from .core import (
-    CombinedTrack,
-    Data,
-    EnumTrack,
-    EnumTrackType,
-    HeatmapTrack,
-    IndependentViewportProjectionTrack,
-    Layout,
-    Lock,
-    Track,
-    Tracks,
-    ValueScaleLock,
-    View,
-    Viewconf,
-)
+from .display import renderers
 
+TrackType = Union[hgs.EnumTrackType, Literal["heatmap"]]
 TrackPosition = Literal["center", "top", "left", "bottom", "center", "whole", "gallery"]
 
 _track_default_position: Dict[str, TrackPosition] = {
@@ -48,11 +38,200 @@ _track_default_position: Dict[str, TrackPosition] = {
     "viewport-projection-horizontal": "top",
 }
 
-TrackType = Union[EnumTrackType, Literal["heatmap"]]
+# Switch pydantic defaults
+class BaseModel(PydanticBaseModel):
+    class Config:
+        # wether __setattr__ should perform validation
+        validate_assignment = True
+
+    # nice repr if printing with rich
+    def __rich_repr__(self):
+        return self.__iter__()
+
+    # Omit fields which are None by default.
+    @wraps(PydanticBaseModel.dict)
+    def dict(self, exclude_none: bool = True, **kwargs):
+        return super().dict(exclude_none=exclude_none, **kwargs)
+
+    # Omit fields which are None by default.
+    @wraps(PydanticBaseModel.json)
+    def json(self, exclude_none: bool = True, **kwargs):
+        return super().json(exclude_none=exclude_none, **kwargs)
+
+
+T = TypeVar("T")
+ModelT = TypeVar("ModelT", bound=PydanticBaseModel)
+TrackT = TypeVar("TrackT", bound=hgs.Track)
+
+
+def _ensure_list(x: Union[None, T, List[T]]) -> List[T]:
+    if x is None:
+        return []
+    return x if isinstance(x, list) else [x]
+
+
+def _copy_unique(model: ModelT) -> ModelT:
+    copy = model.__class__(**model.dict())
+    if hasattr(copy, "uid"):
+        setattr(copy, "uid", str(slugid.nice()))
+    return copy
+
+
+# Mixins
+
+class _PropertiesMixin:
+    def properties(self: ModelT, inplace: bool = False, **fields) -> ModelT:  # type: ignore
+        model = self if inplace else _copy_unique(self)
+        for k, v in fields.items():
+            setattr(model, k, v)
+        return model
+
+
+class _OptionsMixin:
+    def opts(self: TrackT, inplace: bool = False, **options) -> TrackT:  # type: ignore
+        track = self if inplace else _copy_unique(self)
+        if track.options is None:
+            track.options = {}
+        track.options.update(options)
+        return track
+
+
+# Extended pydantic models from higlass_schema
+
+class EnumTrack(hgs.EnumTrack, _OptionsMixin, _PropertiesMixin):
+    ...
+
+
+class HeatmapTrack(hgs.HeatmapTrack, _OptionsMixin, _PropertiesMixin):
+    ...
+
+
+class IndependentViewportProjectionTrack(
+    hgs.IndependentViewportProjectionTrack, _OptionsMixin, _PropertiesMixin
+):
+    ...
+
+
+class CombinedTrack(hgs.CombinedTrack, _OptionsMixin, _PropertiesMixin):
+    ...
+
+
+Track = Union[
+    EnumTrack,
+    HeatmapTrack,
+    IndependentViewportProjectionTrack,
+    CombinedTrack,
+]
+
+
+class View(hgs.View[Track], _PropertiesMixin):
+    def domain(
+        self,
+        x: Optional[hgs.Domain] = None,
+        y: Optional[hgs.Domain] = None,
+        inplace: bool = False,
+    ):
+        view = self if inplace else _copy_unique(self)
+        if x is not None:
+            view.initialXDomain = x
+        if y is not None:
+            view.initialYDomain = y
+        return view
+
+    # TODO: better name? adjust_layout, resize
+    def move(
+        self,
+        x: Optional[int] = None,
+        y: Optional[int] = None,
+        width: Optional[int] = None,
+        height: Optional[int] = None,
+        inplace: bool = False,
+    ):
+        view = self if inplace else _copy_unique(self)
+        if x is not None:
+            view.layout.x = x
+        if y is not None:
+            view.layout.y = y
+        if width is not None:
+            view.layout.w = width
+        if height is not None:
+            view.layout.h = height
+        return view
+
+
+class Viewconf(hgs.Viewconf[View], _PropertiesMixin):
+    def _repr_mimebundle_(self, include=None, exclude=None):
+        renderer = renderers.get()
+        return renderer(self.json())
+
+    def display(self):
+        """Render top-level chart using IPython.display."""
+        from IPython.display import display
+
+        display(self)
+
+    def properties(self, inplace: bool = False, **kwargs):
+        conf = self if inplace else _copy_unique(self)
+        for k, v in kwargs.items():
+            setattr(conf, k, v)
+        return conf
+
+    def locks(
+        self,
+        *locks: Union[hgs.Lock, hgs.ValueScaleLock],
+        zoom: Optional[Union[List[hgs.Lock], hgs.Lock]] = None,
+        location: Optional[Union[List[hgs.Lock], hgs.Lock]] = None,
+        value_scale: Optional[Union[List[hgs.ValueScaleLock], hgs.ValueScaleLock]] = None,
+        inplace: bool = False,
+    ):
+        conf = self if inplace else _copy_unique(self)
+
+        zoom = _ensure_list(zoom)
+        location = _ensure_list(location)
+        value_scale = _ensure_list(value_scale)
+
+        shared_locks: List[hgs.Lock] = []
+        for lock in locks:
+            if isinstance(lock, hgs.Lock):
+                shared_locks.append(lock)
+            else:
+                value_scale.append(lock)
+
+        zoom.extend(shared_locks)
+        location.extend(shared_locks)
+
+        if conf.zoomLocks is None:
+            conf.zoomLocks = hgs.ZoomLocks()
+
+        for lock in zoom:
+            assert isinstance(lock.uid, str)
+            conf.zoomLocks.locksDict[lock.uid] = lock
+            for vuid, _ in lock:
+                conf.zoomLocks.locksByViewUid[vuid] = lock.uid
+
+        if conf.locationLocks is None:
+            conf.locationLocks = hgs.LocationLocks()
+
+        for lock in location:
+            assert isinstance(lock.uid, str)
+            conf.locationLocks.locksDict[lock.uid] = lock
+            for vuid, _ in lock:
+                conf.locationLocks.locksByViewUid[vuid] = lock.uid
+
+        if conf.valueScaleLocks is None:
+            conf.valueScaleLocks = hgs.ValueScaleLocks()
+
+        for lock in value_scale:
+            assert isinstance(lock.uid, str)
+            conf.valueScaleLocks.locksDict[lock.uid] = lock
+            for vuid, _ in lock:
+                conf.valueScaleLocks.locksByViewUid[vuid] = lock.uid
+
+        return conf
 
 
 def track(
-    type: TrackType,
+    type_: TrackType,
     uid: Optional[str] = None,
     fromViewUid: Optional[str] = None,
     **kwargs,
@@ -61,7 +240,7 @@ def track(
         uid = str(slugid.nice())
 
     if (
-        type
+        type_
         in {
             "viewport-projection-horizontal",
             "viewport-projection-vertical",
@@ -70,31 +249,35 @@ def track(
         and fromViewUid is None
     ):
         return IndependentViewportProjectionTrack(
-            type=type, uid=uid, fromViewUid=fromViewUid, **kwargs  # type: ignore
+            type=type_, uid=uid, fromViewUid=fromViewUid, **kwargs  # type: ignore
         )
 
-    if type == "heatmap":
-        return HeatmapTrack(type=type, uid=uid, **kwargs)
+    if type_ == "heatmap":
+        return HeatmapTrack(type=type_, uid=uid, **kwargs)
 
-    return EnumTrack(type=type, uid=uid, **kwargs)
+    return EnumTrack(type=type_, uid=uid, **kwargs)
 
 
 def view(
-    *_tracks: Union[Track, Tracks, Tuple[Track, TrackPosition]],
+    *_tracks: Union[
+        Track,
+        Tuple[Track, TrackPosition],
+        hgs.Tracks,
+    ],
     x: int = 0,
     y: int = 0,
     width: int = 12,
     height: int = 6,
-    tracks: Optional[Tracks] = None,
-    layout: Optional[Layout] = None,
+    tracks: Optional[hgs.Tracks] = None,
+    layout: Optional[hgs.Layout] = None,
     uid: Optional[str] = None,
     **kwargs,
 ) -> View:
 
     if layout is None:
-        layout = Layout(x=x, y=y, w=width, h=height)
+        layout = hgs.Layout(x=x, y=y, w=width, h=height)
     else:
-        layout = Layout(**layout.dict())
+        layout = hgs.Layout(**layout.dict())
 
     if tracks is None:
         data = defaultdict(list)
@@ -102,7 +285,7 @@ def view(
         data = defaultdict(list, tracks.dict())
 
     for track in _tracks:
-        if isinstance(track, Tracks):
+        if isinstance(track, hgs.Tracks):
             track = track.dict()
             for position, track_list in track.items():
                 data[position].extend(track_list)
@@ -120,7 +303,7 @@ def view(
 
     return View(
         layout=layout,
-        tracks=Tracks(**data),
+        tracks=hgs.Tracks(**data),
         uid=uid,
         **kwargs,
     )
@@ -156,10 +339,10 @@ def divide(t1: T, t2: T, **kwargs) -> T:
     assert isinstance(t2.tilesetUid, str)
     assert isinstance(t2.server, str)
 
-    copy = t1.opts()  # copy first track with new uid
+    copy = _copy_unique(t1)
     copy.tilesetUid = None
     copy.server = None
-    copy.data = Data(
+    copy.data = hgs.Data(
         type="divided",
         children=[
             {
@@ -195,7 +378,7 @@ def project(
     else:
         raise ValueError("Not possible")
 
-    return track(type=track_type, fromViewUid=fromViewUid, **kwargs)
+    return track(type_=track_type, fromViewUid=fromViewUid, **kwargs)
 
 
 def viewconf(
@@ -224,12 +407,12 @@ def viewconf(
 
 
 @overload
-def lock(*views: View, **kwargs) -> Lock:
+def lock(*views: View, **kwargs) -> hgs.Lock:
     ...
 
 
 @overload
-def lock(*pairs: Tuple[View, Track], **kwargs) -> ValueScaleLock:
+def lock(*pairs: Tuple[View, Track], **kwargs) -> hgs.ValueScaleLock:
     ...
 
 
@@ -237,13 +420,13 @@ def lock(*data, **kwargs):
     assert len(data) >= 1
     uid = str(slugid.nice())
     if isinstance(data[0], View):
-        lck = Lock(uid=uid, **kwargs)
+        lck = hgs.Lock(uid=uid, **kwargs)
         for view in data:
             assert isinstance(view.uid, str)
             setattr(lck, view.uid, (1, 1, 1))
         return lck
     else:
-        lck = ValueScaleLock(uid=uid, **kwargs)
+        lck = hgs.ValueScaleLock(uid=uid, **kwargs)
         for view, track in data:
             assert isinstance(view.uid, str)
             assert isinstance(track.uid, str)

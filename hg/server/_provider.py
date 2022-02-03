@@ -42,7 +42,7 @@ class TilesetResource:
             else:
                 type = _datatype_default_track[self.tileset.datatype]  # type: ignore
         return track(
-            type=type,  # type: ignore
+            type_=type,  # type: ignore
             server=self.server,
             tilesetUid=self.tileset.uid,
             **kwargs,

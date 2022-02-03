@@ -3,6 +3,7 @@ import hashlib
 import pathlib
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, List, Optional, Sequence
+
 from typing_extensions import Literal
 
 from .api import TrackType, track
@@ -27,9 +28,9 @@ class RemoteTileset:
     uid: str
     server: str
 
-    def track(self, type: TrackType, **kwargs):
+    def track(self, type_: TrackType, **kwargs):
         return track(
-            type=type,
+            type_=type_,
             server=self.server,
             tilesetUid=self.uid,
             **kwargs,

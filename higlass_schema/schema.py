@@ -74,13 +74,17 @@ class Overlay(BaseModel):
 # {
 #   "type": "object",
 #   "properties": {
-#     "uid": { "type: "string" },
+#     "uid": { "type: "string" }
 #   },
 #   "additionalProperties": {
-#     "type": "object",
+#     "type": "array",
 #     "minLength": 3,
 #     "maxLength": 3,
-#     "items": { "type": "number" }
+#     "items": [
+#       { "type": "number" },
+#       { "type": "number" },
+#       { "type": "number" }
+#     ]
 #   }
 # }
 # ```

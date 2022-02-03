@@ -110,6 +110,8 @@ def set_additional_properties_with_type(type_: Any):
     """Overrides json schema 'additionalProperties' with schema for `type_`"""
 
     def schema_extra(schema: Dict[str, Any], _) -> None:
+        exclude_properties_titles(schema, _)
+
         lock_schema = schema_of(type_)
         lock_schema = simplify_schema(lock_schema)
         exclude_properties_titles(lock_schema, _)
@@ -194,9 +196,11 @@ class AxisSpecificLock(BaseModel):
     axis: Literal["x", "y"]
     lock: str
 
+
 class AxisSpecificLocks(BaseModel):
     x: Optional[AxisSpecificLock] = None
     y: Optional[AxisSpecificLock] = None
+
 
 class LocationLocks(BaseModel):
     locksByViewUid: Dict[str, Union[str, AxisSpecificLocks]] = {}
@@ -238,10 +242,37 @@ class Data(BaseModel):
     tiles: Optional[Tile] = None
 
 
-class BaseTrack(BaseModel):
+from pydantic.generics import GenericModel
+from typing import Generic, TypeVar
+
+TrackType = TypeVar("TrackType", bound=str)
+
+
+class BaseTrack(GenericModel, Generic[TrackType]):
     class Config:
         extra = Extra.forbid
 
+        @staticmethod
+        def schema_extra(schema: Dict[str, Any], _: Any) -> None:
+            exclude_properties_titles(schema, _)
+            # remove current entry
+            props = schema["properties"]
+            type_ = props.pop("type")
+            if "anyOf" in type_:
+                enum = []
+                for entry in type_["anyOf"]:
+                    assert "enum" in entry
+                    enum.extend(entry["enum"])
+                props["type"] = {"enum": enum}
+                return
+
+            assert "enum" in type_
+            if len(type_["enum"]) == 1:
+                props["type"] = {"const": type_["enum"][0]}
+            else:
+                props["type"] = {"enum": type_["enum"]}
+
+    type: TrackType
     uid: Optional[str] = None
     width: Optional[int] = None
     height: Optional[int] = None
@@ -334,8 +365,7 @@ EnumTrackType = Union[
 ]
 
 
-class EnumTrack(BaseTrack, Tileset):
-    type: EnumTrackType
+class EnumTrack(BaseTrack[EnumTrackType], Tileset):
     data: Optional[Data] = None
     chromInfoPath: Optional[str] = None
     fromViewUid: Optional[str] = None
@@ -343,15 +373,13 @@ class EnumTrack(BaseTrack, Tileset):
     y: Optional[float] = None
 
 
-class HeatmapTrack(BaseTrack, Tileset):
-    type: Literal["heatmap"]
+class HeatmapTrack(BaseTrack[Literal["heatmap"]], Tileset):
     data: Optional[Data] = None
     position: Optional[str] = None
     transforms: Optional[List] = None
 
 
-class IndependentViewportProjectionTrack(BaseTrack):
-    type: ViewportProjectionTrackType
+class IndependentViewportProjectionTrack(BaseTrack[ViewportProjectionTrackType]):
     fromViewUid: None = None
     projectionXDomain: Optional[Domain] = None
     projectionYDomain: Optional[Domain] = None
@@ -360,8 +388,7 @@ class IndependentViewportProjectionTrack(BaseTrack):
     y: Optional[float] = None
 
 
-class CombinedTrack(BaseTrack):
-    type: Literal["combined"]
+class CombinedTrack(BaseTrack[Literal["combined"]]):
     contents: List[Track]
     position: Optional[str] = None
 
@@ -506,5 +533,5 @@ def schema():
     return dict(ordered_root)
 
 
-def schema_json():
-    return json.dumps(schema())
+def schema_json(**kwargs):
+    return json.dumps(schema(), **kwargs)

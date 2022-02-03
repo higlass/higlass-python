@@ -2,21 +2,72 @@ from __future__ import annotations
 
 import json
 from collections import OrderedDict
-from typing import Any, Dict, Generator, List, Optional, Tuple, TypedDict, Union
+from typing import (
+    Any,
+    Dict,
+    Generator,
+    Generic,
+    List,
+    Optional,
+    Tuple,
+    TypeVar,
+    Union,
+)
 
 from pydantic import BaseModel as PydanticBaseModel
-from pydantic import Extra, Field, conlist
+from pydantic import Extra, Field
 from pydantic.class_validators import root_validator
-from typing_extensions import Literal
+from pydantic.generics import GenericModel as PydanticGenericModel
+from typing_extensions import Literal, TypedDict, Annotated
 
 from .utils import exclude_properties_titles, get_schema_of, simplify_enum_schema
+import functools
 
 
-# Override Pydantic defaults
+# Override Basemodel
 class BaseModel(PydanticBaseModel):
     class Config:
-        extra = Extra.forbid
+        # wether __setattr__ should perform validation
+        validate_assignment = True
+        # exclude titles by defualt
         schema_extra = staticmethod(lambda s, _: exclude_properties_titles(s))
+
+    # nice repr if printing with rich
+    def __rich_repr__(self):
+        return iter(self)
+
+    # Omit fields which are None by default.
+    @functools.wraps(PydanticBaseModel.dict)
+    def dict(self, exclude_none: bool = True, **kwargs):
+        return super().dict(exclude_none=exclude_none, **kwargs)
+
+    # Omit fields which are None by default.
+    @functools.wraps(PydanticBaseModel.json)
+    def json(self, exclude_none: bool = True, **kwargs):
+        return super().json(exclude_none=exclude_none, **kwargs)
+
+
+# Override Defaults for generic models
+class GenericModel(PydanticGenericModel):
+    class Config:
+        # wether __setattr__ should perform validation
+        validate_assignment = True
+        # exclude titles by defualt
+        schema_extra = staticmethod(lambda s, _: exclude_properties_titles(s))
+
+    # nice repr if printing with rich
+    def __rich_repr__(self):
+        return iter(self)
+
+    # Omit fields which are None by default.
+    @functools.wraps(PydanticBaseModel.dict)
+    def dict(self, exclude_none: bool = True, **kwargs):
+        return super().dict(exclude_none=exclude_none, **kwargs)
+
+    # Omit fields which are None by default.
+    @functools.wraps(PydanticBaseModel.json)
+    def json(self, exclude_none: bool = True, **kwargs):
+        return super().json(exclude_none=exclude_none, **kwargs)
 
 
 ##################################################
@@ -214,6 +265,7 @@ class ValueScaleLocks(BaseModel):
 # Tracks                                         #
 ##################################################
 
+TrackTypeT = TypeVar("TrackTypeT", bound=str)
 TrackOptions = Dict[str, Any]
 TilesetInfo = Dict[str, Any]
 Tile = Dict[str, Any]
@@ -229,14 +281,7 @@ class Data(BaseModel):
     tiles: Optional[Tile] = None
 
 
-from typing import Generic, TypeVar
-
-from pydantic.generics import GenericModel
-
-TrackType = TypeVar("TrackType", bound=str)
-
-
-class BaseTrack(GenericModel, Generic[TrackType]):
+class BaseTrack(GenericModel, Generic[TrackTypeT]):
     class Config:
         extra = Extra.forbid
 
@@ -247,7 +292,7 @@ class BaseTrack(GenericModel, Generic[TrackType]):
                 schema["properties"]["type"]
             )
 
-    type: TrackType
+    type: TrackTypeT
     uid: Optional[str] = None
     width: Optional[int] = None
     height: Optional[int] = None
@@ -384,19 +429,22 @@ CombinedTrack.update_forward_refs()
 ##################################################
 
 
-class Tracks(BaseModel):
+TrackT = TypeVar("TrackT", bound=Track)
+
+
+class Tracks(GenericModel, Generic[TrackT]):
     """Track layout within a View."""
 
     class Config:
         extra = Extra.forbid
 
-    left: Optional[List[Track]] = None
-    right: Optional[List[Track]] = None
-    top: Optional[List[Track]] = None
-    bottom: Optional[List[Track]] = None
-    center: Optional[List[Track]] = None
-    whole: Optional[List[Track]] = None
-    gallery: Optional[List[Track]] = None
+    left: Optional[List[TrackT]] = None
+    right: Optional[List[TrackT]] = None
+    top: Optional[List[TrackT]] = None
+    bottom: Optional[List[TrackT]] = None
+    center: Optional[List[TrackT]] = None
+    whole: Optional[List[TrackT]] = None
+    gallery: Optional[List[TrackT]] = None
 
 
 class Layout(BaseModel):
@@ -442,14 +490,14 @@ class GenomePositionSearchBox(BaseModel):
     )
 
 
-class View(BaseModel):
+class View(GenericModel, Generic[TrackT]):
     """An arrangment of Tracks to display within a given Layout."""
 
     class Config:
         extra = Extra.forbid
 
     layout: Layout
-    tracks: Tracks
+    tracks: Tracks[TrackT]
     uid: Optional[str] = None
     autocompleteSource: Optional[str] = None
     chromInfoPath: Optional[str] = None
@@ -467,8 +515,10 @@ class View(BaseModel):
 # Viewconf                                       #
 ##################################################
 
+ViewT = TypeVar("ViewT", bound=View)
 
-class Viewconf(BaseModel):
+
+class Viewconf(GenericModel, Generic[ViewT]):
     """Root object describing a HiGlass visualization."""
 
     class Config:
@@ -481,8 +531,8 @@ class Viewconf(BaseModel):
     zoomFixed: Optional[bool] = None
     compactLayout: Optional[bool] = None
     exportViewUrl: Optional[str] = None
-    trackSourceServers: Optional[conlist(str, min_items=1)] = None
-    views: Optional[conlist(View, min_items=1)] = None
+    trackSourceServers: Optional[Annotated[List[str], Field(..., min_items=1)]] = None
+    views: Optional[Annotated[List[ViewT], Field(..., min_items=1)]] = None
     zoomLocks: Optional[ZoomLocks] = None
     locationLocks: Optional[LocationLocks] = None
     valueScaleLocks: Optional[ValueScaleLocks] = None
@@ -496,7 +546,7 @@ def schema():
     for d in root["definitions"].values():
         d.pop("title", None)
 
-    # nice ordering
+    # nice ordering, insert additional metadata
     ordered_root = OrderedDict(
         [
             ("$schema", "http://json-schema.org/draft-07/schema#"),

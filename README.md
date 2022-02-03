@@ -1,6 +1,13 @@
 # higlass-schema
 
+Pydantic models for HiGlass
+
+```
+pip install higlass-schema
+```
+
 🚧 👷
+
 
 ## Development
 

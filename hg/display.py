@@ -27,7 +27,7 @@ HTML_TEMPLATE = jinja2.Template(
         });
     }
 
-    async function load() {
+    async function loadHiglass() {
         // Manually load scripts from window namespace since requirejs might not be
         // available in all browser environments.
         // https://github.com/DanielHreben/requirejs-toggle
@@ -40,20 +40,21 @@ HTML_TEMPLATE = jinja2.Template(
         for (const field of Object.keys(window.__requirejsToggleBackup)) {
             window[field] = undefined;
         }
-
+        let sources = []
         if (!window.hglib) {
-            let hgdeps = [
+            sources = sources.concat([
                 "{{ base_url }}/react@{{ react_version }}/umd/react.production.min.js",
                 "{{ base_url }}/react-dom@{{ react_version }}/umd/react-dom.production.min.js",
                 "{{ base_url }}/pixi.js@{{ pixijs_version }}/dist/browser/pixi.min.js",
                 "{{ base_url }}/react-bootstrap@{{ react_bootstrap_version }}/dist/react-bootstrap.min.js",
                 "{{ base_url }}/higlass@{{ higlass_version }}/dist/hglib.js",
-            ];
-            for (const src of hgdeps) await loadScript(src);
+            ])
         }
+        sources = sources.concat(
+            [{% for plugin_url in plugin_urls %}"{{ plugin_url }}",{% endfor %}]
+        )
 
-        let plugins = [{% for plugin_url in plugin_urls %}"{{ plugin_url }}",{% endfor %}];
-        for (let src of plugins) loadScript(src);
+        for (const src of sources) await loadScript(src);
 
         // restore requirejs after scripts have loaded
         Object.assign(window, window.__requirejsToggleBackup);
@@ -65,7 +66,7 @@ HTML_TEMPLATE = jinja2.Template(
     var el = document.getElementById('{{ output_div }}');
     var spec = JSON.parse({{ spec }});
 
-    load().then(hglib => {
+    loadHiglass().then(hglib => {
         hglib.viewer(el, spec);
     })
   </script>
@@ -80,7 +81,7 @@ def spec_to_html(
     higlass_version="1.11",
     react_version="17",
     pixijs_version="6",
-    react_bootstrap_version = "0.32",
+    react_bootstrap_version="0.32",
     base_url="https://unpkg.com",
     output_div="vis",
     embed_options=None,

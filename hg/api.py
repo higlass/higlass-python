@@ -102,7 +102,6 @@ class CombinedTrack(hgs.CombinedTrack, _OptionsMixin, _PropertiesMixin):
     ...
 
 
-
 class PluginTrack(hgs.BaseTrack, _OptionsMixin, _PropertiesMixin):
     plugin_url: ClassVar[str]
 

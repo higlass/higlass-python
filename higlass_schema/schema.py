@@ -441,6 +441,7 @@ CombinedTrack.update_forward_refs()
 
 TrackT = TypeVar("TrackT", bound=Track)
 
+TrackPosition = Literal["left", "right", "top", "bottom", "center", "whole", "gallery"]
 
 class Tracks(GenericModel, Generic[TrackT]):
     """Track layout within a View."""
@@ -455,6 +456,13 @@ class Tracks(GenericModel, Generic[TrackT]):
     center: Optional[List[TrackT]] = None
     whole: Optional[List[TrackT]] = None
     gallery: Optional[List[TrackT]] = None
+
+    def __iter__(self) -> Generator[Tuple[TrackPosition, TrackT], None, None]:
+        for pos, tlist in super().__iter__():
+            if tlist is None:
+                continue
+            for track in tlist:
+                yield pos, track # type: ignore
 
 
 class Layout(BaseModel):

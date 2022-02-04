@@ -27,43 +27,45 @@ HTML_TEMPLATE = jinja2.Template(
         });
     }
 
-    async function loadHiglass() {
+    async function load() {
         // Manually load scripts from window namespace since requirejs might not be
         // available in all browser environments.
         // https://github.com/DanielHreben/requirejs-toggle
-        if (!window.hglib) {
-            window.__requirejsToggleBackup = {
-                define: window.define,
-                require: window.require,
-                requirejs: window.requirejs,
-            };
-            for (const field of Object.keys(window.__requirejsToggleBackup)) {
-                window[field] = undefined;
-            }
+        window.__requirejsToggleBackup = {
+            define: window.define,
+            require: window.require,
+            requirejs: window.requirejs,
+        };
 
-            // load dependencies sequentially
-            const sources = [
+        for (const field of Object.keys(window.__requirejsToggleBackup)) {
+            window[field] = undefined;
+        }
+
+        if (!window.hglib) {
+            let hgdeps = [
                 "{{ base_url }}/react@{{ react_version }}/umd/react.production.min.js",
                 "{{ base_url }}/react-dom@{{ react_version }}/umd/react-dom.production.min.js",
                 "{{ base_url }}/pixi.js@{{ pixijs_version }}/dist/browser/pixi.min.js",
-                "https://unpkg.com/react-bootstrap@0.32.1/dist/react-bootstrap.min.js",
+                "{{ base_url }}/react-bootstrap@{{ react_bootstrap_version }}/dist/react-bootstrap.min.js",
                 "{{ base_url }}/higlass@{{ higlass_version }}/dist/hglib.js",
-                {% for plugin_url in plugin_urls %}"{{ plugin_url }}",{% endfor %}
             ];
-
-            for (const src of sources) await loadScript(src);
-
-            // restore requirejs after scripts have loaded
-            Object.assign(window, window.__requirejsToggleBackup);
-            delete window.__requirejsToggleBackup;
+            for (const src of hgdeps) await loadScript(src);
         }
+
+        let plugins = [{% for plugin_url in plugin_urls %}"{{ plugin_url }}",{% endfor %}];
+        for (let src of plugins) loadScript(src);
+
+        // restore requirejs after scripts have loaded
+        Object.assign(window, window.__requirejsToggleBackup);
+        delete window.__requirejsToggleBackup;
+
         return window.hglib;
     };
 
     var el = document.getElementById('{{ output_div }}');
     var spec = JSON.parse({{ spec }});
 
-    loadHiglass().then(hglib => {
+    load().then(hglib => {
         hglib.viewer(el, spec);
     })
   </script>
@@ -78,6 +80,7 @@ def spec_to_html(
     higlass_version="1.11",
     react_version="17",
     pixijs_version="6",
+    react_bootstrap_version = "0.32",
     base_url="https://unpkg.com",
     output_div="vis",
     embed_options=None,
@@ -93,6 +96,7 @@ def spec_to_html(
         higlass_version=higlass_version,
         react_version=react_version,
         pixijs_version=pixijs_version,
+        react_bootstrap_version=react_bootstrap_version,
         base_url=base_url,
         output_div=output_div,
         plugin_urls=plugin_urls,

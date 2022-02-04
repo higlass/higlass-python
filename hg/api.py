@@ -1,5 +1,4 @@
 from collections import defaultdict
-from functools import wraps
 from typing import (
     Dict,
     List,
@@ -48,30 +47,8 @@ _track_default_position: Dict[str, TrackPosition] = {
     "viewport-projection-horizontal": "top",
 }
 
-# Switch pydantic defaults
-class BaseModel(PydanticBaseModel):
-    class Config:
-        # wether __setattr__ should perform validation
-        validate_assignment = True
-
-    # nice repr if printing with rich
-    def __rich_repr__(self):
-        return self.__iter__()
-
-    # Omit fields which are None by default.
-    @wraps(PydanticBaseModel.dict)
-    def dict(self, exclude_none: bool = True, **kwargs):
-        return super().dict(exclude_none=exclude_none, **kwargs)
-
-    # Omit fields which are None by default.
-    @wraps(PydanticBaseModel.json)
-    def json(self, exclude_none: bool = True, **kwargs):
-        return super().json(exclude_none=exclude_none, **kwargs)
-
-
 T = TypeVar("T")
 ModelT = TypeVar("ModelT", bound=PydanticBaseModel)
-TrackT = TypeVar("TrackT", bound=hgs.Track)
 
 
 def _ensure_list(x: Union[None, T, List[T]]) -> List[T]:
@@ -99,7 +76,7 @@ class _PropertiesMixin:
 
 
 class _OptionsMixin:
-    def opts(self: TrackT, inplace: bool = False, **options) -> TrackT:  # type: ignore
+    def opts(self: "TrackT", inplace: bool = False, **options) -> "TrackT":  # type: ignore
         track = self if inplace else _copy_unique(self)
         if track.options is None:
             track.options = {}
@@ -125,12 +102,8 @@ class CombinedTrack(hgs.CombinedTrack, _OptionsMixin, _PropertiesMixin):
     ...
 
 
-TrackType = TypeVar("TrackType", bound=str)
 
-
-class PluginTrack(
-    hgs.BaseTrack[TrackType], _OptionsMixin, _PropertiesMixin, Generic[TrackType]
-):
+class PluginTrack(hgs.BaseTrack, _OptionsMixin, _PropertiesMixin):
     plugin_url: ClassVar[str]
 
 
@@ -139,6 +112,7 @@ Track = Union[
     HeatmapTrack,
     IndependentViewportProjectionTrack,
     CombinedTrack,
+    PluginTrack,
 ]
 
 TrackT = TypeVar("TrackT", bound=Track)
@@ -185,20 +159,9 @@ ViewT = TypeVar("ViewT", bound=View)
 def gather_plugin_urls(views: List[ViewT]) -> List[str]:
     plugin_urls = {}
     for view in views:
-        track_lists = [
-            view.tracks.top,
-            view.tracks.bottom,
-            view.tracks.top,
-            view.tracks.left,
-            view.tracks.right,
-            view.tracks.center,
-        ]
-        for tracks in track_lists:
-            if tracks is None:
-                continue
-            for track in tracks:
-                if isinstance(track, PluginTrack):
-                    plugin_urls[track.type] = track.plugin_url
+        for _, track in view.tracks:
+            if isinstance(track, PluginTrack):
+                plugin_urls[track.type] = track.plugin_url
     return list(plugin_urls.values())
 
 
@@ -277,7 +240,7 @@ class Viewconf(hgs.Viewconf[ViewT], _PropertiesMixin, Generic[ViewT]):
 
 
 def track(
-    type_: TrackType,
+    type_: Union[hgs.EnumTrackType, Literal["heatmap"]],
     uid: Optional[str] = None,
     fromViewUid: Optional[str] = None,
     **kwargs,
@@ -306,19 +269,19 @@ def track(
 
 def view(
     *_tracks: Union[
-        Track,
-        Tuple[Track, TrackPosition],
-        hgs.Tracks,
+        TrackT,
+        Tuple[TrackT, TrackPosition],
+        hgs.Tracks[TrackT],
     ],
     x: int = 0,
     y: int = 0,
     width: int = 12,
     height: int = 6,
-    tracks: Optional[hgs.Tracks] = None,
+    tracks: Optional[hgs.Tracks[TrackT]] = None,
     layout: Optional[hgs.Layout] = None,
     uid: Optional[str] = None,
     **kwargs,
-) -> View:
+) -> View[TrackT]:
 
     if layout is None:
         layout = hgs.Layout(x=x, y=y, w=width, h=height)
@@ -347,9 +310,9 @@ def view(
     if uid is None:
         uid = str(slugid.nice())
 
-    return View(
+    return View[TrackT](
         layout=layout,
-        tracks=hgs.Tracks(**data),
+        tracks=hgs.Tracks[TrackT](**data),
         uid=uid,
         **kwargs,
     )
@@ -428,22 +391,22 @@ def project(
 
 
 def viewconf(
-    *_views: View,
-    views: Optional[List[View]] = None,
+    *_views: ViewT,
+    views: Optional[List[ViewT]] = None,
     trackSourceServers: Optional[List[str]] = None,
     editable: bool = True,
     exportViewUrl: str = "http://higlass.io/api/v1/viewconfs",
     **kwargs,
-):
-    views = [] if views is None else [View(**v.dict()) for v in views]
+) -> Viewconf[ViewT]:
+    views = [] if views is None else [v.copy(deep=True) for v in views]
 
     for view in _views:
-        views.append(View(**view.dict()))
+        views.append(view.copy(deep=True))
 
     if trackSourceServers is None:
         trackSourceServers = ["http://higlass.io/api/v1"]
 
-    return Viewconf(
+    return Viewconf[ViewT](
         views=views,
         editable=editable,
         exportViewUrl=exportViewUrl,

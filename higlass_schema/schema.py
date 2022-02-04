@@ -543,14 +543,24 @@ class Viewconf(GenericModel, Generic[ViewT]):
         extra = Extra.forbid
         title = "HiGlass viewconf"
 
+        @staticmethod
+        def schema_extra(schema: Dict[str, Any], _) -> None:
+            exclude_properties_titles(schema)
+            # manually add minItems for views/trackSourceServers
+            # because pydantic.conlist breaks generics and Annotated
+            # fields don't added
+            for prop in ("views", "trackSourceServers"):
+                schema["properties"][prop]["minItems"] = 1
+
+
     editable: Optional[bool] = True
     viewEditable: Optional[bool] = True
     tracksEditable: Optional[bool] = True
     zoomFixed: Optional[bool] = None
     compactLayout: Optional[bool] = None
     exportViewUrl: Optional[str] = None
-    trackSourceServers: Optional[Annotated[List[str], Field(..., min_items=1)]] = None
-    views: Optional[Annotated[List[ViewT], Field(..., min_items=1)]] = None
+    trackSourceServers: Optional[Annotated[List[str], Field(min_items=1)]] = None
+    views: Optional[Annotated[List[ViewT], Field(min_items=1)]] = None
     zoomLocks: Optional[ZoomLocks] = None
     locationLocks: Optional[LocationLocks] = None
     valueScaleLocks: Optional[ValueScaleLocks] = None

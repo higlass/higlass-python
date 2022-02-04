@@ -40,7 +40,9 @@ HTML_TEMPLATE = jinja2.Template(
         for (const field of Object.keys(window.__requirejsToggleBackup)) {
             window[field] = undefined;
         }
-        let sources = []
+        let sources = [
+            {% for plugin_url in plugin_urls %}"{{ plugin_url }}",{% endfor %}
+        ]
         if (!window.hglib) {
             sources = sources.concat([
                 "{{ base_url }}/react@{{ react_version }}/umd/react.production.min.js",
@@ -50,9 +52,6 @@ HTML_TEMPLATE = jinja2.Template(
                 "{{ base_url }}/higlass@{{ higlass_version }}/dist/hglib.js",
             ])
         }
-        sources = sources.concat(
-            [{% for plugin_url in plugin_urls %}"{{ plugin_url }}",{% endfor %}]
-        )
 
         for (const src of sources) await loadScript(src);
 

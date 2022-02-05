@@ -164,7 +164,7 @@ def gather_plugin_urls(views: List[ViewT]) -> List[str]:
     return list(plugin_urls.values())
 
 
-class Viewconf(hgs.Viewconf[ViewT], _PropertiesMixin, Generic[ViewT]):
+class Viewconf(hgs.Viewconf[View[TrackT]], _PropertiesMixin, Generic[TrackT]):
     def _repr_mimebundle_(self, include=None, exclude=None):
         renderer = renderers.get()
         plugin_urls = [] if self.views is None else gather_plugin_urls(self.views)
@@ -390,13 +390,13 @@ def project(
 
 
 def viewconf(
-    *_views: ViewT,
-    views: Optional[List[ViewT]] = None,
+    *_views: View[TrackT],
+    views: Optional[List[View[TrackT]]] = None,
     trackSourceServers: Optional[List[str]] = None,
     editable: bool = True,
     exportViewUrl: str = "http://higlass.io/api/v1/viewconfs",
     **kwargs,
-) -> Viewconf[ViewT]:
+) -> Viewconf[TrackT]:
     views = [] if views is None else [v.copy(deep=True) for v in views]
 
     for view in _views:
@@ -405,7 +405,7 @@ def viewconf(
     if trackSourceServers is None:
         trackSourceServers = ["http://higlass.io/api/v1"]
 
-    return Viewconf[ViewT](
+    return Viewconf[TrackT](
         views=views,
         editable=editable,
         exportViewUrl=exportViewUrl,

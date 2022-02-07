@@ -1,18 +1,18 @@
 from collections import defaultdict
 from typing import (
+    ClassVar,
     Dict,
+    Generic,
     List,
     Optional,
     Tuple,
     TypeVar,
     Union,
     overload,
-    ClassVar,
-    Generic,
 )
 
-import slugid
 import higlass_schema as hgs
+import slugid
 from pydantic import BaseModel as PydanticBaseModel
 from typing_extensions import Literal
 

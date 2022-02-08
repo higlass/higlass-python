@@ -103,6 +103,8 @@ class TilesetProvider(BackgroundServer):
     urlprefix: Optional[str] = None
 
     def __init__(self, allowed_origins: Optional[List[str]] = None):
+        if allowed_origins is None:
+            allowed_origins = ["*"]
         self._tilesets = weakref.WeakValueDictionary()
         app = starlette.applications.Starlette(
             routes=[

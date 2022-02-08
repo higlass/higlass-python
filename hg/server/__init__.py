@@ -4,7 +4,6 @@ from hg.tilesets import LocalTileset
 
 from ._provider import TilesetProvider, TilesetResource
 
-
 class HgServer:
     def __init__(self):
         self._provider: Optional[TilesetProvider] = None
@@ -25,7 +24,7 @@ class HgServer:
 
     def enable_proxy(self, urlprefix: str = ".."):
         if not self._provider:
-            raise RuntimeError("Server not started.")
+            self._provider = TilesetProvider().start()
         try:
             import jupyter_server_proxy
         except ImportError as e:
@@ -45,7 +44,7 @@ class HgServer:
         port: Optional[int] = None,
     ) -> TilesetResource:
         if self._provider is None:
-            self._provider = TilesetProvider(allowed_origins=["*"]).start(port=port)
+            self._provider = TilesetProvider().start(port=port)
 
         if port is not None and port != self._provider.port:
             self._provider.stop().start(port=port)

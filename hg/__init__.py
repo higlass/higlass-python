@@ -6,4 +6,5 @@ except ImportError:
 from higlass_schema import *
 
 from .api import *  # overrides classes with same name from higlass_schema
-from .server import HgServer, server
+from .fuse import fuse
+from .server import server

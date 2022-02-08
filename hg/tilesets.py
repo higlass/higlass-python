@@ -6,7 +6,8 @@ from typing import Any, Callable, Dict, List, Optional, Sequence
 
 from typing_extensions import Literal
 
-from .api import TrackType, track
+from .utils import TrackType
+from .api import track
 
 TileId = str
 Tile = Dict[str, Any]

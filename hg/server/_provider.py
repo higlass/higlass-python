@@ -9,7 +9,8 @@ import starlette.requests
 import starlette.responses
 import starlette.routing
 
-from hg.api import TrackType, track
+from hg.api import track
+from hg.utils import TrackType
 from hg.tilesets import LocalTileset
 
 from ._background_server import BackgroundServer

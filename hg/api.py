@@ -1,87 +1,39 @@
 from collections import defaultdict
-from typing import (
-    ClassVar,
-    Dict,
-    Generic,
-    List,
-    Optional,
-    Tuple,
-    TypeVar,
-    Union,
-    overload,
-)
+from typing import ClassVar, Generic, List, Optional, Tuple, TypeVar, Union, overload
 
 import higlass_schema as hgs
-import slugid
-from pydantic import BaseModel as PydanticBaseModel
+from pydantic import BaseModel
 from typing_extensions import Literal
 
-from .display import renderers
+import hg.display as display
+import hg.utils as utils
 
-TrackType = Union[hgs.EnumTrackType, Literal["heatmap"]]
-TrackPosition = Literal["center", "top", "left", "bottom", "center", "whole", "gallery"]
+## Mixins
 
-_track_default_position: Dict[str, TrackPosition] = {
-    "2d-rectangle-domains": "center",
-    "bedlike": "top",
-    "horizontal-bar": "top",
-    "horizontal-chromosome-labels": "top",
-    "chromosome-labels": "top",
-    "horizontal-gene-annotations": "top",
-    "horizontal-heatmap": "top",
-    "horizontal-1d-heatmap": "top",
-    "horizontal-line": "top",
-    "horizontal-multivec": "top",
-    "bar": "top",
-    "chromosome-labels": "top",
-    "gene-annotations": "top",
-    "heatmap": "top",
-    "1d-heatmap": "top",
-    "line": "top",
-    "horizontal-multivec": "top",
-    "heatmap": "center",
-    "left-axis": "left",
-    "osm-tiles": "center",
-    "top-axis": "top",
-    "viewport-projection-center": "center",
-    "viewport-projection-horizontal": "top",
-}
-
-T = TypeVar("T")
-ModelT = TypeVar("ModelT", bound=PydanticBaseModel)
-
-
-def _ensure_list(x: Union[None, T, List[T]]) -> List[T]:
-    if x is None:
-        return []
-    return x if isinstance(x, list) else [x]
-
-
-def _copy_unique(model: ModelT) -> ModelT:
-    copy = model.__class__(**model.dict())
-    if hasattr(copy, "uid"):
-        setattr(copy, "uid", str(slugid.nice()))
-    return copy
-
-
-# Mixins
-
+# Can't figure out a good way to type these classes.
+# We ignoring the errors in the parameter signature 
+# mean we can get good type information within the 
+# function and return types are inferred for end users.
 
 class _PropertiesMixin:
-    def properties(self: ModelT, inplace: bool = False, **fields) -> ModelT:  # type: ignore
-        model = self if inplace else _copy_unique(self)
+    def properties(self: utils.ModelT, inplace: bool = False, **fields) -> utils.ModelT: # type: ignore
+        model = self if inplace else utils.copy_unique(self)
         for k, v in fields.items():
             setattr(model, k, v)
         return model
 
 
 class _OptionsMixin:
-    def opts(self: "TrackT", inplace: bool = False, **options) -> "TrackT":  # type: ignore
-        track = self if inplace else _copy_unique(self)
+    def opts(self: "TrackT", inplace: bool = False, **options) -> "TrackT": # type: ignore
+
+        track = self if inplace else utils.copy_unique(self)
         if track.options is None:
             track.options = {}
         track.options.update(options)
         return track
+
+
+## Extend higlass-schema classes
 
 
 class EnumTrack(hgs.EnumTrack, _OptionsMixin, _PropertiesMixin):
@@ -107,9 +59,9 @@ class PluginTrack(hgs.BaseTrack, _OptionsMixin, _PropertiesMixin):
 
 
 Track = Union[
-    EnumTrack,
     HeatmapTrack,
     IndependentViewportProjectionTrack,
+    EnumTrack,
     CombinedTrack,
     PluginTrack,
 ]
@@ -124,7 +76,7 @@ class View(hgs.View[TrackT], _PropertiesMixin, Generic[TrackT]):
         y: Optional[hgs.Domain] = None,
         inplace: bool = False,
     ):
-        view = self if inplace else _copy_unique(self)
+        view = self if inplace else utils.copy_unique(self)
         if x is not None:
             view.initialXDomain = x
         if y is not None:
@@ -140,7 +92,7 @@ class View(hgs.View[TrackT], _PropertiesMixin, Generic[TrackT]):
         height: Optional[int] = None,
         inplace: bool = False,
     ):
-        view = self if inplace else _copy_unique(self)
+        view = self if inplace else utils.copy_unique(self)
         if x is not None:
             view.layout.x = x
         if y is not None:
@@ -156,6 +108,7 @@ ViewT = TypeVar("ViewT", bound=View)
 
 
 def gather_plugin_urls(views: List[ViewT]) -> List[str]:
+    """Inspect tracks and extract plugin urls to inject into HTML"""
     plugin_urls = {}
     for view in views:
         for _, track in view.tracks:
@@ -166,7 +119,7 @@ def gather_plugin_urls(views: List[ViewT]) -> List[str]:
 
 class Viewconf(hgs.Viewconf[View[TrackT]], _PropertiesMixin, Generic[TrackT]):
     def _repr_mimebundle_(self, include=None, exclude=None):
-        renderer = renderers.get()
+        renderer = display.renderers.get()
         plugin_urls = [] if self.views is None else gather_plugin_urls(self.views)
         return renderer(self.json(), plugin_urls=plugin_urls)
 
@@ -175,12 +128,6 @@ class Viewconf(hgs.Viewconf[View[TrackT]], _PropertiesMixin, Generic[TrackT]):
         from IPython.display import display
 
         display(self)
-
-    def properties(self, inplace: bool = False, **kwargs):
-        conf = self if inplace else _copy_unique(self)
-        for k, v in kwargs.items():
-            setattr(conf, k, v)
-        return conf
 
     def locks(
         self,
@@ -192,11 +139,11 @@ class Viewconf(hgs.Viewconf[View[TrackT]], _PropertiesMixin, Generic[TrackT]):
         ] = None,
         inplace: bool = False,
     ):
-        conf = self if inplace else _copy_unique(self)
+        conf = self if inplace else utils.copy_unique(self)
 
-        zoom = _ensure_list(zoom)
-        location = _ensure_list(location)
-        value_scale = _ensure_list(value_scale)
+        zoom = utils.ensure_list(zoom)
+        location = utils.ensure_list(location)
+        value_scale = utils.ensure_list(value_scale)
 
         shared_locks: List[hgs.Lock] = []
         for lock in locks:
@@ -238,38 +185,30 @@ class Viewconf(hgs.Viewconf[View[TrackT]], _PropertiesMixin, Generic[TrackT]):
         return conf
 
 
+## Top-level functions to easily create tracks,
+
+# TODO: register plugins globally to work here?
+
+
+class _TrackCreator(BaseModel):
+    __root__: Track
+
+
 def track(
-    type_: Union[hgs.EnumTrackType, Literal["heatmap"]],
+    type_: utils.TrackType,
     uid: Optional[str] = None,
-    fromViewUid: Optional[str] = None,
     **kwargs,
 ) -> Track:
     if uid is None:
-        uid = str(slugid.nice())
-
-    if (
-        type_
-        in {
-            "viewport-projection-horizontal",
-            "viewport-projection-vertical",
-            "viewport-projection-center",
-        }
-        and fromViewUid is None
-    ):
-        return IndependentViewportProjectionTrack(
-            type=type_, uid=uid, fromViewUid=fromViewUid, **kwargs  # type: ignore
-        )
-
-    if type_ == "heatmap":
-        return HeatmapTrack(type=type_, uid=uid, **kwargs)
-
-    return EnumTrack(type=type_, uid=uid, **kwargs)
+        uid = utils.uid()
+    data = dict(type=type_, uid=uid, **kwargs)
+    return _TrackCreator.parse_obj(data).__root__
 
 
 def view(
     *_tracks: Union[
         TrackT,
-        Tuple[TrackT, TrackPosition],
+        Tuple[TrackT, utils.TrackPosition],
         hgs.Tracks[TrackT],
     ],
     x: int = 0,
@@ -301,13 +240,14 @@ def view(
             if isinstance(track, tuple):
                 track, position = track
             else:
-                if track.type is None:
+                position = utils.get_default_track_position(track.type)
+                if position is None:
                     raise ValueError("No default track type")
-                position = _track_default_position[track.type]
+
             data[position].append(track)
 
     if uid is None:
-        uid = str(slugid.nice())
+        uid = utils.uid()
 
     return View[TrackT](
         layout=layout,
@@ -319,7 +259,7 @@ def view(
 
 def combine(t1: Track, t2: Track, uid: Optional[str] = None, **kwargs) -> CombinedTrack:
     if uid is None:
-        uid = str(slugid.nice())
+        uid = utils.uid()
 
     if isinstance(t1, CombinedTrack):
         copy = CombinedTrack(**t1.dict())
@@ -347,7 +287,7 @@ def divide(t1: T, t2: T, **kwargs) -> T:
     assert isinstance(t2.tilesetUid, str)
     assert isinstance(t2.server, str)
 
-    copy = _copy_unique(t1)
+    copy = utils.copy_unique(t1)
     copy.tilesetUid = None
     copy.server = None
     copy.data = hgs.Data(
@@ -424,9 +364,10 @@ def lock(*pairs: Tuple[View, Track], **kwargs) -> hgs.ValueScaleLock:
     ...
 
 
-def lock(*data, **kwargs):
+def lock(*data, uid: Optional[str] = None, **kwargs):
     assert len(data) >= 1
-    uid = str(slugid.nice())
+    if uid is None:
+        uid = utils.uid()
     if isinstance(data[0], View):
         lck = hgs.Lock(uid=uid, **kwargs)
         for view in data:

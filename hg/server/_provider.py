@@ -1,4 +1,5 @@
 import itertools
+import os
 import weakref
 from dataclasses import dataclass
 from typing import List, MutableMapping, Optional
@@ -10,20 +11,10 @@ import starlette.responses
 import starlette.routing
 
 from hg.api import track
-from hg.utils import TrackType
 from hg.tilesets import LocalTileset
+from hg.utils import TrackType, _datatype_default_track
 
 from ._background_server import BackgroundServer
-
-_datatype_default_track = {
-    "2d-rectangle-domains": "2d-rectangle-domains",
-    "bedlike": "bedlike",
-    "chromsizes": "horizontal-chromosome-labels",
-    "gene-annotations": "horizontal-gene-annotations",
-    "matrix": "heatmap",
-    "vector": "horizontal-bar",
-    "multivec": "horizontal-multivec",
-}
 
 
 @dataclass(frozen=True)
@@ -35,15 +26,15 @@ class TilesetResource:
     def server(self) -> str:
         return f"{self.provider.url}/api/v1/"
 
-    def track(self, type: Optional[TrackType] = None, **kwargs):
+    def track(self, type_: Optional[TrackType] = None, **kwargs):
         # use default track based on datatype if available
-        if type is None:
+        if type_ is None:
             if self.tileset.datatype is None:
                 raise ValueError("No default track for tileset")
             else:
-                type = _datatype_default_track[self.tileset.datatype]  # type: ignore
+                type_ = _datatype_default_track[self.tileset.datatype]  # type: ignore
         return track(
-            type_=type,  # type: ignore
+            type_=type_,  # type: ignore
             server=self.server,
             tilesetUid=self.tileset.uid,
             **kwargs,
@@ -109,6 +100,7 @@ def hello(_):
 
 class TilesetProvider(BackgroundServer):
     _tilesets: MutableMapping[str, LocalTileset]
+    urlprefix: Optional[str] = None
 
     def __init__(self, allowed_origins: Optional[List[str]] = None):
         self._tilesets = weakref.WeakValueDictionary()
@@ -133,6 +125,16 @@ class TilesetProvider(BackgroundServer):
 
     @property
     def url(self) -> str:
+        urlprefix = self.urlprefix
+
+        # https://github.com/yuvipanda/altair_data_server/blob/4d6ffcb19f864218c8d825ff2c95a1c8180585d0/altair_data_server/_altair_server.py#L73-L93
+        if urlprefix is None:
+            urlprefix = os.environ.get("JUPYTERHUB_SERVICE_PREFIX")
+
+        if urlprefix is not None:
+            urlprefix = urlprefix.rstrip("/")
+            return f"{urlprefix}/proxy/{self.port}"
+
         return f"http://localhost:{self.port}"
 
     def create(self, tileset: LocalTileset) -> TilesetResource:

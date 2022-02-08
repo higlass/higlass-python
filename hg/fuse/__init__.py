@@ -17,7 +17,12 @@ class FuseProcess:
         self._tmp_dir: Optional[pathlib.Path] = None
 
     def start(self, tmp_dir: Union[str, pathlib.Path]):
-        from .httpfs import run
+        try:
+            from ._httpfs import run
+        except ImportError as e:
+            raise ImportError(
+                'Install "fusepy" and "simple-httpfs" to enable FUSE.'
+            ) from e
 
         # no need to restart
         tmp_dir = pathlib.Path(tmp_dir).absolute()

@@ -11,12 +11,13 @@ import hg.utils as utils
 ## Mixins
 
 # Can't figure out a good way to type these classes.
-# We ignoring the errors in the parameter signature 
-# mean we can get good type information within the 
+# We ignoring the errors in the parameter signature
+# mean we can get good type information within the
 # function and return types are inferred for end users.
 
+
 class _PropertiesMixin:
-    def properties(self: utils.ModelT, inplace: bool = False, **fields) -> utils.ModelT: # type: ignore
+    def properties(self: utils.ModelT, inplace: bool = False, **fields) -> utils.ModelT:  # type: ignore
         model = self if inplace else utils.copy_unique(self)
         for k, v in fields.items():
             setattr(model, k, v)
@@ -24,7 +25,7 @@ class _PropertiesMixin:
 
 
 class _OptionsMixin:
-    def opts(self: "TrackT", inplace: bool = False, **options) -> "TrackT": # type: ignore
+    def opts(self: "TrackT", inplace: bool = False, **options) -> "TrackT":  # type: ignore
 
         track = self if inplace else utils.copy_unique(self)
         if track.options is None:

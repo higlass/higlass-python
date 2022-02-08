@@ -1,12 +1,9 @@
-from typing import Union, Dict, TypeVar, Optional, List
-
-from typing_extensions import Literal
-
-from pydantic import BaseModel
-import slugid
+from typing import Dict, List, Optional, TypeVar, Union
 
 import higlass_schema as hgs
-
+import slugid
+from pydantic import BaseModel
+from typing_extensions import Literal
 
 T = TypeVar("T")
 ModelT = TypeVar("ModelT", bound=BaseModel)
@@ -40,8 +37,20 @@ _track_default_position: Dict[str, TrackPosition] = {
     "viewport-projection-horizontal": "top",
 }
 
+_datatype_default_track = {
+    "2d-rectangle-domains": "2d-rectangle-domains",
+    "bedlike": "bedlike",
+    "chromsizes": "horizontal-chromosome-labels",
+    "gene-annotations": "horizontal-gene-annotations",
+    "matrix": "heatmap",
+    "vector": "horizontal-bar",
+    "multivec": "horizontal-multivec",
+}
+
+
 def uid():
     return str(slugid.nice())
+
 
 def get_default_track_position(track_type: str) -> Optional[TrackPosition]:
     return _track_default_position.get(track_type, None)
@@ -59,4 +68,3 @@ def copy_unique(model: ModelT) -> ModelT:
     if hasattr(copy, "uid"):
         setattr(copy, "uid", uid())
     return copy
-

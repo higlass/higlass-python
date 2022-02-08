@@ -95,10 +95,15 @@ def create_tileset_route(tileset_resources: MutableMapping[str, LocalTileset]):
     return starlette.routing.Mount(
         "/api/v1",
         routes=[
-            starlette.routing.Route("/tileset_info", endpoint=tileset_info),
-            starlette.routing.Route("/tiles", endpoint=tiles),
+            starlette.routing.Route("/tileset_info/", endpoint=tileset_info),
+            starlette.routing.Route("/tiles/", endpoint=tiles),
         ],
     )
+
+
+# dummy route for debugging
+def hello(_):
+    return starlette.responses.PlainTextResponse("hello, world.")
 
 
 class TilesetProvider(BackgroundServer):
@@ -106,8 +111,12 @@ class TilesetProvider(BackgroundServer):
 
     def __init__(self, allowed_origins: Optional[List[str]] = None):
         self._tilesets = weakref.WeakValueDictionary()
-        route = create_tileset_route(self._tilesets)
-        app = starlette.applications.Starlette(routes=[route])
+        app = starlette.applications.Starlette(
+            routes=[
+                starlette.routing.Route("/", hello),
+                create_tileset_route(self._tilesets),
+            ]
+        )
 
         # configure cors
         if allowed_origins:

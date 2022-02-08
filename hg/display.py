@@ -1,7 +1,7 @@
 import json
 import uuid
 from dataclasses import dataclass, field
-from typing import Dict, Optional
+from typing import Any, Dict, List, Optional
 
 import jinja2
 
@@ -12,6 +12,10 @@ HTML_TEMPLATE = jinja2.Template(
 <head>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
   <link rel="stylesheet" href="{{ base_url }}/higlass@{{ higlass_version }}/dist/hglib.css">
+  <script src="{{ base_url }}/react@{{ react_version }}/umd/react.production.min.js"></script>
+  <script src="{{ base_url }}/react-dom@{{ react_version }}/umd/react-dom.production.min.js"></script>
+  <script src="{{ base_url }}/pixi.js@{{ pixijs_version }}/dist/browser/pixi.min.js"></script>
+  <script src="{{ base_url }}/react-bootstrap@{{ react_bootstrap_version }}/dist/react-bootstrap.min.js"></script>
 </head>
 <body>
   <div id="{{ output_div }}"></div>
@@ -28,8 +32,8 @@ HTML_TEMPLATE = jinja2.Template(
     }
 
     async function loadHiglass() {
-        // Manually load scripts from window namespace since requirejs might not be
-        // available in all browser environments.
+        // need to manually load higlass; disable requirejs
+
         // https://github.com/DanielHreben/requirejs-toggle
         window.__requirejsToggleBackup = {
             define: window.define,
@@ -40,17 +44,11 @@ HTML_TEMPLATE = jinja2.Template(
         for (const field of Object.keys(window.__requirejsToggleBackup)) {
             window[field] = undefined;
         }
-        let sources = [
-            {% for plugin_url in plugin_urls %}"{{ plugin_url }}",{% endfor %}
-        ]
-        if (!window.hglib) {
-            sources = sources.concat([
-                "{{ base_url }}/react@{{ react_version }}/umd/react.production.min.js",
-                "{{ base_url }}/react-dom@{{ react_version }}/umd/react-dom.production.min.js",
-                "{{ base_url }}/pixi.js@{{ pixijs_version }}/dist/browser/pixi.min.js",
-                "{{ base_url }}/react-bootstrap@{{ react_bootstrap_version }}/dist/react-bootstrap.min.js",
-                "{{ base_url }}/higlass@{{ higlass_version }}/dist/hglib.js",
-            ])
+
+        let sources = [{% for plugin_url in plugin_urls %}"{{ plugin_url }}",{% endfor %}];
+
+        if (!window.hglib){
+            sources.push("{{ base_url }}/higlass@{{ higlass_version }}/dist/hglib.js");
         }
 
         for (const src of sources) await loadScript(src);
@@ -76,23 +74,21 @@ HTML_TEMPLATE = jinja2.Template(
 
 
 def spec_to_html(
-    spec,
-    higlass_version="1.11",
-    react_version="17",
-    pixijs_version="6",
-    react_bootstrap_version="0.32",
-    base_url="https://unpkg.com",
-    output_div="vis",
-    embed_options=None,
-    json_kwds=None,
-    plugin_urls=[],
+    spec: Dict[str, Any],
+    higlass_version: str = "1.11",
+    react_version: str = "17",
+    pixijs_version: str = "6",
+    react_bootstrap_version: str = "0.32",
+    base_url: str = "https://unpkg.com",
+    output_div: str = "vis",
+    json_kwds: Optional[Dict[str, Any]] = None,
+    plugin_urls: Optional[List[str]] = None,
 ):
-    embed_options = embed_options or dict(padding=0)
     json_kwds = json_kwds or {}
+    plugin_urls = plugin_urls or []
 
     return HTML_TEMPLATE.render(
         spec=json.dumps(spec, **json_kwds),
-        embed_options=json.dumps(embed_options, **json_kwds),
         higlass_version=higlass_version,
         react_version=react_version,
         pixijs_version=pixijs_version,
@@ -104,7 +100,7 @@ def spec_to_html(
 
 
 class BaseRenderer:
-    def __init__(self, output_div="jupyter-hg-{}", **kwargs):
+    def __init__(self, output_div: str = "jupyter-hg-{}", **kwargs):
         self._output_div = output_div
         self.kwargs = kwargs
 

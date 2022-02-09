@@ -22,21 +22,21 @@ class HgServer:
             self._provider.stop()
         self._resources = {}
 
-    def enable_proxy(self, urlprefix: str = ".."):
-        if not self._provider:
-            self._provider = TilesetProvider().start()
+    def enable_proxy(self):
         try:
             import jupyter_server_proxy
         except ImportError as e:
             raise ImportError(
                 'Install "jupyter-server-proxy" to enable server proxying.'
             ) from e
-        self._provider.urlprefix = urlprefix
+        if not self._provider:
+            self._provider = TilesetProvider().start()
+        self._provider.proxy = True
 
     def disable_proxy(self):
         if not self._provider:
             raise RuntimeError("Server not started.")
-        self._provider.urlprefix = None
+        self._provider.proxy = False
 
     def add(
         self,

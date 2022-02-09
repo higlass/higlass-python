@@ -93,14 +93,9 @@ def create_tileset_route(tileset_resources: MutableMapping[str, LocalTileset]):
     )
 
 
-# dummy route for debugging
-def hello(_):
-    return starlette.responses.PlainTextResponse("hello, world.")
-
-
 class TilesetProvider(BackgroundServer):
     _tilesets: MutableMapping[str, LocalTileset]
-    urlprefix: Optional[str] = None
+    proxy: bool = False
 
     def __init__(self, allowed_origins: Optional[List[str]] = None):
         if allowed_origins is None:
@@ -108,7 +103,6 @@ class TilesetProvider(BackgroundServer):
         self._tilesets = weakref.WeakValueDictionary()
         app = starlette.applications.Starlette(
             routes=[
-                starlette.routing.Route("/", hello),
                 create_tileset_route(self._tilesets),
             ]
         )
@@ -127,14 +121,13 @@ class TilesetProvider(BackgroundServer):
 
     @property
     def url(self) -> str:
-        urlprefix = self.urlprefix
+
+        if self.proxy:
+            return "/proxy/{self.port}"
 
         # https://github.com/yuvipanda/altair_data_server/blob/4d6ffcb19f864218c8d825ff2c95a1c8180585d0/altair_data_server/_altair_server.py#L73-L93
-        if urlprefix is None:
-            urlprefix = os.environ.get("JUPYTERHUB_SERVICE_PREFIX")
-
-        if urlprefix is not None:
-            urlprefix = urlprefix.rstrip("/")
+        if "JUPYTERHUB_SERVICE_PREFIX" in os.environ:
+            urlprefix = os.environ.get["JUPYTERHUB_SERVICE_PREFIX"]
             return f"{urlprefix}/proxy/{self.port}"
 
         return f"http://localhost:{self.port}"

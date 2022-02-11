@@ -4,6 +4,7 @@ from hg.tilesets import LocalTileset
 
 from ._provider import TilesetProvider, TilesetResource
 
+
 class HgServer:
     def __init__(self):
         self._provider: Optional[TilesetProvider] = None

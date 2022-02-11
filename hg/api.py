@@ -130,6 +130,11 @@ class Viewconf(hgs.Viewconf[View[TrackT]], _PropertiesMixin, Generic[TrackT]):
 
         display(self)
 
+    def widget(self, **kwargs):
+        from hg.widget import HgWidget
+
+        return HgWidget(self) # type: ignore
+
     def locks(
         self,
         *locks: Union[hgs.Lock, hgs.ValueScaleLock],

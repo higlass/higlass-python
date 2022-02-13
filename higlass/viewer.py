@@ -1,5 +1,5 @@
 import logging
-from higlass_widget import HiGlassWidget
+from higlass_widget import HiGlassWidget as HiGlassDisplay
 
 from ._version import __version__
 
@@ -115,7 +115,7 @@ def display(
         extra_args["auth_token"] = auth_token
 
     return (
-        HiGlassWidget(
+        HiGlassDisplay(
             viewconf=viewconf.to_dict(),
             hg_options={
                 "theme": "dark" if dark_mode else "light",

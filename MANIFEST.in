@@ -1,4 +1,3 @@
-recursive-include higlass/static *.*
 include CHANGELOG.md
 include README.md
 include LICENSE

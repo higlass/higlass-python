@@ -49,24 +49,3 @@ matrix:
         tags: true
         distributions: sdist bdist_wheel
         repo: higlass/higlass-python
-  - language: node_js
-    node_js:
-    - '10'
-    branches:
-      only:
-      - master
-    before_deploy:
-    - cd js
-    - npm install
-    - npm run build
-    deploy:
-      provider: npm
-      skip_cleanup: true
-      edge: true
-      email: pkerpedjiev@gmail.com
-      api_key:
-        secure: gxFSh9DNZgA51xZVpr7MFLEV81ZzRhuEnmFmZ+rYZZ6eMKCwTB7qtnSdzTUHIS7V424gGzvATvG7DTj7gYlOWaRZrOQfo21ncyqbxeMRmZcAn5EyV8tl66sAjW/izv9WmcMeAYHdUKP4+8uXVfPn/aW57VwUWU+lsAr3u6eqJXjfieCML6h13QleOG3pHRPlWYe3C7QGF6CxzF+B0/pv6pM9UggMd38dIYfYHMgdbwoQs9ssYtnXpPSa0mgBQWMXUI8yi5n/HsXCtW+Ts//uR2jclpXnnlOU/o/xc7Qc70YdlQEumN+vq8xHZLX2SQO8Mg7h/dkZudOeE/n0BCLVgF+GVQhVsXICYF3u30xkpPe0VgSWs4GtSrRhi2E698s9lT11ONpQCJOqAEf+ywP5+xD0KX58rf3/sHUJUqIImE2xNLUgSsppxbADMvHbFmWsB5FVHhquUCRzjfz9+R0KBrN6mKNzXhUWEM267HglSW8oRTybXSK/UaqKK7l5nfoNgSTiOebIsEqu7d9XT92hZL8u4XAFbM3tetuh3ch8PDvsiEV50ISMUojhj+49c/CAaX07+noAQmlJ1W0SsQASbUDnQn8+cfPXU72UKxTydYaiNfO7xV2UDkmrrDWeElJwakX5cMoB9ck3RbCUWP9+hQXxDXLpy7mZB/bx0Sh/xvY=
-      on:
-        branch: master
-        tags: true
-        repo: higlass/higlass-python

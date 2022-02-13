@@ -12,3 +12,4 @@ requests-unixsocket
 sh
 simple-httpfs>=0.4.2
 slugid>=2.0.0
+higlass-widget

@@ -1,6 +1,5 @@
 .PHONY: install uninstall build clean publish
 
-
 # Build and installation
 install:
 	pip install -v -e .
@@ -9,49 +8,12 @@ install:
 uninstall:
 	pip uninstall higlass-python
 
-postinstall: nbext-deps nbext-install labext-deps labext-install
-
 build:
-	python setup.py jsdeps
+	python setup.py
 
-clean-py:
+clean:
 	rm -rf build/
 	rm -rf dist/
-
-clean-js:
-	rm -rf js/dist/
-	rm -rf higlass/static/
-
-clean-npm:
-	rm -rf js/node_modules/
-
-clean: clean-py clean-js clean-npm
-
-
-# Jupyter Notebook Extension
-nbext-deps:
-	#pip install jupyter_contrib_nbextensions
-	#jupyter contrib nbextension install --sys-prefix
-	jupyter nbextension enable --py --sys-prefix widgetsnbextension
-
-nbext-install:
-	jupyter nbextension install --py --symlink --sys-prefix higlass
-	jupyter nbextension enable --py --sys-prefix higlass
-
-nbext-uninstall:
-	jupyter nbextension uninstall --py --sys-prefix higlass
-
-
-# Jupyter Lab Extension
-labext-deps:
-	jupyter labextension install @jupyter-widgets/jupyterlab-manager
-
-labext-install:
-	cd js && jupyter labextension link .
-
-labext-uninstall:
-	cd js && jupyter labextension unlink .
-
 
 # Publishing tools
 bump-patch:

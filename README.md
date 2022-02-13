@@ -30,27 +30,6 @@ First install `higlass-python` via pip:
 pip install higlass-python
 ```
 
-#### Jupyter Notebook integration
-
-Open a terminal and execute the following code to activate the integration:
-
-```bash
-# The following is only required if you have not enabled the ipywidgets nbextension yet
-jupyter nbextension enable --py --sys-prefix widgetsnbextension
-jupyter nbextension install --py --sys-prefix higlass
-jupyter nbextension enable --py --sys-prefix higlass
-```
-
-#### Jupyter Lab integration
-
-Open a terminal and execute the following code to activate the integration:
-
-```bash
-# The following is only required if you have not enabled the jupyterlab manager yet
-jupyter labextension install @jupyter-widgets/jupyterlab-manager
-jupyter labextension install higlass-jupyter
-```
-
 ## Getting started
 
 Take a look at [notebooks/Examples.ipynb](notebooks/Examples.ipynb) on how to get started.
@@ -65,27 +44,6 @@ There is more detailed documentation at [docs-python.higlass.io](https://docs.py
 
    ```bash
    pip install -e .
-   ```
-
-* Build and enable the Jupyter Notebook Extension. (With the `--symlink` option, the assets in `higlass/static` are linked to the extension registry rather than copied.)
-
-   ```bash
-   python setup.py jsdeps
-   jupyter nbextension enable --py --sys-prefix widgetsnbextension
-   jupyter nbextension install --py --symlink --sys-prefix higlass
-   jupyter nbextension enable --py --sys-prefix higlass
-   ```
-
-* Uninstall the Jupyter Notebook Extension
-
-   ```bash
-   jupyter nbextension uninstall --py --sys-prefix higlass
-   ```
-
-* Experimental: install the Jupyter Lab Extension
-
-   ```bash
-   cd js && jupyter labextension link .
    ```
 
 ### Editing the docs

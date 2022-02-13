@@ -43,6 +43,7 @@ os.environ["WERKZEUG_RUN_MAIN"] = "true"
 
 requests_unixsocket.monkeypatch()
 
+
 def create_app(name, tilesets, fuse=None):
     app = Flask(name)
     app.logger.disabled = True
@@ -227,6 +228,7 @@ def get_free_socket(sock_dir):
         # Socket is alive, move on
         s.close()
 
+
 def get_open_port():
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind(("", 0))
@@ -265,7 +267,7 @@ class FuseProcess:
 
         self.teardown()
 
-        disk_cache_size = 2 ** 25
+        disk_cache_size = 2**25
         lru_capacity = 400
 
         def start_fuse(directory, protocol):
@@ -437,7 +439,7 @@ class Server:
             # If host is a directory, make it a filename by joining it with
             # the port field.
             host_no_schema = self.host[7:]
-            if host_no_schema[-1] == '/':
+            if host_no_schema[-1] == "/":
                 os.makedirs(host_no_schema, mode=0o700, exist_ok=True)
             if op.isdir(host_no_schema):
                 if self.port is None:
@@ -467,7 +469,7 @@ class Server:
         self.connected = False
         while not self.connected:
             try:
-                url = self._get_url('api/v1')
+                url = self._get_url("api/v1")
                 r = requests.head(url)
                 if r.ok:
                     self.connected = True
@@ -476,7 +478,7 @@ class Server:
 
     def _get_url(self, path):
         if self._use_unix:
-            host = quote(self._unix_filename, safe='')
+            host = quote(self._unix_filename, safe="")
             return "http+unix://{}/{}".format(host, path)
         return "http://{}:{}/{}".format(self.host, str(self.port), path)
 
@@ -542,6 +544,8 @@ class Server:
     @property
     def api_address(self):
         if self._root_api_address is None:
-            return self._get_url('api/v1')
-        root = self._root_api_address.format(host=self.host, port=self.port, unix_filename=self._unix_filename or '')
+            return self._get_url("api/v1")
+        root = self._root_api_address.format(
+            host=self.host, port=self.port, unix_filename=self._unix_filename or ""
+        )
         return "{}/api/v1".format(root)

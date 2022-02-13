@@ -3,6 +3,7 @@ from higlass_widget import HiGlassWidget as HiGlassDisplay
 
 from ._version import __version__
 
+
 def display(
     views,
     location_syncs=[],

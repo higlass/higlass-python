@@ -1,3 +1,7 @@
+## Next
+
+- Move widget to [`higlass-widget`](https://github.com/higlass/higlass-widget) and add as a dependency.
+
 ## [v0.4.7](https://github.com/higlass/higlass-python/compare/v0.4.7...v0.4.6)
 
 - Bumped pillow version

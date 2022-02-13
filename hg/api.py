@@ -131,9 +131,9 @@ class Viewconf(hgs.Viewconf[View[TrackT]], _PropertiesMixin, Generic[TrackT]):
         display(self)
 
     def widget(self, **kwargs):
-        from hg.widget import HgWidget
+        from higlass_widget import HiGlassWidget
 
-        return HgWidget(self)  # type: ignore
+        return HiGlassWidget(self.dict())  # type: ignore
 
     def locks(
         self,

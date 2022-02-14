@@ -1,9 +1,9 @@
-from copy import deepcopy
 import json
-import slugid
 import logging
 import os
+from copy import deepcopy
 
+import slugid
 
 logger = logging.getLogger()
 
@@ -21,10 +21,18 @@ _track_default_position = {
     "bedlike": "top",
     "horizontal-bar": "top",
     "horizontal-chromosome-labels": "top",
+    "chromosome-labels": "top",
     "horizontal-gene-annotations": "top",
     "horizontal-heatmap": "top",
     "horizontal-1d-heatmap": "top",
     "horizontal-line": "top",
+    "horizontal-multivec": "top",
+    "bar": "top",
+    "chromosome-labels": "top",
+    "gene-annotations": "top",
+    "heatmap": "top",
+    "1d-heatmap": "top",
+    "line": "top",
     "horizontal-multivec": "top",
     "heatmap": "center",
     "left-axis": "left",
@@ -66,6 +74,8 @@ class Track(Component):
     ----------
     track_type : str
         The type of track (e.g. 'heatmap', 'line')
+    position: str
+        The position of the track (e.g. 'top')
     tileset : :class:`Tileset`
         A Tileset being displayed in this track
     file_url: str
@@ -549,6 +559,24 @@ class ViewConf(Component):
     def __init__(
         self, views=[], location_syncs=[], value_scale_syncs=[], zoom_syncs=[]
     ):
+        """A Python representation of a HiGlass viewconf.
+
+        Parameters
+        ----------
+        views: list[list]
+            A list of View objects which compose the viewable scene
+        location_syncs: list[list]
+            A list of lists of Views to be synced
+        value_scale_syncs: list[list]
+            A list containing the value scale syncs. Each sync can be
+            one of:
+                1. a list of (View, Track) tuples
+                2. a list of Tracks (assumes that there is only one view)
+                3. a list of strings of the form "{viewUid}.{trackUid}"
+        location_syncs: list[list]
+            A list of lists of Views to be synced
+
+        """
 
         self.conf = {
             "editable": True,

@@ -34,7 +34,7 @@ Uninstalling
 
     jupyter nbextension uninstall --py --sys-prefix higlass
 
-Simplest Use Case
+Simplest use case
 ------------------
 
 The simplest way to instantiate a HiGlass instance to create a display object with one view:
@@ -42,7 +42,7 @@ The simplest way to instantiate a HiGlass instance to create a display object wi
 .. code-block:: python
 
   import higlass
-  from higlass.client import Track
+  from higlass.client import Track, View
 
   display, server, viewconf = higlass.display([View([Track('top-axis')])])
   display
@@ -52,6 +52,96 @@ view will automatically be created from the list of Tracks:
 ``higlass.display([[Track('top-axis')]])``. This, however, precludes the use
 of parameters with the view or for linking views using syncs. It also always
 uses the `default position <https://github.com/higlass/higlass-python/blob/70d36d18eb8ef9e207640de5e7bc478c43fdc8de/higlass/client.py#L23>`_ for a given track type.
+
+Remote Jupyter Notebook
+-----------------------
+
+If your Jupyter notebook is running on a remote server (at e.g.
+``REMOTE_IP``), you'll need to make sure that you have an extra port
+(let's call it ``HG_PORT``) open on your firewall that HiGlass can use to
+communicate with its server. That port will then need to be passed to the
+server display command:
+
+.. code-block:: python
+
+    higlass.display(
+        ...,
+        server_port=HG_PORT,
+        host=REMOTE_IP,
+        fuse=False
+    )
+  
+The ``fuse=False`` option is often necessary if there is no support for FUSE.
+FUSE is only necessary for loading remote http datasets which are not hosted
+on a HiGlass server.
+
+If you can't open a port on your firewall, an alternative is to set up a proxy
+that will forward the requests to HiGlass. For example, you can have `jupyter-server-proxy <https://github.com/jupyterhub/jupyter-server-proxy>`_
+forward all requests based at ``http://REMOTE_IP/proxy/HG_PORT/`` to a local HiGlass
+instance listening at ``HG_PORT``. ``HG_PORT`` can be specified by the
+``server_port`` option or chosen randomly by HiGlass. You can then tell HiGlass
+to use the proxy:
+
+.. code-block:: python
+
+    higlass.display(
+        ...,
+        fuse=False,
+        proxy_base="http://my.remote.ip/proxy/{port}" # {port} will be replaced by the local HiGlass port
+    )
+
+Using UNIX sockets
+------------------
+
+You can tell HiGlass to listen on a UNIX socket instead of opening a port. This can be useful for ensuring no remote access to the higlass daemon (since you need filesystem access) and to limit users from accessing each other’s higlass daemons (via filesystem permissions).
+
+To do that, simply pass the path to the socket in the `host` parameter, prefixed with `unix://`:
+
+.. code-block:: python
+
+    higlass.display(
+        ...,
+        host="unix:///tmp/higlass/socket.sock",
+        fuse=False
+    )
+
+You can also pass a directory (marked with a trailing slash) to `host`, and use `server_port` as the filename component. If `server_port` is `None`, a filename will be generated automatically:
+
+.. code-block:: python
+
+    higlass.display(
+        ...,
+        host="unix:///tmp/higlass_servers/",
+        server_port=None,
+        fuse=False
+    )
+
+Creating a viewconf
+-------------------
+
+If you just want the viewconf without actually opening higlass, use the
+``ViewConf`` class:
+
+.. code-block:: python
+
+  from higlass.client import ViewConf, Track, View
+
+  ViewConf(
+      [
+          View(
+              [
+                  Track(track_type="top-axis"),
+                  Track(
+                      track_type="pileup",
+                      position="top",
+                      data={"type": "bam", "url": "my_bam"},
+                      options={"axisPositionHorizontal": "right"},
+                  ),
+                  Track(track_type="vcf", position="top", data={"type": "vcf", "url": "my_vcf"}),
+              ]
+          )
+      ]
+  ).to_dict()
 
 View extent
 -----------
@@ -409,13 +499,13 @@ according to the chromosome info in the specified file.
     bigwig_fp = '../data/wgEncodeCaltechRnaSeqHuvecR1x75dTh1014IlnaPlusSignalRep2.bigWig'
 
     with open(chromsizes_fp) as f:
-        chromsizes = []
+        chromsizes_arr = []
         for line in f.readlines():
             chrom, size = line.split('\t')
-            chromsizes.append((chrom, int(size)))
+            chromsizes_arr.append((chrom, int(size)))
 
-    cs = chromsizes(chromsizes)
-    ts = bigwig(bigwig_fp, chromsizes=chromsizes)
+    cs = chromsizes(chromsizes_fp)
+    ts = bigwig(bigwig_fp, chromsizes=chromsizes_arr)
 
     tr0 = Track('top-axis')
     tr1 = Track('horizontal-bar', tileset=ts)

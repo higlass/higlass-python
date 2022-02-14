@@ -1,14 +1,15 @@
 import json
 import logging
+import os
+import threading
+import time
+
 import ipywidgets as widgets
 from traitlets import Bool, Dict, Float, Int, List, Unicode, Union
 
 import slugid
-from ._version import __version__
 
-import os
-import threading
-import time
+from ._version import __version__
 
 
 def save_b64_image_to_png(filename, b64str):
@@ -63,7 +64,14 @@ class HiGlassDisplay(widgets.DOMWidget):
 
         self.callbacks[uuid] = callback
 
-        self.send(json.dumps({"request": "save_as_png", "params": {"uuid": uuid},}))
+        self.send(
+            json.dumps(
+                {
+                    "request": "save_as_png",
+                    "params": {"uuid": uuid},
+                }
+            )
+        )
 
     def _handle_js_events(self, widget, content, buffers=None):
         try:
@@ -107,6 +115,7 @@ def display(
     log_level=logging.ERROR,
     fuse=True,
     auth_token=None,
+    proxy_base=None,
 ):
     """
     Instantiate a HiGlass display with the given views.
@@ -116,14 +125,20 @@ def display(
             lists themselves, then automatically create views out of them.
         location_syncs: A list of lists, each containing a list of views which
             will scroll together.
+        value_scale_syncs: A list containing the value scale syncs. Each sync can be
+            one of:
+                1. a list of (View, Track) tuples
+                2. a list of Tracks (assumes that there is only one view)
+                3. a list of strings of the form "{viewUid}.{trackUid}"
         zoom_syncs: A list of lists, each containing a list of views that
             will zoom together.
         host: The host on which the internal higlass server will be running on.
         server_port: The port on which the internal higlass server will be running on.
         dark_mode: Whether to use dark mode or not.
         log_level: Level of logging to perform.
-        fuse: Whether to mount the fuse filesystem. Set to false if not loading any
+        fuse: Whether to mount the fuse filesystem. Set to False if not loading any
             data over http or https.
+        proxy_base: Url and base path of server to use as proxy for the client
 
     Returns:
         (display: HiGlassDisplay, server: higlass.server.Server, higlass.client.viewconf) tuple
@@ -158,7 +173,12 @@ def display(
                 tilesets += [track.tileset]
 
     server = Server(
-        tilesets, host=host, port=server_port, fuse=fuse, log_level=log_level
+        tilesets,
+        host=host,
+        port=server_port,
+        fuse=fuse,
+        log_level=log_level,
+        root_api_address=proxy_base,
     )
     server.start()
 
@@ -198,7 +218,9 @@ def display(
     return (
         HiGlassDisplay(
             viewconf=viewconf.to_dict(),
-            hg_options={"theme": "dark" if dark_mode else "light",},
+            hg_options={
+                "theme": "dark" if dark_mode else "light",
+            },
             **extra_args
         ),
         server,

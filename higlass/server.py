@@ -1,4 +1,5 @@
 from functools import partial
+from itertools import count
 from io import StringIO
 import multiprocess as mp
 import cytoolz as toolz
@@ -11,6 +12,7 @@ import tempfile
 import json
 import time
 import os
+import atexit
 
 from flask import Flask
 from flask import request, jsonify
@@ -18,8 +20,9 @@ from flask import request, jsonify
 # from flask_restful import reqparse, abort, Api, Resource
 from flask_cors import CORS
 
-from fuse import FUSE
 import requests
+import requests_unixsocket
+from urllib.request import quote
 import slugid
 import sh
 
@@ -38,6 +41,7 @@ log.disabled = True
 # The following line is also needed to turn off all debug logs
 os.environ["WERKZEUG_RUN_MAIN"] = "true"
 
+requests_unixsocket.monkeypatch()
 
 def create_app(name, tilesets, fuse=None):
     app = Flask(name)
@@ -206,6 +210,23 @@ class ServerError(Exception):
     pass
 
 
+def get_free_socket(sock_dir):
+    for p in count():
+        sock_file = op.join(sock_dir, str(p))
+        s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        try:
+            # Check if socket exists and alive
+            s.connect(sock_file)
+        except OSError:
+            # Socket is missing or dead, use it
+            try:
+                os.remove(sock_file)
+            except FileNotFoundError:
+                pass
+            return p
+        # Socket is alive, move on
+        s.close()
+
 def get_open_port():
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind(("", 0))
@@ -249,6 +270,10 @@ class FuseProcess:
 
         def start_fuse(directory, protocol):
             try:
+                # this import can cause problems on systems that don't have libfuse
+                # installed so let's only try it if absolutely necessary
+                from fuse import FUSE
+
                 # This is a bit confusing. I think `fuse` (lowercase) is used
                 # above in get_filepath() line 50 and 52. If that's not the
                 # case than this assignment is useless and get_filepath() is
@@ -318,8 +343,11 @@ class Server:
         A list of tilesets to serve (see higlass.tilesets)
     host : str, optional
         The host this server is running on. Usually just localhost.
+        If starts with unix://, then it's treated as a unix socket. If also ends with a '/',
+        then it's treated as a directory of unix sockets, with port being the file name.
     port : int, optional
-        The port that this server will run on.
+        The port that this server will run on. If host starts with unix://, then this is the
+        file name for the socket inside the base directory.
     name : str, optional
         A name for the Flask app being served. If not provided, a
         unique name will be generated. The app's logger inherits this
@@ -334,8 +362,13 @@ class Server:
     log_file: str, optional
         Where to write diagnostic log files. Default is to use a
         StringIO stream in memory.
+    root_api_address: str, optional
+        Root path of the reported api_address, instead of http://{host}:{port}.
+        Can be used for redirecting clients to a proxy. Can include {host}, {port}
+        and {unix_filename} to use these variables.
 
     """
+
     # Keep track of the server processes that have been started.
     # So that when someone says 'start', the old ones are terminated
     processes = {}
@@ -350,13 +383,14 @@ class Server:
         tmp_dir=OS_TEMPDIR,
         log_level=logging.INFO,
         log_file=None,
+        root_api_address=None,
     ):
-        self.name = name or __name__.split(".")[0] + '-' + slugid.nice()[:8]
+        self.name = name or __name__.split(".")[0] + "-" + slugid.nice()[:8]
         self.tilesets = tilesets
         self.host = host
         self.port = port
         if fuse:
-            self.fuse_process = FuseProcess(op.join(tmp_dir, 'higlass-python'))
+            self.fuse_process = FuseProcess(op.join(tmp_dir, "higlass-python"))
             self.fuse_process.setup()
         else:
             self.fuse_process = None
@@ -370,6 +404,8 @@ class Server:
         else:
             self.log = StringIO()
             handler = logging.StreamHandler(self.log)
+
+        self._root_api_address = root_api_address
 
         handler.setLevel(log_level)
         self.app.logger.addHandler(handler)
@@ -390,8 +426,25 @@ class Server:
             self.processes[puid].terminate()
             del self.processes[puid]
 
-        if self.port is None:
-            self.port = get_open_port()
+        self._use_unix = self.host.startswith("unix://")
+        if not self._use_unix:
+            # Use a regular TCP socket, host and port are as usual
+            if self.port is None:
+                self.port = get_open_port()
+            self._unix_filename = None
+        else:
+            # Use a UNIX socket, host should be a file path prefixed with unix://
+            # If host is a directory, make it a filename by joining it with
+            # the port field.
+            host_no_schema = self.host[7:]
+            if host_no_schema[-1] == '/':
+                os.makedirs(host_no_schema, mode=0o700, exist_ok=True)
+            if op.isdir(host_no_schema):
+                if self.port is None:
+                    # If no port is given, find a free filename and use that
+                    self.port = get_free_socket(host_no_schema)
+                self.host = op.join(self.host, str(self.port))
+            self._unix_filename = self.host[7:]
 
         # we're going to assign a uuid to each server process so that if
         # anything goes wrong, the variable referencing the process doesn't get
@@ -407,18 +460,25 @@ class Server:
             use_reloader=False,
             **kwargs
         )
+        atexit.register(self._unix_cleanup)
         self.processes[uuid] = mp.Process(target=target)
         self.processes[uuid].start()
 
         self.connected = False
         while not self.connected:
             try:
-                url = "http://{}:{}/api/v1".format(self.host, self.port)
+                url = self._get_url('api/v1')
                 r = requests.head(url)
                 if r.ok:
                     self.connected = True
             except requests.ConnectionError:
                 time.sleep(0.2)
+
+    def _get_url(self, path):
+        if self._use_unix:
+            host = quote(self._unix_filename, safe='')
+            return "http+unix://{}/{}".format(host, path)
+        return "http://{}:{}/{}".format(self.host, str(self.port), path)
 
     def stop(self):
         """
@@ -428,14 +488,20 @@ class Server:
             self.fuse_process.teardown()
         for uuid in self.processes:
             self.processes[uuid].terminate()
+        self._unix_cleanup()
+
+    def _unix_cleanup(self):
+        if self._use_unix:
+            try:
+                os.remove(self._unix_filename)
+            except FileNotFoundError:
+                pass
 
     def tileset_info(self, uid):
         """
         Return the tileset info for the given tileset
         """
-        url = "http://{host}:{port}/api/v1/tileset_info/?d={uid}".format(
-            host=self.host, port=self.port, uid=uid
-        )
+        url = self._get_url("api/v1/tileset_info/?d={uid}".format(uid=uid))
 
         req = requests.get(url)
         if req.status_code != 200:
@@ -452,9 +518,7 @@ class Server:
         tile_id = "{uid}.{z}.{x}".format(uid=uid, z=z, x=x)
         if y is not None:
             tile_id += ".{y}".format(y=y)
-        url = "http://{host}:{port}/api/v1/tiles/?d={tile_id}".format(
-            host=self.host, port=self.port, tile_id=tile_id
-        )
+        url = self._get_url("api/v1/tiles/?d={tile_id}".format(tile_id=tile_id))
 
         req = requests.get(url)
         if req.status_code != 200:
@@ -467,9 +531,7 @@ class Server:
         """
         Return the chromosome sizes from the given filename
         """
-        url = "http://{host}:{port}/api/v1/chrom-sizes/?id={uid}".format(
-            host=self.host, port=self.port, uid=uid
-        )
+        url = self._get_url("api/v1/chrom-sizes/?id={uid}".format(uid=uid))
 
         req = requests.get(url)
         if req.status_code != 200:
@@ -479,4 +541,7 @@ class Server:
 
     @property
     def api_address(self):
-        return "http://{host}:{port}/api/v1".format(host=self.host, port=self.port)
+        if self._root_api_address is None:
+            return self._get_url('api/v1')
+        root = self._root_api_address.format(host=self.host, port=self.port, unix_filename=self._unix_filename or '')
+        return "{}/api/v1".format(root)

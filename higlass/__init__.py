@@ -1,8 +1,8 @@
 from ._version import __version__
-from .viewer import display
-from .tilesets import Tileset
+from .client import CombinedTrack, Track, View, ViewConf
 from .server import Server
-from .client import Track, CombinedTrack, View, ViewConf
+from .tilesets import Tileset
+from .viewer import display
 
 
 def _jupyter_nbextension_paths():

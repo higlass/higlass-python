@@ -1,8 +1,8 @@
 # HiGlass Python
 
 [![HiGlass](https://img.shields.io/badge/higlass-👍-red.svg?colorB=45afe5)](http://higlass.io)
-[![Docs](https://img.shields.io/badge/docs-🎉-red.svg?colorB=6680ff)](https://higlass.io/docs/python_api.html)
-[![Python](https://img.shields.io/badge/python-😍-red.svg?colorB=af80ff)](https://higlass.io/docs/python_api.html)
+[![Python](https://img.shields.io/pypi/v/higlass-python?colorB=6680ff)](https://pypi.org/project/higlass-python/)
+[![Docs](https://img.shields.io/badge/docs-🎉-red.svg?colorB=af80ff)](https://docs.higlass.io/jupyter.html)
 [![Build Status](https://travis-ci.org/higlass/higlass-python.svg?branch=master)](https://travis-ci.org/higlass/higlass-python)
 
 Python bindings to the HiGlass for tile serving, view config generation, and Jupyter Notebook + Lab integration.
@@ -55,6 +55,10 @@ jupyter labextension install higlass-jupyter
 
 Take a look at [notebooks/Examples.ipynb](notebooks/Examples.ipynb) on how to get started.
 
+## Documentation
+
+There is more detailed documentation at [docs-python.higlass.io](https://docs-python.higlass.io).
+
 ## Development
 
 * Install the package in _editable_ mode. (The module will be imported from the development directory, rather than copied to `site-packages`).
@@ -83,6 +87,15 @@ Take a look at [notebooks/Examples.ipynb](notebooks/Examples.ipynb) on how to ge
    ```bash
    cd js && jupyter labextension link .
    ```
+
+### Editing the docs
+
+To work on the docs, start the autoserver and edit the rst files in the `docs` directory:
+
+```bash
+cd docs
+./serve.sh
+```
 
 ## Troubleshooting
 

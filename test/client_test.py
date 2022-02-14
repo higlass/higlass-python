@@ -57,6 +57,11 @@ def test_divided_track():
 
     assert "data" in tr3.conf
     assert tr3.conf["data"]["type"] == "divided"
+    assert tr3.conf["type"] == "heatmap"
+
+    t4 = (tr1 / tr2).change_attributes(track_type="horizontal-bar")
+
+    assert t4.conf["type"] == "horizontal-bar"
 
 
 def test_combined_track_from_track_list():

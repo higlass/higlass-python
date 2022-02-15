@@ -34,28 +34,40 @@ class _OptionsMixin:
         return track
 
 
+class _TilesetMixin:
+    def tileset(self: "TrackT", tileset: "TilesetResource", inplace: bool = False) -> "TrackT":  # type: ignore
+
+        track = self if inplace else utils.copy_unique(self)
+        track.server = tileset.server
+        track.tilesetUid = tileset.tileset.uid
+        return track
+
+
 ## Extend higlass-schema classes
 
 
-class EnumTrack(hgs.EnumTrack, _OptionsMixin, _PropertiesMixin):
+class EnumTrack(hgs.EnumTrack, _OptionsMixin, _PropertiesMixin, _TilesetMixin):
     ...
 
 
-class HeatmapTrack(hgs.HeatmapTrack, _OptionsMixin, _PropertiesMixin):
+class HeatmapTrack(hgs.HeatmapTrack, _OptionsMixin, _PropertiesMixin, _TilesetMixin):
     ...
 
 
 class IndependentViewportProjectionTrack(
-    hgs.IndependentViewportProjectionTrack, _OptionsMixin, _PropertiesMixin
+    hgs.IndependentViewportProjectionTrack,
+    _OptionsMixin,
+    _PropertiesMixin,
+    _TilesetMixin,
 ):
     ...
 
 
-class CombinedTrack(hgs.CombinedTrack, _OptionsMixin, _PropertiesMixin):
+class CombinedTrack(hgs.CombinedTrack, _OptionsMixin, _PropertiesMixin, _TilesetMixin):
     ...
 
 
-class PluginTrack(hgs.BaseTrack, _OptionsMixin, _PropertiesMixin):
+class PluginTrack(hgs.BaseTrack, _OptionsMixin, _PropertiesMixin, _TilesetMixin):
     plugin_url: ClassVar[str]
 
 
@@ -134,6 +146,16 @@ class Viewconf(hgs.Viewconf[View[TrackT]], _PropertiesMixin, Generic[TrackT]):
         from higlass_widget import HiGlassWidget
 
         return HiGlassWidget(self.dict())  # type: ignore
+
+    @classmethod
+    def from_url(cls, url: str):
+        import urllib.request as urllib
+
+        request = urllib.Request(url)
+        with urllib.urlopen(request) as response:
+            raw = response.read()
+
+        return cls.parse_raw(raw)
 
     def locks(
         self,

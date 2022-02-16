@@ -1,8 +1,16 @@
-from typing import Dict, Optional
+import functools
+from typing import Callable, Dict, Optional, ParamSpec
 
 from hg.tilesets import LocalTileset
 
 from ._provider import TilesetProvider, TilesetResource
+
+__all__ = [
+    "HgServer",
+    "server",
+]
+
+P = ParamSpec("P")
 
 
 class HgServer:
@@ -39,11 +47,33 @@ class HgServer:
             raise RuntimeError("Server not started.")
         self._provider.proxy = False
 
+    def register(
+        self, tileset_fn: Callable[P, LocalTileset]
+    ) -> Callable[P, TilesetResource]:
+        """Register a tileset function for this server.
+
+        This is just a convenience method to avoid the repetition of creating
+        a tileset and manually adding the tileset to the server.
+        """
+
+        @functools.wraps(tileset_fn)
+        def wrapper(*args, **kwargs):
+            ts = tileset_fn(*args, **kwargs)
+            return self.add(ts)
+
+        return wrapper
+
     def add(
         self,
         tileset: LocalTileset,
         port: Optional[int] = None,
     ) -> TilesetResource:
+        """Add a tileset to the server.
+
+        Note: Only tilesets with new uids are added to the server. If the tileset
+              uid matches one already on the server, the existing tileset resource
+              is returned. Existing tilesets can only be cleared with `HgServer.reset()`.
+        """
         if self._provider is None:
             self._provider = TilesetProvider().start(port=port)
 

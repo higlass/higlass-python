@@ -1,5 +1,3 @@
-import functools
-
 try:
     from ._version import version as __version__
 except ImportError:
@@ -13,16 +11,6 @@ from hg.fuse import fuse
 from hg.server import server
 from hg.tilesets import remote
 
-
-def register(tileset_fn):
-    @functools.wraps(tileset_fn)
-    def wrapper(*args, **kwargs):
-        ts = tileset_fn(*args, **kwargs)
-        return server.add(ts)
-
-    return wrapper
-
-
-bigwig = register(hg.tilesets.bigwig)
-multivec = register(hg.tilesets.multivec)
-cooler = register(hg.tilesets.cooler)
+bigwig = server.register(hg.tilesets.bigwig)
+multivec = server.register(hg.tilesets.multivec)
+cooler = server.register(hg.tilesets.cooler)

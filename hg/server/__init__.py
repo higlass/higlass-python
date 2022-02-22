@@ -1,5 +1,7 @@
 import functools
-from typing import Callable, Dict, Optional, ParamSpec
+from typing import Callable, Dict, Optional
+
+from typing_extensions import ParamSpec
 
 from hg.tilesets import LocalTileset
 

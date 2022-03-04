@@ -1,5 +1,4 @@
 -r requirements.txt
-wheel
 numpy
 ipython
 jupyter

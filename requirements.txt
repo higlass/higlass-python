@@ -1,10 +1,10 @@
 clodius
-cytoolz<0.11
+cytoolz
 flask
 flask-cors
 fusepy
 ipywidgets>=7.5
-matplotlib==3.5.1
+matplotlib
 pillow>=8.3.0
 multiprocess
 requests

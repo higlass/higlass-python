@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 import os.path as op
 import sys
 
@@ -13,6 +12,11 @@ def hg_cmap(cmap_name, resolution=256, reverse=False):
     cmap_name (string):
         The name of the color map.
     """
+    try:
+        import matplotlib.pyplot as plt
+    except ImportError:
+        raise ImportError("Matplotlib is required to translate colormaps.")
+
     cmap = plt.get_cmap(cmap_name)
 
     hg_cmap = []

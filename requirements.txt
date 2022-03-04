@@ -4,8 +4,6 @@ flask
 flask-cors
 fusepy
 ipywidgets>=7.5
-matplotlib
-pillow>=8.3.0
 multiprocess
 requests
 requests-unixsocket

@@ -1,5 +1,8 @@
 # higlass-schema
 
+[![PyPI](https://img.shields.io/pypi/v/higlass-schema.svg?color=green)](https://pypi.org/project/higlass-schema)
+[![License](https://img.shields.io/pypi/l/gosling.svg?color=green)](https://github.com/higlass/higlass-schema/raw/main/LICENSE)
+
 Pydantic models for HiGlass
 
 ```bash

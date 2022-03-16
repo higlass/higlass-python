@@ -4,12 +4,10 @@ on:
   push:
     branches:
       - main
-      - main
     tags:
       - "v*" # Push events to matching v*, i.e. v1.0, v20.15.10
   pull_request:
     branches:
-      - main
       - main
   workflow_dispatch:
 
@@ -54,7 +52,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -U setuptools setuptools_scm wheel twine build
+          pip install build twine
       - name: Build and publish
         env:
           TWINE_USERNAME: __token__

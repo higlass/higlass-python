@@ -78,9 +78,6 @@ Domain = Tuple[float, float]
 
 
 class OverlayOptions(BaseModel):
-    class Config:
-        extra = Extra.ignore
-
     extent: Optional[List[List[int]]] = None
     minWidth: Optional[float] = None
     fill: Optional[str] = None
@@ -384,7 +381,7 @@ EnumTrackType = Union[
 
 class EnumTrack(BaseTrack[EnumTrackType], Tileset):
     class Config:
-        extra = Extra.forbid
+        extra = Extra.ignore
 
     data: Optional[Data] = None
     chromInfoPath: Optional[str] = None
@@ -395,7 +392,7 @@ class EnumTrack(BaseTrack[EnumTrackType], Tileset):
 
 class HeatmapTrack(BaseTrack[Literal["heatmap"]], Tileset):
     class Config:
-        extra = Extra.forbid
+        extra = Extra.ignore
 
     data: Optional[Data] = None
     position: Optional[str] = None
@@ -404,7 +401,7 @@ class HeatmapTrack(BaseTrack[Literal["heatmap"]], Tileset):
 
 class IndependentViewportProjectionTrack(BaseTrack[ViewportProjectionTrackType]):
     class Config:
-        extra = Extra.forbid
+        extra = Extra.ignore
 
     fromViewUid: None = None
     projectionXDomain: Optional[Domain] = None
@@ -416,7 +413,7 @@ class IndependentViewportProjectionTrack(BaseTrack[ViewportProjectionTrackType])
 
 class CombinedTrack(BaseTrack[Literal["combined"]]):
     class Config:
-        extra = Extra.forbid
+        extra = Extra.ignore
 
     contents: List[Track]
     position: Optional[str] = None
@@ -443,11 +440,12 @@ TrackT = TypeVar("TrackT", bound=Track)
 
 TrackPosition = Literal["left", "right", "top", "bottom", "center", "whole", "gallery"]
 
+
 class Tracks(GenericModel, Generic[TrackT]):
     """Track layout within a View."""
 
     class Config:
-        extra = Extra.forbid
+        extra = Extra.ignore
 
     left: Optional[List[TrackT]] = None
     right: Optional[List[TrackT]] = None
@@ -462,14 +460,14 @@ class Tracks(GenericModel, Generic[TrackT]):
             if tlist is None:
                 continue
             for track in tlist:
-                yield pos, track # type: ignore
+                yield pos, track  # type: ignore
 
 
 class Layout(BaseModel):
     """Size and position of a View."""
 
     class Config:
-        extra = Extra.forbid
+        extra = Extra.ignore
 
     x: int = Field(default=0, description="The X Position")
     y: int = Field(default=0, description="The Y Position")
@@ -551,7 +549,6 @@ class Viewconf(GenericModel, Generic[ViewT]):
             # fields don't added
             for prop in ("views", "trackSourceServers"):
                 schema["properties"][prop]["minItems"] = 1
-
 
     editable: Optional[bool] = True
     viewEditable: Optional[bool] = True

@@ -31,6 +31,7 @@ def check(args: argparse.Namespace) -> None:
                 "❌ Invalid viewconf. Run [white]`hgschema check --verbose`[/white] for more details.",
                 style="yellow",
             )
+        sys.exit(1)
 
 
 def main():

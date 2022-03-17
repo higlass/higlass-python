@@ -5,6 +5,7 @@ __pycache__/
 
 .ipynb_checkpoints/
 demo/
+notebooks/mnt/
 
 hg/_version.py
 node_modules/

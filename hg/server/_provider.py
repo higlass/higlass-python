@@ -33,12 +33,15 @@ class TilesetResource:
                 raise ValueError("No default track for tileset")
             else:
                 type_ = _datatype_default_track[self.tileset.datatype]  # type: ignore
-        return track(
+        t = track(
             type_=type_,  # type: ignore
             server=self.server,
             tilesetUid=self.tileset.uid,
             **kwargs,
         )
+        if self.tileset.name:
+            t.opts(name=self.tileset.name, inplace=True)
+        return t
 
 
 def get_list(query: str, field: str) -> List[str]:

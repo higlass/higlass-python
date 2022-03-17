@@ -22,28 +22,34 @@ class LocalTileset:
     info: Callable[[], TilesetInfo]
     uid: str
     datatype: Optional[DataType] = None
+    name: Optional[str] = None
 
 
 @dataclass
 class RemoteTileset:
     uid: str
     server: str
+    name: Optional[str] = None
 
     def track(self, type_: TrackType, **kwargs):
-        return track(
+        t = track(
             type_=type_,
             server=self.server,
             tilesetUid=self.uid,
             **kwargs,
         )
+        if self.name:
+            t.opts(name=self.name, inplace=True)
+        return t
 
 
-def remote(uid: str, server: str = "https://higlass.io/api/v1"):
-    return RemoteTileset(uid, server)
+
+def remote(uid: str, server: str = "https://higlass.io/api/v1", **kwargs):
+    return RemoteTileset(uid, server, **kwargs)
 
 
 def hash_absolute_filepath_as_default_uid(fn: Callable[[str, str], LocalTileset]):
-    def wrapper(filepath: str, uid: str = None):
+    def wrapper(filepath: str, uid: Optional[str] = None):
         if uid is None:
             abspath = pathlib.Path(filepath).absolute()
             uid = hashlib.md5(str(abspath).encode()).hexdigest()

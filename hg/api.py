@@ -1,4 +1,5 @@
 from collections import defaultdict
+import functools
 from typing import ClassVar, Generic, List, Optional, Tuple, TypeVar, Union, overload
 
 import higlass_schema as hgs
@@ -96,25 +97,26 @@ class View(hgs.View[TrackT], _PropertiesMixin, Generic[TrackT]):
             view.initialYDomain = y
         return view
 
-    # TODO: better name? adjust_layout, resize
-    def move(
-        self,
-        x: Optional[int] = None,
-        y: Optional[int] = None,
-        width: Optional[int] = None,
-        height: Optional[int] = None,
-        inplace: bool = False,
-    ):
-        view = self if inplace else utils.copy_unique(self)
-        if x is not None:
-            view.layout.x = x
-        if y is not None:
-            view.layout.y = y
-        if width is not None:
-            view.layout.w = width
-        if height is not None:
-            view.layout.h = height
-        return view
+    def __or__(self, other: Union["View[TrackT]", "Viewconf[TrackT]"]):
+        return hconcat(self, other)
+
+    def __truediv__(self, other: Union["View[TrackT]", "Viewconf[TrackT]"]):
+        return vconcat(self, other)
+
+    def clone(self):
+        return utils.copy_unique(self)
+
+    def viewconf(self, **kwargs):
+        return Viewconf[TrackT](views=[self], **kwargs)
+
+    def display(self):
+        self.viewconf().display()
+
+    def _repr_mimebundle_(self, include=None, exclude=None):
+        return self.viewconf()._repr_mimebundle_(include, exclude)
+
+    def widget(self, **kwargs):
+        return self.viewconf().widget(**kwargs)
 
 
 ViewT = TypeVar("ViewT", bound=View)
@@ -211,6 +213,61 @@ class Viewconf(hgs.Viewconf[View[TrackT]], _PropertiesMixin, Generic[TrackT]):
                 conf.valueScaleLocks.locksByViewUid[vuid] = lock.uid
 
         return conf
+
+    def __or__(
+        self, other: Union[View[TrackT], "Viewconf[TrackT]"]
+    ) -> "Viewconf[TrackT]":
+        return hconcat(self, other)
+
+    def __truediv__(
+        self, other: Union[View[TrackT], "Viewconf[TrackT]"]
+    ) -> "Viewconf[TrackT]":
+        return vconcat(self, other)
+
+
+def concat(
+    method: Literal["horizontal", "vertical"],
+    a: Union[View[TrackT], Viewconf[TrackT]],
+    b: Union[View[TrackT], Viewconf[TrackT]],
+):
+    a = a.viewconf() if isinstance(a, View) else a
+    assert not a.views is None
+
+    b = b.viewconf() if isinstance(b, View) else b
+    assert not b.views is None
+
+    if method == "vertical":
+        mapper = lambda view: view.layout.y + view.layout.h
+        field = "y"
+    elif method == "horizontal":
+        mapper = lambda view: view.layout.x + view.layout.w
+        field = "x"
+    else:
+        raise ValueError("concat method must be 'vertical' or 'horizontal'.")
+
+    # gather views and adjust layout
+    views = [v.copy(deep=True) for v in b.views]
+    offset = 0 if a.views is None else max(map(mapper, a.views))
+    for view in views:
+        curr = getattr(view.layout, field)
+        setattr(view.layout, field, curr + offset)
+    a.views.extend(views)
+
+    # merge locks
+    for lockattr in ["zoomLocks", "valueScaleLocks", "locationLocks"]:
+        locks = getattr(b, lockattr)
+        if locks:
+            if getattr(a, lockattr) is None:
+                setattr(a, lockattr, locks.copy(deep=True))
+            else:
+                getattr(a, lockattr).locksByViewUid.update(locks.locksByViewUid)
+                getattr(a, lockattr).locksDict.update(locks.locksDict)
+    return a
+
+
+hconcat = functools.partial(concat, "horizontal")
+
+vconcat = functools.partial(concat, "vertical")
 
 
 ## Top-level functions to easily create tracks,
@@ -355,31 +412,6 @@ def project(
         raise ValueError("Not possible")
 
     return track(type_=track_type, fromViewUid=fromViewUid, **kwargs)
-
-
-def viewconf(
-    *_views: View[TrackT],
-    views: Optional[List[View[TrackT]]] = None,
-    trackSourceServers: Optional[List[str]] = None,
-    editable: bool = True,
-    exportViewUrl: str = "http://higlass.io/api/v1/viewconfs",
-    **kwargs,
-) -> Viewconf[TrackT]:
-    views = [] if views is None else [v.copy(deep=True) for v in views]
-
-    for view in _views:
-        views.append(view.copy(deep=True))
-
-    if trackSourceServers is None:
-        trackSourceServers = ["http://higlass.io/api/v1"]
-
-    return Viewconf[TrackT](
-        views=views,
-        editable=editable,
-        exportViewUrl=exportViewUrl,
-        trackSourceServers=trackSourceServers,
-        **kwargs,
-    )
 
 
 @overload

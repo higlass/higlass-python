@@ -1,5 +1,5 @@
-from collections import defaultdict
 import functools
+from collections import defaultdict
 from typing import ClassVar, Generic, List, Optional, Tuple, TypeVar, Union, overload
 
 import higlass_schema as hgs
@@ -117,6 +117,33 @@ class View(hgs.View[TrackT], _PropertiesMixin, Generic[TrackT]):
 
     def widget(self, **kwargs):
         return self.viewconf().widget(**kwargs)
+
+    def project(
+        self,
+        view: "View",
+        on: Literal["center", "top", "bottom", "left", "right"] = "center",
+        inplace: bool = False,
+        **kwargs,
+    ):
+        new_view = self if inplace else utils.copy_unique(self)
+
+        # projection track type from position
+        if on == "center":
+            track_type = "viewport-projection-center"
+        elif on == "top" or on == "bottom":
+            track_type = "viewport-projection-horizontal"
+        elif on == "left" or on == "right":
+            track_type = "viewport-projection-vertical"
+        else:
+            raise ValueError("Not possible")
+
+        if getattr(new_view.tracks, on) is None:
+            setattr(new_view.tracks, on, [])
+
+        trk = track(type_=track_type, fromViewUid=view.uid, **kwargs)
+        getattr(new_view.tracks, on).append(trk)
+
+        return new_view
 
 
 ViewT = TypeVar("ViewT", bound=View)
@@ -389,29 +416,6 @@ def divide(t1: T, t2: T, **kwargs) -> T:
     for key, val in kwargs.items():
         setattr(copy, key, val)
     return copy
-
-
-def project(
-    position: Literal["center", "top", "bottom", "left", "right"],
-    view: Optional[View] = None,
-    **kwargs,
-):
-    if view is None:
-        fromViewUid = None
-    else:
-        assert isinstance(view.uid, str)
-        fromViewUid = view.uid
-
-    if position == "center":
-        track_type = "viewport-projection-center"
-    elif position == "top" or position == "bottom":
-        track_type = "viewport-projection-horizontal"
-    elif position == "left" or position == "right":
-        track_type = "viewport-projection-vertical"
-    else:
-        raise ValueError("Not possible")
-
-    return track(type_=track_type, fromViewUid=fromViewUid, **kwargs)
 
 
 @overload

@@ -43,7 +43,6 @@ class RemoteTileset:
         return t
 
 
-
 def remote(uid: str, server: str = "https://higlass.io/api/v1", **kwargs):
     return RemoteTileset(uid, server, **kwargs)
 

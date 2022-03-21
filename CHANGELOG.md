@@ -1,3 +1,7 @@
+## [v0.4.8](https://github.com/higlass/higlass-python/compare/v0.4.8...v0.4.7)
+
+- Bumped higlass version
+
 ## [v0.4.7](https://github.com/higlass/higlass-python/compare/v0.4.7...v0.4.6)
 
 - Bumped pillow version

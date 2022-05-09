@@ -87,11 +87,22 @@ def create_tileset_route(tileset_resources: MutableMapping[str, LocalTileset]):
         data = {tid: tval for tid, tval in tiles}
         return starlette.responses.JSONResponse(data)
 
+    def chromsizes(request: starlette.requests.Request):
+        """Return chromsizes for given tileset id as TSV"""
+        uid = request.query_params.get('id')
+        tileset_resource = tileset_resources[uid]
+        info = tileset_resource.info()
+        assert "chromsizes" in info, "No chromsizes in tileset info"
+        return starlette.responses.PlainTextResponse(
+            "\n".join(f"{chrom}\t{size}" for chrom, size in info["chromsizes"])
+        )
+
     return starlette.routing.Mount(
-        "/api/v1",
+        path="/api/v1",
         routes=[
             starlette.routing.Route("/tileset_info/", endpoint=tileset_info),
             starlette.routing.Route("/tiles/", endpoint=tiles),
+            starlette.routing.Route("/chrom-sizes/", endpoint=chromsizes),
         ],
     )
 
@@ -130,7 +141,7 @@ class TilesetProvider(BackgroundServer):
 
         # https://github.com/yuvipanda/altair_data_server/blob/4d6ffcb19f864218c8d825ff2c95a1c8180585d0/altair_data_server/_altair_server.py#L73-L93
         if "JUPYTERHUB_SERVICE_PREFIX" in os.environ:
-            urlprefix = os.environ.get["JUPYTERHUB_SERVICE_PREFIX"]
+            urlprefix = os.environ["JUPYTERHUB_SERVICE_PREFIX"]
             return f"{urlprefix}/proxy/{self.port}"
 
         return f"http://localhost:{self.port}"

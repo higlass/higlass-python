@@ -91,7 +91,7 @@ class HgServer:
         yield "tilesets", self._tilesets
         try:
             port = self.port
-        except:
+        except RuntimeError:
             port = None
         yield "port", port
 

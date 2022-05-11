@@ -137,7 +137,7 @@ class TilesetProvider(BackgroundServer):
     def url(self) -> str:
 
         if self.proxy:
-            return "/proxy/{self.port}"
+            return f"/proxy/{self.port}"
 
         # https://github.com/yuvipanda/altair_data_server/blob/4d6ffcb19f864218c8d825ff2c95a1c8180585d0/altair_data_server/_altair_server.py#L73-L93
         if "JUPYTERHUB_SERVICE_PREFIX" in os.environ:

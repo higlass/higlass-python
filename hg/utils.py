@@ -1,9 +1,10 @@
 from typing import Dict, List, Optional, TypeVar, Union
+import uuid
 
 import higlass_schema as hgs
-import slugid
 from pydantic import BaseModel
 from typing_extensions import Literal
+
 
 T = TypeVar("T")
 ModelT = TypeVar("ModelT", bound=BaseModel)
@@ -49,7 +50,7 @@ _datatype_default_track = {
 
 
 def uid():
-    return str(slugid.nice())
+    return str(uuid.uuid4())
 
 
 def get_default_track_position(track_type: str) -> Optional[TrackPosition]:

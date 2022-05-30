@@ -99,6 +99,7 @@ Create the multivec and output file:
 .. code-block:: python
 
 	from clodius.multivec import create_multivec_multires
+    from higlass.tilesets import multivec
 
 	output_file = "/Users/pete/tmp/my_file.multires.hdf5"
 

@@ -14,3 +14,5 @@ from hg.tilesets import remote
 bigwig = server.register(hg.tilesets.bigwig)
 multivec = server.register(hg.tilesets.multivec)
 cooler = server.register(hg.tilesets.cooler)
+hitile = server.register(hg.tilesets.hitile)
+bed2ddb = server.register(hg.tilesets.bed2ddb)

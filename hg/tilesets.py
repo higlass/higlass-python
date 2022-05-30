@@ -106,3 +106,37 @@ def cooler(filepath: str, uid: str):
         info=functools.partial(tileset_info, filepath),
         uid=uid,
     )
+
+
+@hash_absolute_filepath_as_default_uid
+def hitile(filepath: str, uid: str):
+    try:
+        from clodius.tiles.hitile import tiles, tileset_info
+    except ImportError:
+        raise ImportError(
+            'You must have `clodius` installed to use "vector" data-server.'
+        )
+
+    return LocalTileset(
+        datatype="vector",
+        tiles=functools.partial(tiles, filepath),
+        info=functools.partial(tileset_info, filepath),
+        uid=uid,
+    )
+
+
+@hash_absolute_filepath_as_default_uid
+def bed2ddb(filepath: str, uid: str):
+    try:
+        from clodius.tiles.bed2ddb import tiles, tileset_info
+    except ImportError:
+        raise ImportError(
+            'You must have `clodius` installed to use "vector" data-server.'
+        )
+
+    return LocalTileset(
+        datatype="2d-rectangle-domains",
+        tiles=functools.partial(tiles, filepath),
+        info=functools.partial(tileset_info, filepath),
+        uid=uid,
+    )

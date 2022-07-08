@@ -9,65 +9,19 @@ HTML_TEMPLATE = jinja2.Template(
     """
 <!DOCTYPE html>
 <html>
-<head>
-  <link rel="stylesheet" href="{{ base_url }}/higlass@{{ higlass_version }}/dist/hglib.css">
-</head>
-<body>
-  <div id="{{ output_div }}"></div>
+  <head>
+    <link rel="stylesheet" href="https://esm.sh/higlass@{{ higlass_version }}/dist/hglib.css">
+  </head>
+  <body>
+    <div id="{{ output_div }}"></div>
+  </body>
   <script type="module">
-
-    async function loadScript(src) {
-        return new Promise(resolve => {
-            const script = document.createElement('script');
-            script.onload = resolve;
-            script.src = src;
-            script.async = false;
-            document.head.appendChild(script);
-        });
-    }
-
-    async function loadHiglass() {
-        // need to manually load higlass; disable requirejs
-
-        // https://github.com/DanielHreben/requirejs-toggle
-        window.__requirejsToggleBackup = {
-            define: window.define,
-            require: window.require,
-            requirejs: window.requirejs,
-        };
-
-        for (const field of Object.keys(window.__requirejsToggleBackup)) {
-            window[field] = undefined;
-        }
-
-        let sources = [{% for plugin_url in plugin_urls %}"{{ plugin_url }}",{% endfor %}];
-
-        if (!window.hglib){
-            sources = sources.concat([
-                "{{ base_url }}/react@{{ react_version }}/umd/react.production.min.js",
-                "{{ base_url }}/react-dom@{{ react_version }}/umd/react-dom.production.min.js",
-                "{{ base_url }}/pixi.js@{{ pixijs_version }}/dist/browser/pixi.min.js",
-                "{{ base_url }}/higlass@{{ higlass_version }}/dist/hglib.js",
-            ]);
-        }
-
-        for (const src of sources) await loadScript(src);
-
-        // restore requirejs after scripts have loaded
-        Object.assign(window, window.__requirejsToggleBackup);
-        delete window.__requirejsToggleBackup;
-
-        return window.hglib;
-    };
-
-    var el = document.getElementById('{{ output_div }}');
-    var spec = JSON.parse({{ spec }});
-
-    loadHiglass().then(hglib => {
-        hglib.viewer(el, spec);
-    })
-  </script>
-</body>
+    import hglib from "https://esm.sh/higlass@{{ higlass_version }}?deps=react@{{ react_version }},react-dom@{{ react_version }},pixi.js@{{ pixijs_version }}";
+    hglib.viewer(
+      document.getElementById('{{ output_div }}'),
+      JSON.parse({{ spec }}),
+    );
+    </script>
 </html>
 """
 )
@@ -78,8 +32,6 @@ def spec_to_html(
     higlass_version: str = "1.11",
     react_version: str = "17",
     pixijs_version: str = "6",
-    react_bootstrap_version: str = "0.32",
-    base_url: str = "https://unpkg.com",
     output_div: str = "vis",
     json_kwds: Optional[Dict[str, Any]] = None,
     plugin_urls: Optional[List[str]] = None,
@@ -92,8 +44,6 @@ def spec_to_html(
         higlass_version=higlass_version,
         react_version=react_version,
         pixijs_version=pixijs_version,
-        react_bootstrap_version=react_bootstrap_version,
-        base_url=base_url,
         output_div=output_div,
         plugin_urls=plugin_urls,
     )

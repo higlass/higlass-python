@@ -89,7 +89,7 @@ def create_tileset_route(tileset_resources: MutableMapping[str, LocalTileset]):
 
     def chromsizes(request: starlette.requests.Request):
         """Return chromsizes for given tileset id as TSV"""
-        uid = request.query_params.get('id')
+        uid = request.query_params.get("id")
         tileset_resource = tileset_resources[uid]
         info = tileset_resource.info()
         assert "chromsizes" in info, "No chromsizes in tileset info"

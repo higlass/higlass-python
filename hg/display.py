@@ -11,6 +11,11 @@ HTML_TEMPLATE = jinja2.Template(
 <html>
   <head>
     <link rel="stylesheet" href="https://esm.sh/higlass@{{ higlass_version }}/dist/hglib.css">
+    <script src="https://unpkg.com/requirejs-toggle"></script>
+    {% for plugin_url in plugin_urls %}
+    <script src="{{ plugin_url }}"></script>
+    {% endfor %}
+    <script src="https://unpkg.com/requirejs-toggle"></script>
   </head>
   <body>
     <div id="{{ output_div }}"></div>

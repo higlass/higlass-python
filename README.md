@@ -53,12 +53,13 @@ Install the package in _editable_ mode. The `.[dev]` ensures that you also insta
 pip install -e ".[dev]"
 ```
 
-Our CI checks formatting, linting, and tests. You can run each of these locally with `
+Our CI checks formatting (`black .`), linting (`ruff .`), and tests (`pytest`).
 
-You can format the code with `black src/` and lint with `ruff src/`. Tests are executed with `pytest`
+## Editing the docs
 
-# editing the docs
+To work on the docs, start the autoserver and edit the rst files in the `docs` directory:
 
-
-
-
+```bash
+cd docs
+./serve.sh
+```

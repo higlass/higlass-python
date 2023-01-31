@@ -1,0 +1,45 @@
+[build-system]
+requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "higlass-python"
+description = "Python bindings for HiGlass"
+authors = [
+    { name = "Fritz Lekschas", email = "code@lekschas.de" },
+    { name = "Peter Kerpdjiev", email = "pkerpedjiev@gmail.com" },
+    { name = "Trevor Manz", email = "trevor.j.manz@gmail.com" },
+    { name = "Nezar Abdennur", email = "nabdennur@gmail.com" },
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Operating System :: OS Independent",
+]
+license = { text = "MIT" }
+dynamic = ["version"]
+readme = "README.md"
+dependencies = [
+    "higlass-schema",
+    "higlass-widget",
+    "jinja2",
+    "portpicker",
+    "uvicorn",
+    "starlette",
+    "jupyter-server-proxy",
+]
+urls = { homepage = "https://github.com/higlass/higlass-python" }
+
+[project.optional-dependencies]
+test = [
+    "black",
+    "pytest"
+]
+
+[tool.setuptools_scm]

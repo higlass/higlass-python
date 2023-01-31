@@ -1,4 +1,4 @@
-# hg 🔎
+# higlass-python v2 🔎
 
 a fresh python library for [`higlass`](https://github.com/higlass/higlass) built 
 on top of [`higlass-schema`](https://github.com/higlass/higlass-schema) and
@@ -18,7 +18,7 @@ jupyter notebook notebooks/Examples.ipynb
 ## usage
 
 ```python
-import hg
+import higlass as hg
 
 # Remote data source (tileset)
 tileset1 = hg.remote(

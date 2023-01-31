@@ -1,7 +1,9 @@
+from importlib.metadata import version, PackageNotFoundError
+
 try:
-    from ._version import version as __version__
-except ImportError:
-    __version__ = "unknown"
+    __version__ = version("higlass-python")
+except PackageNotFoundError:
+    __version__ = "uninstalled"
 
 from higlass_schema import *
 

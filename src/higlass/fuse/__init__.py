@@ -7,6 +7,11 @@ from urllib.parse import urlparse
 
 logger = logging.getLogger("hg.fuse")
 
+__all__ = [
+    "fuse",
+    "FuseProcess",
+]
+
 
 class FuseProcess:
     _mnt_name = "schemas"

@@ -39,7 +39,14 @@ urls = { homepage = "https://github.com/higlass/higlass-python" }
 [project.optional-dependencies]
 test = [
     "black",
-    "pytest"
+    "pytest",
+    "ruff==0.0.238"
 ]
 
 [tool.setuptools_scm]
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = [
+    "F403", # unused-star-used
+    "F401", # unused import
+]

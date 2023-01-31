@@ -1,6 +1,16 @@
 import functools
 from collections import defaultdict
-from typing import ClassVar, Generic, List, Optional, Tuple, TypeVar, Union, overload
+from typing import (
+    TYPE_CHECKING,
+    ClassVar,
+    Generic,
+    List,
+    Optional,
+    Tuple,
+    TypeVar,
+    Union,
+    overload,
+)
 
 import higlass_schema as hgs
 from pydantic import BaseModel
@@ -8,6 +18,29 @@ from typing_extensions import Literal
 
 import higlass.display as display
 import higlass.utils as utils
+
+__all__ = [
+    "EnumTrack",
+    "HeatmapTrack",
+    "IndependentViewportProjectionTrack",
+    "CombinedTrack",
+    "PluginTrack",
+    "TrackT",
+    "View",
+    "ViewT",
+    "Viewconf",
+    "concat",
+    "hconcat",
+    "vconcat",
+    "track",
+    "view",
+    "combine",
+    "divide",
+    "lock",
+]
+
+if TYPE_CHECKING:
+    from higlass.server import TilesetResource
 
 ## Mixins
 
@@ -18,7 +51,9 @@ import higlass.utils as utils
 
 
 class _PropertiesMixin:
-    def properties(self: utils.ModelT, inplace: bool = False, **fields) -> utils.ModelT:  # type: ignore
+    def properties(
+        self: utils.ModelT, inplace: bool = False, **fields  # type: ignore
+    ) -> utils.ModelT:  # type: ignore
         model = self if inplace else utils.copy_unique(self)
         for k, v in fields.items():
             setattr(model, k, v)
@@ -26,7 +61,11 @@ class _PropertiesMixin:
 
 
 class _OptionsMixin:
-    def opts(self: "TrackT", inplace: bool = False, **options) -> "TrackT":  # type: ignore
+    def opts(
+        self: "TrackT",  # type: ignore
+        inplace: bool = False,
+        **options,
+    ) -> "TrackT":  # type: ignore
 
         track = self if inplace else utils.copy_unique(self)
         if track.options is None:
@@ -36,7 +75,11 @@ class _OptionsMixin:
 
 
 class _TilesetMixin:
-    def tileset(self: "TrackT", tileset: "TilesetResource", inplace: bool = False) -> "TrackT":  # type: ignore
+    def tileset(
+        self: "TrackT",  # type: ignore
+        tileset: "TilesetResource",
+        inplace: bool = False,
+    ) -> "TrackT":  # type: ignore
 
         track = self if inplace else utils.copy_unique(self)
         track.server = tileset.server
@@ -258,16 +301,18 @@ def concat(
     b: Union[View[TrackT], Viewconf[TrackT]],
 ):
     a = a.viewconf() if isinstance(a, View) else a
-    assert not a.views is None
+    assert a.views is not None
 
     b = b.viewconf() if isinstance(b, View) else b
-    assert not b.views is None
+    assert b.views is not None
 
     if method == "vertical":
-        mapper = lambda view: view.layout.y + view.layout.h
+        def mapper(view):
+            return view.layout.y + view.layout.h
         field = "y"
     elif method == "horizontal":
-        mapper = lambda view: view.layout.x + view.layout.w
+        def mapper(view):
+            return view.layout.x + view.layout.w
         field = "x"
     else:
         raise ValueError("concat method must be 'vertical' or 'horizontal'.")

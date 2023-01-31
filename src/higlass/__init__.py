@@ -1,4 +1,4 @@
-from importlib.metadata import version, PackageNotFoundError
+from importlib.metadata import PackageNotFoundError, version
 
 try:
     __version__ = version("higlass-python")
@@ -8,7 +8,7 @@ except PackageNotFoundError:
 from higlass_schema import *
 
 import higlass.tilesets
-from higlass.api import *  # overrides classes with same name from higlass_schema
+from higlass.api import *
 from higlass.fuse import fuse
 from higlass.server import server
 from higlass.tilesets import remote

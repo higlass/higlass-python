@@ -74,7 +74,8 @@ class HgServer:
 
         Note: Only tilesets with new uids are added to the server. If the tileset
               uid matches one already on the server, the existing tileset resource
-              is returned. Existing tilesets can only be cleared with `HgServer.reset()`.
+              is returned. Existing tilesets can only be cleared with 
+              `HgServer.reset()`.
         """
         if self._provider is None:
             self._provider = TilesetProvider().start(port=port)

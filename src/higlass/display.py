@@ -28,7 +28,7 @@ HTML_TEMPLATE = jinja2.Template(
     );
     </script>
 </html>
-""" # noqa
+"""  # noqa
 )
 
 

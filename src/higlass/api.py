@@ -307,12 +307,16 @@ def concat(
     assert b.views is not None
 
     if method == "vertical":
+
         def mapper(view):
             return view.layout.y + view.layout.h
+
         field = "y"
     elif method == "horizontal":
+
         def mapper(view):
             return view.layout.x + view.layout.w
+
         field = "x"
     else:
         raise ValueError("concat method must be 'vertical' or 'horizontal'.")

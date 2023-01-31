@@ -6,8 +6,8 @@ import higlass_schema as hgs
 from pydantic import BaseModel
 from typing_extensions import Literal
 
-import hg.display as display
-import hg.utils as utils
+import higlass.display as display
+import higlass.utils as utils
 
 ## Mixins
 

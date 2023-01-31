@@ -10,9 +10,9 @@ import starlette.requests
 import starlette.responses
 import starlette.routing
 
-from hg.api import track
-from hg.tilesets import LocalTileset
-from hg.utils import TrackType, _datatype_default_track
+from higlass.api import track
+from higlass.tilesets import LocalTileset
+from higlass.utils import TrackType, _datatype_default_track
 
 from ._background_server import BackgroundServer
 

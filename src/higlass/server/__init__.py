@@ -3,7 +3,7 @@ from typing import Callable, Dict, Optional
 
 from typing_extensions import ParamSpec
 
-from hg.tilesets import LocalTileset
+from higlass.tilesets import LocalTileset
 
 from ._provider import TilesetProvider, TilesetResource
 

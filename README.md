@@ -4,18 +4,10 @@ a fresh python library for [`higlass`](https://github.com/higlass/higlass) built
 on top of [`higlass-schema`](https://github.com/higlass/higlass-schema) and
 [`higlass-widget`](https://github.com/higlass/higlass-widget).
 
-[![License](https://img.shields.io/pypi/l/gosling.svg?color=green)](https://github.com/manzt/hg/raw/main/LICENSE)
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/manzt/hg/blob/main/notebooks/Examples.ipynb)
+[![License](https://img.shields.io/pypi/l/higlass-python.svg?color=green)](https://github.com/higlass/higlass-python/raw/master/LICENSE)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/higlass/higlass-python/blob/main/notebooks/Examples.ipynb)
 
-
-## development
-
-```bash
-pip install -e .
-jupyter notebook notebooks/Examples.ipynb
-```
-
-## usage
+## Usage
 
 ```python
 import higlass as hg
@@ -46,4 +38,27 @@ view_lock = hg.lock(view1, view2)
 ```
 
 ![Side-by-side Hi-C heatmaps, linked by pan and zoom](https://user-images.githubusercontent.com/24403730/159050305-e6a48f03-fba1-4ff7-8eee-2e9c5c40ef88.gif)
+
+## Development
+
+Create a virtual environment with Jupyter installed.
+
+```bash
+conda create -n higlass python=3.11 jupyterlab
+```
+
+Install the package in _editable_ mode. The `.[dev]` ensures that you also install linting/testing tools.
+
+```bash
+pip install -e ".[dev]"
+```
+
+Our CI checks formatting, linting, and tests. You can run each of these locally with `
+
+You can format the code with `black src/` and lint with `ruff src/`. Tests are executed with `pytest`
+
+# editing the docs
+
+
+
 

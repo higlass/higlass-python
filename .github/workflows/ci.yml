@@ -32,11 +32,11 @@ jobs:
 
     - name: Formatting with Black
       run: |
-        black src --check
+        black . --check
 
     - name: Lint with Ruff
       run: |
-        ruff src
+        ruff .
 
     - name: Test with pytest
       run: |

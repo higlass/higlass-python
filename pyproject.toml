@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
 
 [project]
 name = "higlass-python"
@@ -40,7 +40,34 @@ urls = { homepage = "https://github.com/higlass/higlass-python" }
 dev = [
     "black[jupyter]",
     "pytest",
-    "ruff==0.0.238"
+    "ruff==0.0.238",
+]
+
+[tool.hatch.build]
+sources = ["src"]
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.envs.default]
+features = ["dev"]
+
+[tool.hatch.envs.default.scripts]
+fmt = "black ."
+lint = "ruff ."
+test = "pytest ."
+
+[[tool.hatch.envs.test.matrix]]
+python = ["38", "39", "310", "311"]
+
+
+[tool.ruff]
+extend-select = [
+    "F",  # pyflakes
+    "E",  # style errors
+    # "D",  # pydocstyle
+    "I",  # isort
+    # "UP", # pyupgrade
 ]
 
 [tool.ruff.per-file-ignores]
@@ -48,5 +75,3 @@ dev = [
     "F403", # unused-star-used
     "F401", # unused import
 ]
-
-[tool.setuptools_scm]

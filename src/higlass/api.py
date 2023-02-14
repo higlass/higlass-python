@@ -408,6 +408,26 @@ def track(
     uid: str | None = None,
     **kwargs,
 ) -> Track:
+    """Create a HiGlass track
+
+    Parameters
+    ----------
+
+    type_ : str
+        The track type to create
+
+    uid: str, optional
+        A unique id for the track. If unspecified (default), a unique id is given
+        internally.
+
+    **kwargs: dict
+        Other top-level track properties.
+
+    Returns
+    -------
+
+    track :  An instance of an hg.Track
+    """
     if uid is None:
         uid = utils.uid()
     data = dict(type=type_, uid=uid, **kwargs)
@@ -425,6 +445,48 @@ def view(
     uid: str | None = None,
     **kwargs,
 ) -> View[TrackT]:
+    """Create a HiGlass view from multiple tracks.
+
+    Parameters
+    ----------
+
+    *_tracks : Track | tuple[Track, str] | hgs.Tracks[Track]
+        The tracks to include in the view. Can be 1) separate track objects
+        (position inferred), 2) explicit (Track, position) tuples, or 3.) a
+        `higlass_schema.Tracks` Object specifying all tracks and positions.
+
+    x : int, optional
+        The x position of the view in the HiGlass grid (default: 0). Used to
+        created a Layout if none is provided.
+
+    y : int, optional
+        The y position of the view in the HiGlass grid (default: 0). Used to
+        created a Layout if none is provided.
+
+    width : int, optional
+        The width of the view (default: 12). Used to created a Layout if none is
+        provided.
+
+    height : int, optional
+        The height of the view (default: 6). Used to created a Layout if none is
+        provided.
+
+    layout : hgs.Layout, optional
+        An explicit layout for the view (default: None). If provided the `x`, `y`,
+        `width`, and `height` parameters are ignored.
+
+    uid: str, optional
+        A unique id for the view. If unspecified (default), a unique id is automatically
+        generated internally.
+
+    **kwargs: dict
+        Other top-level view properties.
+
+    Returns
+    -------
+
+    view :  An instance of an hg.View
+    """
     if layout is None:
         layout = hgs.Layout(x=x, y=y, w=width, h=height)
     else:

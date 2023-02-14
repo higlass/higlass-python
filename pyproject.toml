@@ -62,12 +62,14 @@ python = ["38", "39", "310", "311"]
 
 
 [tool.ruff]
+line-length = 88
+target-version = "py37"
 extend-select = [
     "F",  # pyflakes
     "E",  # style errors
     # "D",  # pydocstyle
     "I",  # isort
-    # "UP", # pyupgrade
+    "UP", # pyupgrade
 ]
 
 [tool.ruff.per-file-ignores]

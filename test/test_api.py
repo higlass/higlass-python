@@ -174,3 +174,20 @@ def test_value_scale_lock():
         assert uid == f"{view.uid}.{track.uid}"
         assert v["track"] == track.uid
         assert v["view"] == view.uid
+
+def test_properties_mixin():
+
+    track = hg.track("heatmap")
+    other = track.properties(
+        height=500,
+    )
+    assert track.uid != other.uid
+    assert track.height is None
+    assert other.height == 500
+
+    other = track.properties(width=400, inplace=True)
+    assert track is other
+    assert other.uid == track.uid
+    assert other.width == 400
+
+

@@ -51,7 +51,6 @@ class BackgroundServer:
         daemon: bool = True,
         log_level: str = "warning",
     ):
-
         if self._server_thread is not None:
             return self
 

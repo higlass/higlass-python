@@ -56,7 +56,6 @@ class FuseProcess:
 
         max_iters = 10
         for i in range(max_iters):
-
             # wait until http is mounted
             if (mount_point / "http").exists():
                 break

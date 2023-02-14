@@ -135,7 +135,6 @@ class TilesetProvider(BackgroundServer):
 
     @property
     def url(self) -> str:
-
         if self.proxy:
             return f"/proxy/{self.port}"
 

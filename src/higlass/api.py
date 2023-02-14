@@ -425,7 +425,6 @@ def view(
     uid: str | None = None,
     **kwargs,
 ) -> View[TrackT]:
-
     if layout is None:
         layout = hgs.Layout(x=x, y=y, w=width, h=height)
     else:

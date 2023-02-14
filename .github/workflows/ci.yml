@@ -10,8 +10,25 @@ on:
     branches: master
 
 jobs:
-  Test:
+  Lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
 
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.x"
+
+    - name: Formatting with Black
+      run: |
+        black . --check
+
+    - name: Linting with Ruff
+      run: |
+        ruff .
+
+  Test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -30,20 +47,12 @@ jobs:
         python -m pip install --upgrade pip
         pip install -e .[dev]
 
-    - name: Formatting with Black
-      run: |
-        black . --check
-
-    - name: Lint with Ruff
-      run: |
-        ruff .
-
     - name: Test with pytest
       run: |
         pytest
 
   Release:
-    needs: [Test]
+    needs: [Lint, Test]
     runs-on: ubuntu-latest
     if: contains(github.ref, 'tags')
     steps:

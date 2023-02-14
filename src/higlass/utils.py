@@ -60,7 +60,7 @@ def ensure_list(x: Union[None, T, List[T]]) -> List[T]:
 
 
 def copy_unique(model: ModelT) -> ModelT:
-    """Creates a deep copy of a pydantic BaseModel with new UID"""
+    """Creates a deep copy of a pydantic BaseModel with new UID."""
     copy = model.__class__(**model.dict())
     if hasattr(copy, "uid"):
         setattr(copy, "uid", uid())

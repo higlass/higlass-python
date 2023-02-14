@@ -49,7 +49,7 @@ def get_list(query: str, field: str) -> List[str]:
     >>> get_list("d=id1&d=id2&d=id3", "d")
     ['id1', 'id2', 'id3']
     >>> get_list("d=1&e=2&d=3", "d")
-    ['1', '3']
+    ['1', '3'].
     """
     kv_tuples = [x.split("=") for x in query.split("&")]
     return [v for k, v in kv_tuples if k == field]
@@ -88,7 +88,7 @@ def create_tileset_route(tileset_resources: MutableMapping[str, LocalTileset]):
         return starlette.responses.JSONResponse(data)
 
     def chromsizes(request: starlette.requests.Request):
-        """Return chromsizes for given tileset id as TSV"""
+        """Return chromsizes for given tileset id as TSV."""
         uid = request.query_params.get("id")
         tileset_resource = tileset_resources[uid]
         info = tileset_resource.info()

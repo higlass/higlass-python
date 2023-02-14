@@ -52,9 +52,35 @@ if TYPE_CHECKING:
 
 class _PropertiesMixin:
     def properties(
-        self: utils.ModelT, inplace: bool = False, **fields  # type: ignore
+        self: utils.ModelT,  # type: ignore
+        inplace: bool = False,
+        **fields,  # type: ignore
     ) -> utils.ModelT:  # type: ignore
-        """Configures top-level properties."""
+        """Configures top-level properties.
+
+        Updates top-level properties for a Track, View, or Viewconf. This
+        is really a convenience to allow method chaining/derived objects
+        to be created without multiple lines of mutating the classes. For
+        example,
+
+        >>> view = hg.view(hg.track("heatmap"))
+        >>> updated_view = view.properties(zoomFixed=True)
+        >>> assert view.uid != updated_view.uid
+        >>> assert view.zoomFixed is None
+        >>> assert updated_view.zoomFixed is True
+
+        inplace : bool, optional
+            Whether to modify the existing track in place or return
+            a new track with the options applied (default: `False`).
+
+        **fields : dict
+            The updated properties for .
+
+        Returns
+        -------
+        track : A track with the the newly specified track options.
+
+        """
         model = self if inplace else utils.copy_unique(self)
         for k, v in fields.items():
             setattr(model, k, v)
@@ -67,8 +93,31 @@ class _OptionsMixin:
         inplace: bool = False,
         **options,
     ) -> "TrackT":  # type: ignore
-        """Configures options for a Track."""
+        """Configures options for a Track.
 
+        A convenience method to update `track.options`.
+
+        Parameters
+        ----------
+        inplace : bool, optional
+            Whether to modify the existing track in place or return
+            a new track with the options applied (default: `False`).
+
+        **options : dict
+            Options to pass down to the underlying track object.
+
+        Returns
+        -------
+        track : A track with the the newly specified track options.
+
+        Examples
+        --------
+        >>> track = hg.track("heatmap")
+        >>> derived = track.opts(colorRange=["rgba(255,255,255,1)", "rgba(0,0,0,1)"])
+        >>> assert track.options is None
+        >>> assert isinstance(derived.options["colorRange"], list)
+
+        """
         track = self if inplace else utils.copy_unique(self)
         if track.options is None:
             track.options = {}
@@ -82,8 +131,24 @@ class _TilesetMixin:
         tileset: "TilesetResource",
         inplace: bool = False,
     ) -> "TrackT":  # type: ignore
-        """Binds a tileset to a Track."""
+        """Binds a tileset to a Track.
 
+        A convenience method to update a track with a tileset.
+
+        Parameters
+        ----------
+        tileset : TilesetResource
+            A tileset resource returned from `hg.server`.
+
+        inplace : bool, optional
+            Whether to modify the existing track in place or return
+            a new track (default: `False`)
+
+        Returns
+        -------
+        track : A track with the bound tileset.
+
+        """
         track = self if inplace else utils.copy_unique(self)
         track.server = tileset.server
         track.tilesetUid = tileset.tileset.uid
@@ -94,10 +159,14 @@ class _TilesetMixin:
 
 
 class EnumTrack(hgs.EnumTrack, _OptionsMixin, _PropertiesMixin, _TilesetMixin):
+    """Represents a generic track."""
+
     ...
 
 
 class HeatmapTrack(hgs.HeatmapTrack, _OptionsMixin, _PropertiesMixin, _TilesetMixin):
+    """Represets a specialized heatmap track."""
+
     ...
 
 
@@ -107,14 +176,20 @@ class IndependentViewportProjectionTrack(
     _PropertiesMixin,
     _TilesetMixin,
 ):
+    """Represents a view-independent viewport projection track."""
+
     ...
 
 
 class CombinedTrack(hgs.CombinedTrack, _OptionsMixin, _PropertiesMixin, _TilesetMixin):
+    """Represents a track combining multiple tracks."""
+
     ...
 
 
 class PluginTrack(hgs.BaseTrack, _OptionsMixin, _PropertiesMixin, _TilesetMixin):
+    """Represents an unknown plugin track."""
+
     plugin_url: ClassVar[str]
 
 
@@ -130,7 +205,7 @@ TrackT = TypeVar("TrackT", bound=Track)
 
 
 class View(hgs.View[TrackT], _PropertiesMixin, Generic[TrackT]):
-    """A HiGlass View"""
+    """Represets a HiGlass View that is generic over the inner tracks."""
 
     def domain(
         self,
@@ -138,7 +213,26 @@ class View(hgs.View[TrackT], _PropertiesMixin, Generic[TrackT]):
         y: hgs.Domain | None = None,
         inplace: bool = False,
     ):
-        """Configures the X & Y domain for a HiGlass View"""
+        """Configures the view x and/or y domain(s).
+
+        Parameters
+        ----------
+        x : tuple[float, float], optional
+            The x domain for the view (default: `None`)
+
+        y : tuple[float, float], optional
+            The y domain for the view (default: `None`)
+
+        inplace : bool, optional
+            Whether to modify this view inplace. If `False` (default),
+            a new view is created and returned with the domains
+            applied (default: `False`)
+
+        Returns
+        -------
+        view : a View with the updated x & y domains
+
+        """
         view = self if inplace else utils.copy_unique(self)
         if x is not None:
             view.initialXDomain = x
@@ -147,33 +241,74 @@ class View(hgs.View[TrackT], _PropertiesMixin, Generic[TrackT]):
         return view
 
     def __or__(self, other: "View[TrackT]" | "Viewconf[TrackT]"):
-        """Horizontally concatenate two Views."""
+        """Horizontally concatenate with another view or viewconf.
+
+        A convenience method for `hg.hconcat`.
+
+        Parameters
+        ----------
+        other : View | Viewconf
+            The other view or viewconf to combine with.
+
+        Returns
+        -------
+        viewconf : A combined Viewconf
+
+        """
         return hconcat(self, other)
 
     def __truediv__(self, other: "View[TrackT]" | "Viewconf[TrackT]"):
-        """Verticall stack two Views."""
+        """Vertically concatenate two Views.
+
+        A convenience method for `hg.vconcat`.
+
+        Parameters
+        ----------
+        other : View | Viewconf
+            The other view or viewconf to combine with.
+
+        Returns
+        -------
+        viewconf : A combined Viewconf
+
+        """
         return vconcat(self, other)
 
     def clone(self):
         """Clone the the View instance.
 
-        Inserts a unique uuid so the cloned View is unique in the front end.
+        Inserts a unique uuid so the view can be uniquely identified in the front end.
+
+        Returns
+        -------
+        view : A copy of the original view with a new uuid
+
         """
         return utils.copy_unique(self)
 
     def viewconf(self, **kwargs):
-        """Consumes the current View into a top-level HiGlass view config."""
+        """Consumes the current View into a top-level view config.
+
+        Returns
+        -------
+        viewconf : A top-level HiGlass Viewconf.
+
+        """
         return Viewconf[TrackT](views=[self], **kwargs)
 
-    def display(self):
-        """Displays the view with HiGlass front end."""
-        self.viewconf().display()
-
     def _repr_mimebundle_(self, include=None, exclude=None):
+        """ "Displays the view in an IPython environment."""
         return self.viewconf()._repr_mimebundle_(include, exclude)
 
     def widget(self, **kwargs):
-        """Displays the view as a Jupyter Widget."""
+        """Create a Jupyter Widget display for this view.
+
+        Casts the view into a top-level view config which can be displayed.
+
+        Returns
+        -------
+        widget : A HiGlassWidget instance
+        """
         return self.viewconf().widget(**kwargs)
 
     def project(
@@ -190,7 +325,6 @@ class View(hgs.View[TrackT], _PropertiesMixin, Generic[TrackT]):
 
         Parameters
         ----------
-
         view : View
             The view with the desired viewport to project.
 
@@ -206,7 +340,6 @@ class View(hgs.View[TrackT], _PropertiesMixin, Generic[TrackT]):
 
         Returns
         -------
-
         view : A view with a new viewport-projection track.
         """
         new_view = self if inplace else utils.copy_unique(self)
@@ -244,31 +377,42 @@ def gather_plugin_urls(views: list[ViewT]) -> list[str]:
 
 
 class Viewconf(hgs.Viewconf[View[TrackT]], _PropertiesMixin, Generic[TrackT]):
-    """Represents a complete HiGlass visualization."""
+    """Represents a top-level viewconfig, or a complete HiGlass visualization."""
 
     def _repr_mimebundle_(self, include=None, exclude=None):
+        """ "Displays the view config in an IPython environment."""
         renderer = display.renderers.get()
         plugin_urls = [] if self.views is None else gather_plugin_urls(self.views)
         return renderer(self.json(), plugin_urls=plugin_urls)
 
-    def display(self):
-        """Render top-level chart using IPython.display."""
-        from IPython.display import display
-
-        display(self)
-
-    def widget(self, **kwargs):
-        """Returns a Jupyter Widget for this view config."""
+    def widget(self):
+        """Create a Jupyter Widget display for this view config."""
         from higlass_widget import HiGlassWidget
 
-        return HiGlassWidget(self.dict())  # type: ignore
+        return HiGlassWidget(self.dict())
 
     @classmethod
-    def from_url(cls, url: str):
-        """Loads a view config via URL."""
+    def from_url(cls, url: str, **kwargs):
+        """Load a viewconf via URL and construct a Viewconf.
+
+        Makes an HTTP request.
+
+        Parameters
+        ----------
+        url : str
+            The URL for a JSON HiGlass view config.
+
+        **kwargs : dict
+            Options for the `urllib.Request` instance.
+
+        Returns
+        -------
+        viewconf : The parsed view config
+
+        """
         import urllib.request as urllib
 
-        request = urllib.Request(url)
+        request = urllib.Request(url, **kwargs)
         with urllib.urlopen(request) as response:
             raw = response.read()
 
@@ -284,10 +428,47 @@ class Viewconf(hgs.Viewconf[View[TrackT]], _PropertiesMixin, Generic[TrackT]):
     ):
         """Specify view locks.
 
-        Parameters:
-        -----------
+        Parameters
+        ----------
 
-        locks,
+        *locks : hgs.Lock | hgs.ValueScaleLock, optional
+            A set of either zoom/location or value scale locks to add. Instances
+            of `hgs.Lock` will synchronize _both_ zoom and location for the views
+            included in the lock. If you'd like to synchronize just zoom or location,
+            use the explicit keyword arguments below.
+
+        zoom : hgs.Lock | list[hgs.Lock], optional
+            A lock or set of locks to synchronize only the zoom.
+
+        location : hgs.Lock | list[hgs.Lock], optional
+            A lock or set of locks to synchronize only the location.
+
+        value_scale : hgs.ValueScaleLock | list[hgs.ValueScaleLock], optional
+            A single or set of value-scale locks.
+
+        inplace : bool, optional
+            Whether to modify the viewconf in place or return a new viewconf
+            with the locks applied (default: `False`)
+
+        Returns
+        -------
+
+        viewconf : A Viewconf with the synchronized views.
+
+
+        Examples
+        --------
+
+        >>> view1 = hg.view(hg.track("heatmap"))
+        >>> view2 = hg.view(hg.track("heatmap"))
+        >>> # create an abstract lock for two views
+        >>> view_lock = hg.lock(view1, view2)
+        >>> # lock location & zoom
+        >>> (view1 | view2).lock(view_lock)
+        >>> # lock only zoom
+        >>> (view1 | view2).lock(zoom=view_lock)
+        >>> # lock only location
+        >>> (view1 | view2).lock(location=view_lock)
 
         """
         conf = self if inplace else utils.copy_unique(self)
@@ -336,11 +517,37 @@ class Viewconf(hgs.Viewconf[View[TrackT]], _PropertiesMixin, Generic[TrackT]):
         return conf
 
     def __or__(self, other: View[TrackT] | Viewconf[TrackT]) -> Viewconf[TrackT]:
-        """Horizontally concatenate with another view config or View."""
+        """Horizontally concatenate with another view or viewconf.
+
+        A convenience method for `hg.hconcat`.
+
+        Parameters
+        ----------
+        other : View | Viewconf
+            The other view or viewconf to combine with.
+
+        Returns
+        -------
+        viewconf : A combined Viewconf
+
+        """
         return hconcat(self, other)
 
     def __truediv__(self, other: View[TrackT] | Viewconf[TrackT]) -> Viewconf[TrackT]:
-        """Verticallt concatenate with another view config or View."""
+        """Vertically concatenate with another view or viewconf.
+
+        A convenience method for `hg.hconcat`.
+
+        Parameters
+        ----------
+        other : View | Viewconf
+            The other view or viewconf to combine with.
+
+        Returns
+        -------
+        viewconf : A combined Viewconf
+
+        """
         return vconcat(self, other)
 
 
@@ -360,7 +567,6 @@ def concat(
 
     Parameters
     ----------
-
     method : Literal["horizontal", "vertical"]
         How to concatenate views/viewconfs.
 
@@ -372,7 +578,6 @@ def concat(
 
     Returns
     -------
-
     viewconf : A combined viewconf containing multiple views.
 
     """
@@ -435,9 +640,8 @@ class _TrackCreator(BaseModel):
     Used internally by `hg.track` to leverage pydantic's ability to get
     the appropriate base model by the track type.
 
-    Example
+    Example:
     -------
-
     >>> assert isinstance(_TrackCreator(type="heatmap").__root__, HeatmapTrack)
     """
 
@@ -453,7 +657,6 @@ def track(
 
     Parameters
     ----------
-
     type_ : str
         The track type to create
 
@@ -466,7 +669,6 @@ def track(
 
     Returns
     -------
-
     track :  An instance of an hg.Track
     """
     if uid is None:
@@ -490,7 +692,6 @@ def view(
 
     Parameters
     ----------
-
     *_tracks : Track | tuple[Track, str] | hgs.Tracks[Track]
         The tracks to include in the view. Can be 1) separate track objects
         (position inferred), 2) explicit (Track, position) tuples, or 3.) a
@@ -525,7 +726,6 @@ def view(
 
     Returns
     -------
-
     view :  An instance of an hg.View
     """
     if layout is None:

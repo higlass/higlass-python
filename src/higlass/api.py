@@ -8,6 +8,7 @@ from typing import (
     Generic,
     TypeVar,
     Union,
+    cast,
     overload,
 )
 
@@ -343,11 +344,38 @@ class Viewconf(hgs.Viewconf[View[TrackT]], _PropertiesMixin, Generic[TrackT]):
         return vconcat(self, other)
 
 
+TrackTA = TypeVar("TrackTA", bound=Track)
+TrackTB = TypeVar("TrackTB", bound=Track)
+
+
 def concat(
     method: Literal["horizontal", "vertical"],
-    a: View[TrackT] | Viewconf[TrackT],
-    b: View[TrackT] | Viewconf[TrackT],
-):
+    a: View[TrackTA] | Viewconf[TrackTA],
+    b: View[TrackTB] | Viewconf[TrackTB],
+) -> Viewconf[TrackTA | TrackTB]:
+    """Concatenate two views or separate viewconfs together.
+
+    Uses the layout of one view or the total bounds of all views in one
+    viewconf to offset the other view/viewconf.
+
+    Parameters
+    ----------
+
+    method : Literal["horizontal", "vertical"]
+        How to concatenate views/viewconfs.
+
+    a : View | Viewconf
+        A view or viewconf to combine.
+
+    b : View | Viewconf
+        The other view or viewconf to combine.
+
+    Returns
+    -------
+
+    viewconf : A combined viewconf containing multiple views.
+
+    """
     a = a.viewconf() if isinstance(a, View) else a
     assert a.views is not None
 
@@ -375,7 +403,8 @@ def concat(
     for view in views:
         curr = getattr(view.layout, field)
         setattr(view.layout, field, curr + offset)
-    a.views.extend(views)
+
+    a.views.extend(views)  # type: ignore
 
     # merge locks
     for lockattr in ["zoomLocks", "valueScaleLocks", "locationLocks"]:
@@ -386,7 +415,8 @@ def concat(
             else:
                 getattr(a, lockattr).locksByViewUid.update(locks.locksByViewUid)
                 getattr(a, lockattr).locksDict.update(locks.locksDict)
-    return a
+
+    return cast(Viewconf[Union[TrackTA, TrackTB]], a)
 
 
 hconcat = functools.partial(concat, "horizontal")
@@ -400,6 +430,17 @@ vconcat = functools.partial(concat, "vertical")
 
 
 class _TrackCreator(BaseModel):
+    """Create track instances from their track type.
+
+    Used internally by `hg.track` to leverage pydantic's ability to get
+    the appropriate base model by the track type.
+
+    Example
+    -------
+
+    >>> assert isinstance(_TrackCreator(type="heatmap").__root__, HeatmapTrack)
+    """
+
     __root__: Track
 
 
@@ -408,7 +449,7 @@ def track(
     uid: str | None = None,
     **kwargs,
 ) -> Track:
-    """Create a HiGlass track
+    """Create a HiGlass track.
 
     Parameters
     ----------

@@ -765,6 +765,29 @@ def view(
 
 
 def combine(t1: Track, t2: Track, uid: str | None = None, **kwargs) -> CombinedTrack:
+    """A utility to create a CombinedTrack from two other tracks.
+
+    Parameters
+    ----------
+
+    t1 : hg.Track
+        The first of two tracks to combine.
+
+    t2 : hg.Track
+        The second of two tracks to combine.
+
+    uid : str, optional
+        A unique id for the newly created CombinedTrack.
+
+    **kwargs : dict
+        Additional properties to pass to the CombinedTrack constructor.
+
+    Returns
+    -------
+
+    combined_track : An CombinedTrack with two children tracks.
+
+    """
     if uid is None:
         uid = utils.uid()
 
@@ -889,10 +912,29 @@ def lock(
 
 
 def lock(*data, uid: str | None = None, **kwargs):
-    """Create an abstract lock or value-scale lock. 
+    """Create an abstract lock or value-scale lock.
 
     Overloaded to either return a `hgs.Lock` or `hgs.ValueScaleLock` depending on
-    the arguments.
+    the arguments. See `Viewconf.locks` for how to use the created locks in
+    your top-level view config.
+
+    Examples
+    --------
+
+    Create an abstract lock linking two or more separate views.
+
+    >>> view1 = hg.view(hg.track("heatmap"))
+    >>> view2 = hg.view(hg.track("heatmap"))
+    >>> lock = hg.lock(view1, view2)
+
+    Create a value-scale lock, scaling two views by the values of a particular track.
+
+    >>> t1 = hg.track("heatmap")
+    >>> t2 = hg.track("heatmap")
+    >>> view1 = hg.view(t1, t2)
+    >>> view2 = hg.view(t1, t2)
+    >>> value_scale_lock = hg.lock((view1, t2), (view2, t2))
+
     """
     assert len(data) >= 1
     if uid is None:

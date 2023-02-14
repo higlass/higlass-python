@@ -787,6 +787,28 @@ T = TypeVar("T", bound=Union[EnumTrack, HeatmapTrack])
 
 
 def divide(t1: T, t2: T, **kwargs) -> T:
+    """A utility to create a divided track.
+
+    Tracks must the the same type.
+
+    Parameters
+    ----------
+
+    t1 : hg.EnumTrack | hg.HeatmapTrack
+        The first track to divide by the other.
+
+    t2 : hg.EnumTrack | hg.HeatmapTrack
+        The other track.
+
+    **kwargs : dict
+        Additional properties to pass to the newly created track.
+
+    Returns
+    -------
+
+    divided_track : An identical track with "divided" data sources.
+
+    """
     assert t1.type == t2.type, "divided tracks must be same type"
     assert isinstance(t1.tilesetUid, str)
     assert isinstance(t1.server, str)
@@ -814,22 +836,69 @@ def divide(t1: T, t2: T, **kwargs) -> T:
 
 
 @overload
-def lock(*views: View, **kwargs) -> hgs.Lock:
+def lock(*views: View, uid: str | None = None) -> hgs.Lock:
+    """Create an abstract lock linking two or more views.
+
+    Parameters
+    ----------
+
+    *views : View
+        Two or more views to synchronize with this lock.
+
+    uid : str, optional
+        An (optional) unique id for this lock.
+
+    Returns
+    -------
+
+    lock : An abstract lock linking two or more views.
+
+    """
     ...
 
 
 @overload
-def lock(*pairs: tuple[View, Track], **kwargs) -> hgs.ValueScaleLock:
+def lock(
+    *pairs: tuple[View, Track],
+    uid: str | None = None,
+    ignoreOffScreenValues: bool | None = None,
+) -> hgs.ValueScaleLock:
+    """Create an abstract value-scale lock linking one or more (View, Track) pairs.
+
+    Parameters
+    ----------
+
+    *pairs : tuple[View, Track]
+        One or more (View, Track) pairs specifying a Track whos values should
+        be used to scale all tracks within the View.
+
+    uid : str, optional
+        An (optional) unique id for this lock.
+
+    ignoreOffScreenValues : bool, optional
+        Whether to ignore off screen values when scaling the view.
+
+    Returns
+    -------
+
+    lock : A value-scale lock defining how the tracks in a View should be scaled by
+        by a particular track.
+
+    """
     ...
 
 
 def lock(*data, uid: str | None = None, **kwargs):
-    """Specify locks to synchronize multiple views."""
+    """Create an abstract lock or value-scale lock. 
+
+    Overloaded to either return a `hgs.Lock` or `hgs.ValueScaleLock` depending on
+    the arguments.
+    """
     assert len(data) >= 1
     if uid is None:
         uid = utils.uid()
     if isinstance(data[0], View):
-        lck = hgs.Lock(uid=uid, **kwargs)
+        lck = hgs.Lock(uid=uid)
         for view in data:
             assert isinstance(view.uid, str)
             setattr(lck, view.uid, (1, 1, 1))

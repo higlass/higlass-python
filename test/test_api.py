@@ -138,4 +138,37 @@ def test_concat_viewconfs():
     hg.view(hg.track("heatmap"), width=5, height=3).viewconf()
 
 
+def test_lock():
+    # empty lock throws
+    with pytest.raises(AssertionError):
+        hg.lock()
 
+    views = [hg.view(hg.track("heatmap")) for _ in range(3)]
+
+    lock = hg.lock(*views, uid="foo")
+
+    assert isinstance(lock, hg.Lock)
+    assert lock.uid == "foo"
+
+    for (uid, v), view in zip(lock, views):
+        assert uid == view.uid
+        assert v == (1, 1, 1)
+
+
+def test_value_scale_lock():
+    # empty lock throws
+    with pytest.raises(AssertionError):
+        hg.lock()
+
+    tracks = [hg.track("heatmap") for _ in range(3)]
+    views = [hg.view(t) for t in tracks]
+
+    lock = hg.lock(*zip(views, tracks), uid="foo")
+
+    assert isinstance(lock, hg.ValueScaleLock)
+    assert lock.uid == "foo"
+
+    for (uid, v), (view, track) in zip(lock, zip(views, tracks)):
+        assert uid == f"{view.uid}.{track.uid}"
+        assert v["track"] == track.uid
+        assert v["view"] == view.uid

@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 import itertools
 import os
 import weakref
 from dataclasses import dataclass
-from typing import List, MutableMapping, Optional
+from typing import MutableMapping
 
 import starlette.applications
 import starlette.middleware.cors
@@ -44,7 +46,7 @@ class TilesetResource:
         return t
 
 
-def get_list(query: str, field: str) -> List[str]:
+def get_list(query: str, field: str) -> list[str]:
     """Parse chained query params into list.
     >>> get_list("d=id1&d=id2&d=id3", "d")
     ['id1', 'id2', 'id3']
@@ -113,7 +115,7 @@ class TilesetProvider(BackgroundServer):
     _tilesets: MutableMapping[str, LocalTileset]
     proxy: bool = False
 
-    def __init__(self, allowed_origins: Optional[List[str]] = None):
+    def __init__(self, allowed_origins: list[str] | None = None):
         if allowed_origins is None:
             allowed_origins = ["*"]
         self._tilesets = weakref.WeakValueDictionary()

@@ -10,9 +10,9 @@ import starlette.requests
 import starlette.responses
 import starlette.routing
 
+from higlass._utils import TrackType, datatype_default_track
 from higlass.api import track
 from higlass.tilesets import LocalTileset
-from higlass.utils import TrackType, _datatype_default_track
 
 from ._background_server import BackgroundServer
 
@@ -26,13 +26,13 @@ class TilesetResource:
     def server(self) -> str:
         return f"{self.provider.url}/api/v1/"
 
-    def track(self, type_: Optional[TrackType] = None, **kwargs):
+    def track(self, type_: TrackType | None = None, **kwargs):
         # use default track based on datatype if available
         if type_ is None:
             if self.tileset.datatype is None:
                 raise ValueError("No default track for tileset")
             else:
-                type_ = _datatype_default_track[self.tileset.datatype]  # type: ignore
+                type_ = datatype_default_track[self.tileset.datatype]  # type: ignore
         t = track(
             type_=type_,  # type: ignore
             server=self.server,
@@ -90,6 +90,8 @@ def create_tileset_route(tileset_resources: MutableMapping[str, LocalTileset]):
     def chromsizes(request: starlette.requests.Request):
         """Return chromsizes for given tileset id as TSV."""
         uid = request.query_params.get("id")
+        if uid is None:
+            return starlette.responses.JSONResponse({"error": "No uid provided."}, 400)
         tileset_resource = tileset_resources[uid]
         info = tileset_resource.info()
         assert "chromsizes" in info, "No chromsizes in tileset info"

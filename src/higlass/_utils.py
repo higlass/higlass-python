@@ -1,5 +1,5 @@
 import uuid
-from typing import Dict, List, Optional, TypeVar, Union
+from typing import Dict, List, TypeVar, Union
 
 import higlass_schema as hgs
 from pydantic import BaseModel
@@ -11,7 +11,7 @@ ModelT = TypeVar("ModelT", bound=BaseModel)
 TrackType = Union[hgs.EnumTrackType, Literal["heatmap"]]
 TrackPosition = Literal["center", "top", "left", "bottom", "center", "whole", "gallery"]
 
-_track_default_position: Dict[str, TrackPosition] = {
+track_default_position: Dict[str, TrackPosition] = {
     "1d-heatmap": "top",
     "2d-rectangle-domains": "center",
     "bar": "top",
@@ -34,7 +34,7 @@ _track_default_position: Dict[str, TrackPosition] = {
     "viewport-projection-horizontal": "top",
 }
 
-_datatype_default_track = {
+datatype_default_track = {
     "2d-rectangle-domains": "2d-rectangle-domains",
     "bedlike": "bedlike",
     "chromsizes": "horizontal-chromosome-labels",
@@ -47,11 +47,6 @@ _datatype_default_track = {
 
 def uid():
     return str(uuid.uuid4())
-
-
-def get_default_track_position(track_type: str) -> Optional[TrackPosition]:
-    return _track_default_position.get(track_type, None)
-
 
 def ensure_list(x: Union[None, T, List[T]]) -> List[T]:
     if x is None:

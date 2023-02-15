@@ -16,8 +16,8 @@ import higlass_schema as hgs
 from pydantic import BaseModel
 from typing_extensions import Literal
 
-import higlass.display as display
-import higlass.utils as utils
+import higlass._display as display
+import higlass._utils as utils
 
 __all__ = [
     "EnumTrack",
@@ -131,7 +131,7 @@ class _TilesetMixin:
         tileset: "TilesetResource",
         inplace: bool = False,
     ) -> "TrackT":  # type: ignore
-        """Replace or add a new tileset to a Track.
+        """Replace or add a tileset to a Track.
 
         A convenience method to update a track with a tileset.
 
@@ -747,7 +747,7 @@ def view(
             if isinstance(track, tuple):
                 track, position = track
             else:
-                position = utils.get_default_track_position(track.type)
+                position = utils.track_default_position.get(track.type)
                 if position is None:
                     raise ValueError("No default track type")
 

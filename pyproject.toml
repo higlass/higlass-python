@@ -7,9 +7,9 @@ name = "higlass-python"
 description = "Python bindings for HiGlass"
 authors = [
     { name = "Fritz Lekschas", email = "code@lekschas.de" },
+    { name = "Nezar Abdennur", email = "nabdennur@gmail.com" },
     { name = "Peter Kerpdjiev", email = "pkerpedjiev@gmail.com" },
     { name = "Trevor Manz", email = "trevor.j.manz@gmail.com" },
-    { name = "Nezar Abdennur", email = "nabdennur@gmail.com" },
 ]
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -42,6 +42,10 @@ dev = [
     "pytest",
     "ruff==0.0.238",
 ]
+fuse = [
+    "fusepy",
+    "httpfs"
+]
 
 [tool.hatch.build]
 sources = ["src"]
@@ -50,7 +54,7 @@ sources = ["src"]
 source = "vcs"
 
 [tool.hatch.envs.default]
-features = ["dev"]
+features = ["dev", "fuse"]
 
 [tool.hatch.envs.default.scripts]
 fmt = "black ."

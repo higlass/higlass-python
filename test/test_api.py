@@ -190,6 +190,7 @@ def test_properties_mixin():
     assert other.uid == track.uid
     assert track.width == 400
 
+
 def test_options_mixin():
     track = hg.track("heatmap")
     other = track.opts(

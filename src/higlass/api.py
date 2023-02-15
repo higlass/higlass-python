@@ -131,7 +131,7 @@ class _TilesetMixin:
         tileset: "TilesetResource",
         inplace: bool = False,
     ) -> "TrackT":  # type: ignore
-        """Binds a tileset to a Track.
+        """Replace or add a new tileset to a Track.
 
         A convenience method to update a track with a tileset.
 

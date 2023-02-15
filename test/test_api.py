@@ -175,8 +175,8 @@ def test_value_scale_lock():
         assert v["track"] == track.uid
         assert v["view"] == view.uid
 
-def test_properties_mixin():
 
+def test_properties_mixin():
     track = hg.track("heatmap")
     other = track.properties(
         height=500,
@@ -188,6 +188,18 @@ def test_properties_mixin():
     other = track.properties(width=400, inplace=True)
     assert track is other
     assert other.uid == track.uid
-    assert other.width == 400
+    assert track.width == 400
 
+def test_options_mixin():
+    track = hg.track("heatmap")
+    other = track.opts(
+        foo="bar",
+    )
+    assert track.uid != other.uid
+    assert track.options is None
+    assert other.options and other.options["foo"] == "bar"
 
+    other = track.opts(foo="bar", inplace=True)
+    assert track is other
+    assert track.uid == other.uid
+    assert track.options and track.options["foo"] == "bar"

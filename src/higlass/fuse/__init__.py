@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import logging
 import multiprocessing as mp
 import pathlib
@@ -18,10 +20,10 @@ class FuseProcess:
     _dircache_name = "cache"
 
     def __init__(self):
-        self._fuse_process: Optional[mp.Process] = None
-        self._tmp_dir: Optional[pathlib.Path] = None
+        self._fuse_process: mp.Process | None = None
+        self._tmp_dir: pathlib.Path | None = None
 
-    def start(self, tmp_dir: Union[str, pathlib.Path]):
+    def start(self, tmp_dir: str | pathlib.Path):
         try:
             from ._httpfs import run
         except ImportError as e:

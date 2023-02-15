@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 import threading
 import time
-from typing import Optional
 
 import portpicker
 import starlette.applications
@@ -9,9 +10,9 @@ import uvicorn
 
 class BackgroundServer:
     _app: starlette.applications.Starlette
-    _port: Optional[int]
-    _server_thread: Optional[threading.Thread]
-    _server: Optional[uvicorn.Server]
+    _port: int | None
+    _server_thread: threading.Thread | None
+    _server: uvicorn.Server | None
 
     def __init__(self, app: starlette.applications.Starlette):
         self._app = app
@@ -46,7 +47,7 @@ class BackgroundServer:
 
     def start(
         self,
-        port: Optional[int] = None,
+        port: int | None = None,
         timeout: int = 1,
         daemon: bool = True,
         log_level: str = "warning",

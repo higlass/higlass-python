@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import functools
 from typing import Callable, Dict, Optional
 
@@ -17,10 +19,10 @@ P = ParamSpec("P")
 
 class HgServer:
     def __init__(self):
-        self._provider: Optional[TilesetProvider] = None
+        self._provider: TilesetProvider | None = None
         # We need to keep references to served resources,
         # because the background server uses weakrefs.
-        self._tilesets: Dict[str, TilesetResource] = {}
+        self._tilesets: dict[str, TilesetResource] = {}
 
     @property
     def port(self):
@@ -68,7 +70,7 @@ class HgServer:
     def add(
         self,
         tileset: LocalTileset,
-        port: Optional[int] = None,
+        port: int | None = None,
     ) -> TilesetResource:
         """Add a tileset to the server.
 

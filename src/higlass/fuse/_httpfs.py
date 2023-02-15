@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 import logging
 from errno import ENOENT
-from typing import List
 
 from fuse import FUSE, FuseOSError, LoggingMixIn, Operations
 from simple_httpfs import HttpFs
@@ -12,7 +13,7 @@ logger = logging.getLogger("hg.fuse")
 
 
 class MultiHttpFs(LoggingMixIn, Operations):
-    def __init__(self, schemas: List[FsName], **kwargs):
+    def __init__(self, schemas: list[FsName], **kwargs):
         logger.info("Starting FUSE at /")
         assert len(schemas) > 0, "must provide at least one schema"
         self.fs = {schema: HttpFs(schema, **kwargs) for schema in schemas}

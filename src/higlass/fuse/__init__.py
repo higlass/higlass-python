@@ -4,7 +4,6 @@ import logging
 import multiprocessing as mp
 import pathlib
 import time
-from typing import Optional, Union
 from urllib.parse import urlparse
 
 logger = logging.getLogger("hg.fuse")

@@ -29,7 +29,7 @@ class MultiHttpFs(LoggingMixIn, Operations):
             raise FuseOSError(ENOENT)
         return fs, "/" + "/".join(rest)
 
-    def getattr(self, path, fh=None):
+    def getattr(self, path: str, fh=None):
         logger.debug("getattr %s", path)
         if path == "/":
             first = next(iter(self.fs.values()))
@@ -37,7 +37,7 @@ class MultiHttpFs(LoggingMixIn, Operations):
         fs, path = self._deref(path)
         return fs.getattr(path, fh)
 
-    def read(self, path, size, offset, fh):
+    def read(self, path: str, size: int, offset: int, fh):
         logger.debug("read %s", (path, size, offset))
         fs, path = self._deref(path)
         return fs.read(path, size, offset, fh)

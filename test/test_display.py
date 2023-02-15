@@ -1,6 +1,5 @@
-from higlass._display import RendererRegistry, renderers, HTMLRenderer
-
 import pytest
+from higlass._display import HTMLRenderer, RendererRegistry, renderers
 
 
 def test_registry():

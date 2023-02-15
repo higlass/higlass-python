@@ -1,17 +1,16 @@
+from __future__ import annotations
+
 import uuid
-from typing import Dict, List, TypeVar, Union
+from typing import TypeVar, Union
 
 import higlass_schema as hgs
 from pydantic import BaseModel
 from typing_extensions import Literal
 
-T = TypeVar("T")
-ModelT = TypeVar("ModelT", bound=BaseModel)
-
 TrackType = Union[hgs.EnumTrackType, Literal["heatmap"]]
 TrackPosition = Literal["center", "top", "left", "bottom", "center", "whole", "gallery"]
 
-track_default_position: Dict[str, TrackPosition] = {
+track_default_position: dict[str, TrackPosition] = {
     "1d-heatmap": "top",
     "2d-rectangle-domains": "center",
     "bar": "top",
@@ -45,13 +44,20 @@ datatype_default_track = {
 }
 
 
-def uid():
+def uid() -> str:
     return str(uuid.uuid4())
 
-def ensure_list(x: Union[None, T, List[T]]) -> List[T]:
+
+T = TypeVar("T")
+
+
+def ensure_list(x: T | list[T] | None) -> list[T]:
     if x is None:
         return []
     return x if isinstance(x, list) else [x]
+
+
+ModelT = TypeVar("ModelT", bound=BaseModel)
 
 
 def copy_unique(model: ModelT) -> ModelT:

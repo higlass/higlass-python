@@ -10,4 +10,5 @@ higlass.api
 
 .. automodule:: higlass.api
  :members:
- :exclude-members: HiGlassDisplay
+ :exclude-members: CombinedTrack, EnumTrack, HeatmapTrack, IndependentViewportProjectionTrack
+

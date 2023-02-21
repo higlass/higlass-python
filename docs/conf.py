@@ -257,3 +257,6 @@ class Vimeo(IframeVideo):
 def setup(builder):
     directives.register_directive("youtube", Youtube)
     directives.register_directive("vimeo", Vimeo)
+
+
+autodoc_typehints = "none"

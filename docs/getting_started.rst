@@ -206,37 +206,6 @@ or 2D:
    view = hg.view(hg.track("heatmap")).domain(x=[0, 1e7], y=[0, 1e7])
 
 
-
-Search box
-----------
-
-Views can have a search box which shows the current genomic position and lets users search for genes.
-In order for the current position to be shown, we need to pass in a chromsizes track. For gene search
-to be enabled, we have to pass in a gene annotations track:
-
-.. code-block:: python
-
-   import higlass as hg
-
-   chromosomes = hg.track("horizontal-chromosome-labels").tileset(
-       hg.remote(
-           uid="N12wVGG9SPiTkk03yUayUw"
-           server="https://higlass.io/api/v1",
-       )
-    )
-
-   genes = hg.track("horizontal-gene-annotations").tileset(
-       hg.remote(
-           uid="OHJakQICQD6gTD7skx4EWA",
-           server="https://higlass.io/api/v1",
-       )
-   )
-
-   view = hg.view(chromosomes, genes)
-   view
-
-.. image:: img/genome-position-search-box.png
-
 Track Types
 -----------
 
@@ -249,25 +218,6 @@ sometimes provide a recommended track type as well as a recommended position.
   import higlass.client as hgc
   track_type, position = hgc.datatype_to_tracktype(datatype)
 
-Color Maps
-----------
-
-Certain quantative tracks such as the heatmap can vary their colormap. Color maps can be passed in directly as arrays of color values:
-
-.. code-block:: python
-
-  Track('heatmap', tileset, colorRange=['white', 'black'])
-
-Or created from a matplotlib colormap (``reversed=True`` reverses the color
-order in the heatmap):
-
-.. code-block:: python
-
-  from higlass.utils import hg_cmap
-  Track('heatmap', tileset, colorRange=hg_cmap('jet', reverse=True))
-
-A list of available matplotlib color maps can be found `in the matplotlib docs
-<https://matplotlib.org/3.1.1/gallery/color/colormap_reference.html>`_.
 
 Combining Tracks
 ----------------

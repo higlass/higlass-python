@@ -37,7 +37,12 @@ def test_html_renderer():
     default_renderer = renderers.get()
     assert isinstance(default_renderer, HTMLRenderer)
 
-    mimebundle = default_renderer({})
+    mimebundle = default_renderer(
+        {
+            "foo": "bar",
+        }
+    )
 
     assert "text/html" in mimebundle
     assert 'id="jupyter-hg-' in mimebundle["text/html"]
+    assert '"foo": "bar"' in mimebundle["text/html"]

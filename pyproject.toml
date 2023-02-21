@@ -65,7 +65,7 @@ features = ["dev", "fuse"]
 
 [tool.hatch.envs.default.scripts]
 fix = "black . && ruff --fix ."
-lint = "ruff ."
+lint = "black --check . && ruff ."
 test = "pytest ."
 
 [tool.hatch.envs.docs]

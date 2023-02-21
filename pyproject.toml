@@ -1,0 +1,83 @@
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[project]
+name = "higlass-python"
+description = "Python bindings for HiGlass"
+authors = [
+    { name = "Fritz Lekschas", email = "code@lekschas.de" },
+    { name = "Nezar Abdennur", email = "nabdennur@gmail.com" },
+    { name = "Peter Kerpdjiev", email = "pkerpedjiev@gmail.com" },
+    { name = "Trevor Manz", email = "trevor.j.manz@gmail.com" },
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Operating System :: OS Independent",
+]
+license = { text = "MIT" }
+dynamic = ["version"]
+readme = "README.md"
+dependencies = [
+    "higlass-schema",
+    "higlass-widget",
+    "jinja2",
+    "portpicker",
+    "uvicorn",
+    "starlette",
+    "jupyter-server-proxy",
+]
+urls = { homepage = "https://github.com/higlass/higlass-python" }
+
+[project.optional-dependencies]
+dev = [
+    "black[jupyter]",
+    "pytest",
+    "ruff==0.0.238",
+]
+fuse = [
+    "fusepy",
+    "simple-httpfs"
+]
+
+[tool.hatch.build]
+sources = ["src"]
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.envs.default]
+features = ["dev", "fuse"]
+
+[tool.hatch.envs.default.scripts]
+fmt = "black ."
+lint = "ruff ."
+test = "pytest ."
+
+[[tool.hatch.envs.test.matrix]]
+python = ["38", "39", "310", "311"]
+
+
+[tool.ruff]
+line-length = 88
+target-version = "py37"
+extend-select = [
+    "F",  # pyflakes
+    "E",  # style errors
+    # "D",  # pydocstyle
+    "I",  # isort
+    "UP", # pyupgrade
+]
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = [
+    "F403", # unused-star-used
+    "F401", # unused import
+]

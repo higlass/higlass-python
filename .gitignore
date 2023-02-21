@@ -1,45 +1,10 @@
-Examples
+__pycache__/
 
-higlass-python.log
-
-*.un~
-*.swp
-*.swo
-*.swn
-*.py[cod]
-__pycache__
-*.so
-
-# Testing
-.pytest_cache
-.cache
-.coverage
-
-# Build artifacts
 *.egg-info/
-build/
-dist/
-MANIFEST
-docs/_build
+.eggs/*
 
-# Webpack watch files
-js/node_modules/
-js/package-lock.json
+.ipynb_checkpoints/
+demo/
+notebooks/mnt/
 
-# Compiled javascript
-higlass/static/
-higlass/staticlab/
-
-# Notebook
-Untitle*.ipynb
-.ipynb_checkpoints
-
-# OS-generated files
-.DS_Store
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-data/
-tmp/
+hg/_version.py

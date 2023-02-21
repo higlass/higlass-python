@@ -1,94 +1,61 @@
-# HiGlass Python
+# higlass-python v2 🔎
 
-[![HiGlass](https://img.shields.io/badge/higlass-👍-red.svg?colorB=45afe5)](http://higlass.io)
-[![Python](https://img.shields.io/pypi/v/higlass-python?colorB=6680ff)](https://pypi.org/project/higlass-python/)
-[![Docs](https://img.shields.io/badge/docs-🎉-red.svg?colorB=af80ff)](https://docs.higlass.io/jupyter.html)
-[![Build Status](https://travis-ci.org/higlass/higlass-python.svg?branch=master)](https://travis-ci.org/higlass/higlass-python)
+a fresh python library for [`higlass`](https://github.com/higlass/higlass) built 
+on top of [`higlass-schema`](https://github.com/higlass/higlass-schema) and
+[`higlass-widget`](https://github.com/higlass/higlass-widget).
 
-Python bindings to the HiGlass for tile serving, view config generation, and Jupyter Notebook + Lab integration.
+[![License](https://img.shields.io/pypi/l/higlass-python.svg?color=green)](https://github.com/higlass/higlass-python/raw/master/LICENSE)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/higlass/higlass-python/blob/main/notebooks/Examples.ipynb)
 
-This package provide access to:
-- server: a lightweight flask server
-- tilesets: tileset API
-- client: an API for generating view configs
-- viewer: an API for launching HiGlass in Jupyter Notebook or Lab
+## Usage
 
-## Installation
+```python
+import higlass as hg
 
-#### Requirements
+# Remote data source (tileset)
+tileset1 = hg.remote(
+    uid="CQMd6V_cRw6iCI_-Unl3PQ",
+    server="https://higlass.io/api/v1/",
+    name="Rao et al. (2014) GM12878 MboI (allreps) 1kb",
+)
 
-- Python >= 3.7
-- [FUSE](https://github.com/libfuse/libfuse) or [MacFuse](https://osxfuse.github.io/)
-- Jupyter Notebook >= 5.7
-- Jupyter Lab >= 0.35
+# Local tileset
+tileset2 = hg.cooler("../data/dataset.mcool")
 
-#### Install package
+# Create a `hg.HeatmapTrack` for each tileset
+track1 = tileset1.track("heatmap")
+track2 = tileset2.track("heatmap")
 
-First install `higlass-python` via pip:
+# Create two independent `hg.View`s, one for each heatmap
+view1 = hg.view(track1, width=6)
+view2 = hg.view(track2, width=6)
 
-```bash
-pip install higlass-python
+# Lock zoom & location for each `View`
+view_lock = hg.lock(view1, view2)
+
+# Concatenate views horizontally and apply synchronization lock
+(view1 | view2).locks(view_lock)
 ```
 
-#### Jupyter Notebook integration
-
-Open a terminal and execute the following code to activate the integration:
-
-```bash
-# The following is only required if you have not enabled the ipywidgets nbextension yet
-jupyter nbextension enable --py --sys-prefix widgetsnbextension
-jupyter nbextension install --py --sys-prefix higlass
-jupyter nbextension enable --py --sys-prefix higlass
-```
-
-#### Jupyter Lab integration
-
-Open a terminal and execute the following code to activate the integration:
-
-```bash
-# The following is only required if you have not enabled the jupyterlab manager yet
-jupyter labextension install @jupyter-widgets/jupyterlab-manager
-jupyter labextension install higlass-jupyter
-```
-
-## Getting started
-
-Take a look at [notebooks/Examples.ipynb](notebooks/Examples.ipynb) on how to get started.
-
-## Documentation
-
-There is more detailed documentation at [docs-python.higlass.io](https://docs-python.higlass.io).
+![Side-by-side Hi-C heatmaps, linked by pan and zoom](https://user-images.githubusercontent.com/24403730/159050305-e6a48f03-fba1-4ff7-8eee-2e9c5c40ef88.gif)
 
 ## Development
 
-* Install the package in _editable_ mode. (The module will be imported from the development directory, rather than copied to `site-packages`).
+Create a virtual environment with Jupyter installed.
 
-   ```bash
-   pip install -e .
-   ```
+```bash
+conda create -n higlass python=3.11 jupyterlab
+```
 
-* Build and enable the Jupyter Notebook Extension. (With the `--symlink` option, the assets in `higlass/static` are linked to the extension registry rather than copied.)
+Install the package in _editable_ mode. The `.[dev]` ensures that you also install linting/testing tools.
 
-   ```bash
-   python setup.py jsdeps
-   jupyter nbextension enable --py --sys-prefix widgetsnbextension
-   jupyter nbextension install --py --symlink --sys-prefix higlass
-   jupyter nbextension enable --py --sys-prefix higlass
-   ```
+```bash
+pip install -e ".[dev]"
+```
 
-* Uninstall the Jupyter Notebook Extension
+Our CI checks formatting (`black .`), linting (`ruff .`), and tests (`pytest`).
 
-   ```bash
-   jupyter nbextension uninstall --py --sys-prefix higlass
-   ```
-
-* Experimental: install the Jupyter Lab Extension
-
-   ```bash
-   cd js && jupyter labextension link .
-   ```
-
-### Editing the docs
+## Editing the docs
 
 To work on the docs, start the autoserver and edit the rst files in the `docs` directory:
 
@@ -96,7 +63,3 @@ To work on the docs, start the autoserver and edit the rst files in the `docs` d
 cd docs
 ./serve.sh
 ```
-
-## Troubleshooting
-
-- If you are running JupyterLab `v1.x` and ipywidgets `v7.5` and the HiGlass widget is not being displayed! Then you might have an incompatible widget installed that makes all other widgets fail. Try to deinstall all other widgets to test HiGlass separately before submitting a ticket. For more information see https://github.com/jupyter-widgets/ipywidgets/issues/2483#issuecomment-508643088

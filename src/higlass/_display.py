@@ -74,7 +74,7 @@ def viewconf_to_html(
         URLs for plugin tracks or data fetchers to be loaded on the page.
     """
     return HTML_TEMPLATE.render(
-        spec=json.dumps(viewconf, **(json_kwds or {})),
+        viewconf=json.dumps(viewconf, **(json_kwds or {})),
         higlass_version=higlass_version,
         react_version=react_version,
         pixijs_version=pixijs_version,

@@ -41,6 +41,7 @@ dev = [
     "black[jupyter]",
     "pytest",
     "ruff==0.0.238",
+    "jupyterlab",
 ]
 docs = [
     "Sphinx==1.6.5",
@@ -63,7 +64,7 @@ source = "vcs"
 features = ["dev", "fuse"]
 
 [tool.hatch.envs.default.scripts]
-fmt = "black ."
+fix = "black . && ruff --fix ."
 lint = "ruff ."
 test = "pytest ."
 

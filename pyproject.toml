@@ -42,6 +42,12 @@ dev = [
     "pytest",
     "ruff==0.0.238",
 ]
+docs = [
+    "Sphinx==1.6.5",
+    "sphinx-autobuild",
+    "sphinx-js",
+    "markupsafe==2.0.1",
+]
 fuse = [
     "fusepy",
     "simple-httpfs"
@@ -60,6 +66,12 @@ features = ["dev", "fuse"]
 fmt = "black ."
 lint = "ruff ."
 test = "pytest ."
+
+[tool.hatch.envs.docs]
+features = ["docs"]
+
+[tool.hatch.envs.docs.scripts]
+build = "sphinx-build -b html ./docs ./docs/_build/html"
 
 [[tool.hatch.envs.test.matrix]]
 python = ["38", "39", "310", "311"]

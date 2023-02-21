@@ -1,181 +1,239 @@
 Getting Started
-################
+###############
 
-Python `Jupyter notebooks <https://jupyter.org>`_ are an excellent way to
-experiment with data science and visualization. Using the higlass-jupyter
-extension, you can use HiGlass directly from within a Jupyter notebook.
-
-Installation
--------------
-
-To use higlass within a Jupyter notebook you need to install a few packages
-and enable the jupyter extension:
+**higlass-python** is a Python interface for HiGlass. It simplifies authoring
+HiGlass view configs and offers additional features to load and visualize local
+datasets as well as extend HiGlass server functionality.
 
 
-.. code-block:: bash
+Key features
+------------
 
-    pip install jupyter higlass-python
+- Author validated HiGlass view configs with a simplified API
+- Render HiGlass visualizations as standalone HTML or interactive Jupyter Widgets
+- Load local, remote, and in-memory datasets via a light-weight, background HiGlass server
+- Extend local HiGlass server with custom tilesets
 
-    jupyter nbextension install --py --sys-prefix --symlink higlass
-    jupyter nbextension enable --py --sys-prefix higlass
 
-If you use `JupyterLab <https://jupyterlab.readthedocs.io/en/stable/>`_ you also have to run
+Example
+-------
 
 .. code-block:: bash
 
-    jupyter labextension install @jupyter-widgets/jupyterlab-manager
-    jupyter labextension install higlass-jupyter
+    pip install higlass-python
 
 
-Uninstalling
-^^^^^^^^^^^^
+.. code-block:: python
 
-.. code-block:: bash
+    import higlass as hg
 
-    jupyter nbextension uninstall --py --sys-prefix higlass
+    # Remote data source (tileset)
+    tileset1 = hg.remote(
+        uid="CQMd6V_cRw6iCI_-Unl3PQ",
+        server="https://higlass.io/api/v1/",
+        name="Rao et al. (2014) GM12878 MboI (allreps) 1kb",
+    )
+
+    # Local tileset
+    tileset2 = hg.cooler("../data/dataset.mcool")
+
+    # Create a `hg.HeatmapTrack` for each tileset
+    track1 = tileset1.track("heatmap")
+    track2 = tileset2.track("heatmap")
+
+    # Create two independent `hg.View`s, one for each heatmap
+    view1 = hg.view(track1, width=6)
+    view2 = hg.view(track2, width=6)
+
+    # Lock zoom & location for each `View`
+    view_lock = hg.lock(view1, view2)
+
+    # Concatenate views horizontally and apply synchronization lock
+    (view1 | view2).locks(view_lock)
+
+
+.. image:: https://user-images.githubusercontent.com/24403730/159050305-e6a48f03-fba1-4ff7-8eee-2e9c5c40ef88.gif
+
+Whats going on here:
+
+- ``tileset1`` defines a remote tileset (data source), pointing to an exisiting
+  HiGlass server.
+- ``tileset2`` defines a local tileset, configuring a background HiGlass server
+  to serve tiles from the included cooler file.
+- ``track1`` and ``track2`` specify separate ``hg.HeatmapTrack`` objects derived
+  from the above tilesets, which are inserted into two separate views (``view1`` and ``view2`` respectively).
+- ``view_lock`` is an ``hg.Lock`` instance, defining an abstract link between the two views.
+- Finally, the two views are concatenated horizontally into a single ``hg.Viewconf`` (via the ``|`` operator),
+  and lock is used to sync the zoom and location.
+
 
 Simplest use case
 ------------------
 
-The simplest way to instantiate a HiGlass instance to create a display object with one view:
+The simplest way to instantiate a HiGlass instance to create a View with an axis Track:
 
 .. code-block:: python
 
-  import higlass
-  from higlass.client import Track, View
+   import higlass as hg
 
-  display, server, viewconf = higlass.display([View([Track('top-axis')])])
-  display
+   hg.view(hg.track("top-axis"))
 
-If brevity is of importance, the constructor for ``View`` can be omitted and a
-view will automatically be created from the list of Tracks:
-``higlass.display([[Track('top-axis')]])``. This, however, precludes the use
-of parameters with the view or for linking views using syncs. It also always
-uses the `default position <https://github.com/higlass/higlass-python/blob/70d36d18eb8ef9e207640de5e7bc478c43fdc8de/higlass/client.py#L23>`_ for a given track type.
 
-Remote Jupyter Notebook
------------------------
-
-If your Jupyter notebook is running on a remote server (at e.g.
-``REMOTE_IP``), you'll need to make sure that you have an extra port
-(let's call it ``HG_PORT``) open on your firewall that HiGlass can use to
-communicate with its server. That port will then need to be passed to the
-server display command:
+The ``hg.track`` and ``hg.view`` utilties provide a flexibile API for creating and composing
+multiple HiGlass Views and Tracks. The ``hg.view`` utility accepts one or more tracks as
+positional arguments, and view-level properties are specified via keyword-only arguments.
 
 .. code-block:: python
 
-    higlass.display(
-        ...,
-        server_port=HG_PORT,
-        host=REMOTE_IP,
-        fuse=False
-    )
-  
-The ``fuse=False`` option is often necessary if there is no support for FUSE.
-FUSE is only necessary for loading remote http datasets which are not hosted
-on a HiGlass server.
+   import higlass as hg
 
-If you can't open a port on your firewall, an alternative is to set up a proxy
-that will forward the requests to HiGlass. For example, you can have `jupyter-server-proxy <https://github.com/jupyterhub/jupyter-server-proxy>`_
-forward all requests based at ``http://REMOTE_IP/proxy/HG_PORT/`` to a local HiGlass
-instance listening at ``HG_PORT``. ``HG_PORT`` can be specified by the
-``server_port`` option or chosen randomly by HiGlass. You can then tell HiGlass
-to use the proxy:
+   hg.view(
+       hg.track("top-axis"),
+       hg.track("left-axis"),
+       width=6,
+   )
+
+By default, track positions are are inferred via track type but may be overriden or
+provided explicitly as a tuple of ``(hg.Track, "top" | "right" | "bottom" | "left")``.
+
 
 .. code-block:: python
 
-    higlass.display(
-        ...,
-        fuse=False,
-        proxy_base="http://my.remote.ip/proxy/{port}" # {port} will be replaced by the local HiGlass port
-    )
+   import higlass as hg
 
-Using UNIX sockets
-------------------
+   hg.view(
+       (hg.track("top-axis"), "top"),
+       (hg.track("left-axis"), "left"),
+       width=6,
+   )
 
-You can tell HiGlass to listen on a UNIX socket instead of opening a port. This can be useful for ensuring no remote access to the higlass daemon (since you need filesystem access) and to limit users from accessing each other’s higlass daemons (via filesystem permissions).
-
-To do that, simply pass the path to the socket in the `host` parameter, prefixed with `unix://`:
-
-.. code-block:: python
-
-    higlass.display(
-        ...,
-        host="unix:///tmp/higlass/socket.sock",
-        fuse=False
-    )
-
-You can also pass a directory (marked with a trailing slash) to `host`, and use `server_port` as the filename component. If `server_port` is `None`, a filename will be generated automatically:
-
-.. code-block:: python
-
-    higlass.display(
-        ...,
-        host="unix:///tmp/higlass_servers/",
-        server_port=None,
-        fuse=False
-    )
 
 Creating a viewconf
 -------------------
 
-If you just want the viewconf without actually opening higlass, use the
-``ViewConf`` class:
+At it's core, **higlass-python** is a Python interface for authoring
+and composing validated HiGlass view configs. This core API can
+be used outside of Jupyter notebooks to load or export HiGlass
+configurations without any rendering. For example, creating and
+exporting a view config as JSON:
 
 .. code-block:: python
 
-  from higlass.client import ViewConf, Track, View
+  import higlass as hg
 
-  ViewConf(
-      [
-          View(
-              [
-                  Track(track_type="top-axis"),
-                  Track(
-                      track_type="pileup",
-                      position="top",
-                      data={"type": "bam", "url": "my_bam"},
-                      options={"axisPositionHorizontal": "right"},
-                  ),
-                  Track(track_type="vcf", position="top", data={"type": "vcf", "url": "my_vcf"}),
-              ]
-          )
-      ]
-  ).to_dict()
+  pileup_track = hg.track("pileup").properties(
+      data={"type": "bam", "url": "my_bam"},
+  ).opts(
+      axisPositionHorizontal="right",
+  )
+  view = hg.view(hg.track("top-axis"), (pileup_track, "top"))
+  view.viewconf().json() # or .dict() for a Python dict
+
+  # {
+  #   "editable": true,
+  #   "viewEditable": true,
+  #   "tracksEditable": true,
+  #   "views": [
+  #     {
+  #       "layout": { "x": 0, "y": 0, "w": 12, "h": 6 },
+  #       "tracks": {
+  #         "top": [
+  #           {
+  #             "type": "top-axis",
+  #             "uid": "5f8433fc-9b7a-48a2-b4c3-bccddf8a0bee"
+  #           },
+  #           {
+  #             "type": "pileup",
+  #             "uid": "68405ebc-08b2-469a-ab96-ea7925a39ae2",
+  #             "options": {
+  #               "axisPositionHorizontal": "right"
+  #             },
+  #             "data": {
+  #               "type": "bam",
+  #               "url": "my_bam"
+  #             }
+  #           }
+  #         ]
+  #       },
+  #       "uid": "2d774b94-fc5d-49c2-9c51-bbad9fa6e73f",
+  #       "zoomLimits": [1, null]
+  #     }
+  #   ]
+  # }
+
+or loading an existing view config via URL to access a sub-track:
+
+.. code-block:: python
+
+  import higlass as hg
+
+  viewconf = hg.Viewconf.from_url("https://higlass.io/api/v1?d=default")
+  viewconf.views[0].tracks.top[0].json()
+
+  # {
+  #   "tilesetUid": "OHJakQICQD6gTD7skx4EWA",
+  #   "server": "//higlass.io/api/v1",
+  #   "type": "horizontal-gene-annotations",
+  #   "uid": "OHJakQICQD6gTD7skx4EWA",
+  #   "height": 60,
+  #   "options": {
+  #     "name": "Gene Annotations (hg19)"
+  #   }
+  # }
+
 
 View extent
 -----------
 
-The extent of a view can be set using the ``initialXDomain`` parameter:
+The extent of a view can be set using the ``hg.View.domain()`` method,
+either in 1D:
+
 
 .. code-block:: python
 
-    view1 = View([
-        Track(type='top-axis'),
-    ], initialXDomain=[0,1e7])
+   import higlass as hg
+
+   view = hg.view(hg.track("top-axis")).domain(x=[0, 1e7])
+
+
+or 2D:
+
+
+.. code-block:: python
+
+   import higlass as hg
+
+   view = hg.view(hg.track("heatmap")).domain(x=[0, 1e7], y=[0, 1e7])
+
+
 
 Search box
 ----------
 
-Views can have a search box which shows the current genomic position and lets users search for genes. In order for the current position to be shown, we need to pass in a chromsizes track. For gene search to be enabled, we have to pass in a gene annotations track:
+Views can have a search box which shows the current genomic position and lets users search for genes.
+In order for the current position to be shown, we need to pass in a chromsizes track. For gene search
+to be enabled, we have to pass in a gene annotations track:
 
 .. code-block:: python
 
-  chromosomes = Track(tilesetUid='N12wVGG9SPiTkk03yUayUw',
-             server='https://higlass.io/api/v1',
-             type='horizontal-chromosome-labels')
-  genes = Track(tilesetUid='OHJakQICQD6gTD7skx4EWA',
-             server='https://higlass.io/api/v1',
-             type='horizontal-gene-annotations')
+   import higlass as hg
 
-  (d,s,v) = higlass.display([
-      View(
-              [chromosomes, genes],
-              chrominfo=chromosomes,
-              geneinfo=genes,
-          )
-  ])
-  d
+   chromosomes = hg.track("horizontal-chromosome-labels").tileset(
+       hg.remote(
+           uid="N12wVGG9SPiTkk03yUayUw"
+           server="https://higlass.io/api/v1",
+       )
+    )
+
+   genes = hg.track("horizontal-gene-annotations").tileset(
+       hg.remote(
+           uid="OHJakQICQD6gTD7skx4EWA",
+           server="https://higlass.io/api/v1",
+       )
+   )
+
+   view = hg.view(chromosomes, genes)
+   view
 
 .. image:: img/genome-position-search-box.png
 

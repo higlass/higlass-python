@@ -229,7 +229,7 @@ Combining Tracks
 Overlaying tracks
 ^^^^^^^^^^^^^^^^^
 
-Tracks may be combined with the `hg.combine()` utility:
+Tracks may be combined with the ``hg.combine()`` utility:
 
 .. code-block:: python
 
@@ -302,7 +302,7 @@ via the ``zoom`` or ``location`` keyword arguments:
 Viewport Projection
 -------------------
 
-Viewport projections can be applied via the `hg.View.project()` method.
+Viewport projections can be applied via the ``hg.View.project()`` method.
 This method creates a new track with the viewport bounds of one view and
 appends this newly created track onto another view (i.e., a projection).
 

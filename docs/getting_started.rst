@@ -236,8 +236,8 @@ Tracks may be combined with the ``hg.combine()`` utility:
    import higlass as hg
 
    tileset = hg.remote(
-       uid='F2vbUeqhS86XkxuO1j2rPA',
-       server='//higlass.io/api/v1',
+       uid="F2vbUeqhS86XkxuO1j2rPA",
+       server="//higlass.io/api/v1",
    )
 
    combined_track = hg.combine(
@@ -260,8 +260,8 @@ to concatenate horizontally. The ``/`` operator can be used to stack vertically.
 
     import higlass as hg
 
-    view1 = hg.view(hg.track(type='top-axis'), width=6)
-    view2 = hg.view(hg.track(type='top-axis'), width=6)
+    view1 = hg.view(hg.track("top-axis"), width=6)
+    view2 = hg.view(hg.track("top-axis"), width=6)
 
     view1 | view2
 
@@ -351,7 +351,7 @@ A full example can be found below:
     t2 = tset2.track("heatmap", height=300)
 
     t3 = hg.divide(t1, t2).opts(
-        colorRange=["blue", "white"],
+        colorRange=["blue", "white", "red"],
         valueScaleMin=0.1,
         valueScaleMax=10,
     )

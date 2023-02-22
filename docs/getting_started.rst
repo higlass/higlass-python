@@ -437,13 +437,16 @@ For a better user experience, we recommend downloading the data locally first.
 Serving local data
 ^^^^^^^^^^^^^^^^^^
 
-To view local data, we need to define the tilesets and set up a temporary
-server.
+To enable the viewing of local data, **higlass-python** runs a temporary
+light-weight HiGlass server in a *background thread*. This temporary
+server is only started if a local tileset is used and will only persist
+for the duration of the Python session.
 
 Cooler Files
 """"""""""""
 
-Creating the server:
+We provide a top-level convenience function, ``hg.cooler``, for adding
+cooler tilesets to the background server:
 
 .. code-block:: python
 
@@ -458,23 +461,26 @@ Creating the server:
 .. image:: img/jupyter-hic-heatmap.png
 
 
-This transient HiGlass server is exposed globally and may be configured
-with custom tilesets.
+The background server is exposed globally and may be configured
+with other custom tilesets.
 
 .. code-block:: python
 
     import higlass as hg
 
-    ts = hg.cooler("../data/Dixon2012-J1-NcoI-R1-filtered.100kb.multires.cool")
+    # add a custom tileset manually
     ts_custom = hg.server.add(MyCustomTileset())
+
+    # calls hg.server.add() internally
+    ts = hg.cooler("../data/Dixon2012-J1-NcoI-R1-filtered.100kb.multires.cool")
 
     v1 = hg.view(ts.track("heatmap"), width=6)
     v2 = hg.view(ts_custom.track("heatmap"), width=6)
 
     v1 | v2
 
-The background server runs in a separate thread and only started if a local
-tileset is used. You can clear all active resources by reseting the server:
+
+You can clear all active server resources by reseting the server:
 
 .. code-block:: python
 

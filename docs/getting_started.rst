@@ -450,7 +450,7 @@ Creating the server:
     import higlass as hg
 
     # Adds a tileset to a background HiGlass server
-    tileset = hg.cooler('../data/Dixon2012-J1-NcoI-R1-filtered.100kb.multires.cool')
+    tileset = hg.cooler("../data/Dixon2012-J1-NcoI-R1-filtered.100kb.multires.cool")
 
     # View the local tileset
     hg.view(tileset.track("heatmap"))
@@ -458,13 +458,27 @@ Creating the server:
 .. image:: img/jupyter-hic-heatmap.png
 
 
-This transient HiGlass server is exposed globally and may be configured:
+This transient HiGlass server is exposed globally and may be configured
+with custom tilesets.
 
 .. code-block:: python
 
     import higlass as hg
 
-    hg.server # 
+    ts = hg.cooler("../data/Dixon2012-J1-NcoI-R1-filtered.100kb.multires.cool")
+    ts_custom = hg.server.add(MyCustomTileset())
+
+    v1 = hg.view(ts.track("heatmap"), width=6) 
+    v2 hg.view(ts_custom.track("heatmap"), width=6)
+
+    v1 | v2
+
+The background server runs in a separate thread and only started if a local
+tileset is used. You can clear all active resources by reseting the server:
+
+.. code-block:: python
+
+    hg.server.reset()
 
 
 BigWig Files

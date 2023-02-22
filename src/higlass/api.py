@@ -383,7 +383,7 @@ class Viewconf(hgs.Viewconf[View[TrackT]], _PropertiesMixin, Generic[TrackT]):
         """ "Displays the view config in an IPython environment."""
         renderer = display.renderers.get()
         plugin_urls = [] if self.views is None else gather_plugin_urls(self.views)
-        return renderer(self.json(), plugin_urls=plugin_urls)
+        return renderer(self.dict(), plugin_urls=plugin_urls)
 
     def widget(self):
         """Create a Jupyter Widget display for this view config."""
@@ -648,8 +648,23 @@ class _TrackCreator(BaseModel):
     __root__: Track
 
 
+@overload
+def track(type_: hgs.EnumTrackType, uid: str | None = None, **kwargs) -> EnumTrack:
+    ...
+
+
+@overload
+def track(type_: Literal["heatmap"], uid: str | None = None, **kwargs) -> HeatmapTrack:
+    ...
+
+
+@overload
+def track(type_: str, uid: str | None = None, **kwargs) -> PluginTrack:
+    ...
+
+
 def track(
-    type_: utils.TrackType,
+    type_: hgs.EnumTrackType | Literal["heatmap"] | str,
     uid: str | None = None,
     **kwargs,
 ) -> Track:

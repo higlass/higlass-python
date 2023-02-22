@@ -377,23 +377,26 @@ Jupyter HiGlass Component
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 To instantiate a HiGlass component within a Jupyter notebook, we first need
-to specify which data should be loaded. This can be accomplished with the
-help of the ``higlass.client`` module:
+to specify which data should be loaded. This is accomplished either by 
+specifying a local tileset (via ``hg.cooler``, ``hg.bigwig``, ``hg.multivec``,
+``hg.hitile``, ``hg.bed2ddb``) or connecting to an existing HiGlass Server
+with ``hg.remote()``:
 
 .. code-block:: python
 
-    from higlass.client import View, Track
-    import higlass
+    import higlass as hg
 
+    tileset = hg.remote(
+        uid="CQMd6V_cRw6iCI_-Unl3PQ",
+        server="http://higlass.io/api/v1/",
+    )
 
-    view1 = View([
-        Track(track_type='top-axis', position='top'),
-        Track(track_type='heatmap', position='center',
-              tileset_uuid='CQMd6V_cRw6iCI_-Unl3PQ',
-              server="http://higlass.io/api/v1/",
-              height=250,
-              options={ 'valueScaleMax': 0.5 }),
-    ])
+    view = hg.view(
+        hg.track("top-axis"),
+        tileset.track("heatmap", height=250).opts(
+            valueScaleMax=0.5,
+        ),
+    )
 
 
 Remote bigWig Files
@@ -406,19 +409,29 @@ that may take a long time to complete with a slow internet connection.
 
 .. code-block:: python
 
-    from higlass.client import View, Track
-    import higlass.tilesets
+    import higlass as hg
 
-    ts1 = higlass.tilesets.bigwig(
+    tileset = hg.bigwig(
         'http://hgdownload.cse.ucsc.edu/goldenpath/hg19/encodeDCC/'
         'wgEncodeSydhTfbs/wgEncodeSydhTfbsGm12878InputStdSig.bigWig')
 
-    tr1 = Track('horizontal-bar', tileset=ts1)
-    view1 = View([tr1])
-    display, server, viewconf = higlass.display([view1])
+    hg.view(tileset.track("horizontal-bar"))
 
-    display
 
+For a better user experience, we recommend downloading the data locally first.
+
+.. code-block:: python
+
+    !wget http://hgdownload.cse.ucsc.edu/goldenpath/hg19/encodeDCC/wgEncodeSydhTfbs/wgEncodeSydhTfbsGm12878InputStdSig.bigWig
+
+
+.. code-block:: python
+
+    import higlass as hg
+
+    tileset = hg.bigwig('./wgEncodeSydhTfbsGm12878InputStdSig.bigWig')
+
+    hg.view(tileset.track("horizontal-bar"))
 
 Serving local data
 ^^^^^^^^^^^^^^^^^^
@@ -433,19 +446,24 @@ Creating the server:
 
 .. code-block:: python
 
-    from higlass.client import View, Track
-    from higlass.tilesets import cooler
-    import higlass
+    import higlass as hg
 
-    ts1 = cooler('../data/Dixon2012-J1-NcoI-R1-filtered.100kb.multires.cool')
-    tr1 = Track('heatmap', tileset=ts1)
-    view1 = View([tr1])
-    display, server, viewconf = higlass.display([view1])
+    # Adds a tileset to a background HiGlass server
+    tileset = hg.cooler('../data/Dixon2012-J1-NcoI-R1-filtered.100kb.multires.cool')
 
-    display
-
+    # View the local tileset
+    hg.view(tileset.track("heatmap"))
 
 .. image:: img/jupyter-hic-heatmap.png
+
+
+This transient HiGlass server is exposed globally and may be configured:
+
+.. code-block:: python
+
+    import higlass as hg
+
+    hg.server # 
 
 
 BigWig Files

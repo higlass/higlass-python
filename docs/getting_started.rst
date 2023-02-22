@@ -245,7 +245,7 @@ Tracks may be combined with the ``hg.combine()`` utility:
        tileset.track("horizontal-bar")
    )
 
-   view = hg.view(combined_track).domain(x=[0, 1e9])
+   hg.view((combined_track, "top")).domain(x=[0, 1e9])
 
 
 Multiple Views

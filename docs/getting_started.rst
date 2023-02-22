@@ -468,8 +468,8 @@ with custom tilesets.
     ts = hg.cooler("../data/Dixon2012-J1-NcoI-R1-filtered.100kb.multires.cool")
     ts_custom = hg.server.add(MyCustomTileset())
 
-    v1 = hg.view(ts.track("heatmap"), width=6) 
-    v2 hg.view(ts_custom.track("heatmap"), width=6)
+    v1 = hg.view(ts.track("heatmap"), width=6)
+    v2 = hg.view(ts_custom.track("heatmap"), width=6)
 
     v1 | v2
 

@@ -40,7 +40,7 @@ urls = { homepage = "https://github.com/higlass/higlass-python" }
 dev = [
     "black[jupyter]",
     "pytest",
-    "ruff==0.0.238",
+    "ruff",
 ]
 fuse = [
     "fusepy",

@@ -1,11 +1,10 @@
 from __future__ import annotations
 
 import uuid
-from typing import TypeVar, Union
+from typing import Literal, TypeVar, Union
 
 import higlass_schema as hgs
 from pydantic import BaseModel
-from typing_extensions import Literal
 
 TrackType = Union[hgs.EnumTrackType, Literal["heatmap"]]
 TrackPosition = Literal["center", "top", "left", "bottom", "center", "whole", "gallery"]

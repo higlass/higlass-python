@@ -64,16 +64,17 @@ test = "pytest ."
 [[tool.hatch.envs.test.matrix]]
 python = ["38", "39", "310", "311"]
 
-
 [tool.ruff]
 line-length = 88
-target-version = "py37"
+target-version = "py38"
 extend-select = [
-    "F",  # pyflakes
     "E",  # style errors
     # "D",  # pydocstyle
+    "F",  # pyflakes
     "I",  # isort
+    "RUF", # ruff-specific rules
     "UP", # pyupgrade
+    "W",  # style  warnings
 ]
 
 [tool.ruff.per-file-ignores]

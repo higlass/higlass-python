@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import logging
 from errno import ENOENT
+from typing import Literal
 
 from fuse import FUSE, FuseOSError, LoggingMixIn, Operations
 from simple_httpfs import HttpFs
-from typing_extensions import Literal
 
 FsName = Literal["http", "https", "ftp"]
 
@@ -47,7 +47,7 @@ class MultiHttpFs(LoggingMixIn, Operations):
         if path[-2:] == "..":
             raise NotADirectoryError(path)
         files = list(self.fs) if path == "/" else []
-        return [".", ".."] + files
+        return [".", "..", *files]
 
     def destroy(self, path):
         for fs in self.fs.values():

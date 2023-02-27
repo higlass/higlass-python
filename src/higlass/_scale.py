@@ -76,3 +76,10 @@ class Scale:
         different bin size.
         """
         return Scale(self._chrom_lengths_map, binsize)
+
+    @property
+    def chromsizes(self) -> dict[str, int]:
+        """
+        A dictionary of the ordered chromosome names and lengths.
+        """
+        return self._chrom_lengths_map

@@ -62,3 +62,11 @@ def test_rebin(scale):
     assert scale.n_bins == 60
     assert new_scale.binsize == 500
     assert new_scale.n_bins == 120
+
+
+def test_chromsizes(scale):
+    assert scale.chromsizes == {
+        "chr1": 10000,
+        "chr2": 20000,
+        "chr3": 30000,
+    }

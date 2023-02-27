@@ -35,7 +35,7 @@ class Scale:
 
     def __init__(
         self,
-        chromsizes: dict | list[tuple],
+        chromsizes: dict[str, int] | Iterable[tuple[str, int]],
         binsize: int = 1,
     ):
         chromsizes = dict(chromsizes)

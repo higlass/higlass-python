@@ -66,10 +66,7 @@ class Scale:
         """
         Returns the genomic position of the start of the bin at the given index.
         """
-        if offset < 0:
-            offset = 0
-        if offset >= self.n_bins:
-            offset = self.n_bins - 1
+        offset = max(0, min(offset, self.n_bins - 1))
         i = bisect_right(self._chrom_offsets, offset)
         chrom = self._chrom_names[i - 1]
         rel_offset = offset - self._chrom_offsets[i - 1]

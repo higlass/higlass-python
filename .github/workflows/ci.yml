@@ -26,12 +26,10 @@ jobs:
         pip install -e .[dev]
 
     - name: Formatting with Black
-      run: |
-        black . --check
+      run: black --check .
 
     - name: Linting with Ruff
-      run: |
-        ruff .
+      run: ruff .
 
   Test:
     runs-on: ubuntu-latest

@@ -1,21 +1,21 @@
 from __future__ import annotations
+
+import itertools
 from bisect import bisect_right
 from typing import Tuple
-import itertools
-
 
 GenomicPosition = Tuple[str, int]
 
 
 class Scale:
     """
-    A bidirectional mapping between a composite genomic coordinate system and 
+    A bidirectional mapping between a composite genomic coordinate system and
     a partition of that coordinate system into a sequence of bins.
 
     The partition is a 1D array of bins of a fixed size, with the exception of
     the last bin in each chromosome, which may be smaller than the fixed size.
     The scale provides a mapping from a genomic coordinate to the index of the
-    bin in which it falls, and a mapping from a bin index to the genomic 
+    bin in which it falls, and a mapping from a bin index to the genomic
     coordinate of the bin's start.
 
     Parameters
@@ -28,12 +28,13 @@ class Scale:
 
     Notes
     -----
-    The genomic coordinates are 0-based and the bins of the partition are 
-    half-open intervals, i.e. the start coordinate of a bin is included in the 
+    The genomic coordinates are 0-based and the bins of the partition are
+    half-open intervals, i.e. the start coordinate of a bin is included in the
     bin, but the end is not.
     """
+
     def __init__(
-        self, 
+        self,
         chromsizes: dict | list[tuple],
         binsize: int = 1,
     ):

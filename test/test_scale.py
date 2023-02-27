@@ -9,6 +9,29 @@ def scale():
     return Scale(chromsizes, binsize)
 
 
+def test_chromsizes(scale):
+    assert scale.chromsizes == {
+        "chr1": 10000,
+        "chr2": 20000,
+        "chr3": 30000,
+    }
+
+
+def test_binsize(scale):
+    assert scale.binsize == 1000
+
+
+def test_len(scale):
+    assert len(scale) == 60
+
+
+def test_repr(scale):
+    assert repr(scale) == (
+        "Scale(chromsizes={'chr1': 10000, 'chr2': 20000, 'chr3': 30000}, "
+        "binsize=1000)"
+    )
+
+
 def get_data():
     # (gpos, offset, binstart)
     return [
@@ -59,14 +82,6 @@ def test_invert_out_of_bounds(scale):
 def test_rebin(scale):
     new_scale = scale.rebin(500)
     assert scale.binsize == 1000
-    assert scale.n_bins == 60
+    assert len(scale) == 60
     assert new_scale.binsize == 500
-    assert new_scale.n_bins == 120
-
-
-def test_chromsizes(scale):
-    assert scale.chromsizes == {
-        "chr1": 10000,
-        "chr2": 20000,
-        "chr3": 30000,
-    }
+    assert len(new_scale) == 120

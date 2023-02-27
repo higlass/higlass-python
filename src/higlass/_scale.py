@@ -47,8 +47,29 @@ class Scale:
         self._chrom_offsets = chrom_offsets
         self._chrom_lengths_map = chromsizes
         self._chrom_offsets_map = dict(zip(names, chrom_offsets[:-1]))
-        self.n_bins = chrom_offsets[-1]
-        self.binsize = binsize
+        self._binsize = binsize
+
+    @property
+    def chromsizes(self) -> dict[str, int]:
+        """
+        A dictionary of the ordered chromosome names and lengths.
+        """
+        return self._chrom_lengths_map
+
+    @property
+    def binsize(self) -> int:
+        """
+        The size of each bin in the partition in bp.
+        """
+        return self._binsize
+
+    def __len__(self) -> int:
+        return self._chrom_offsets[-1]
+
+    def __repr__(self) -> str:
+        return (
+            f"Scale(chromsizes={self._chrom_lengths_map}, binsize={self._binsize})"
+        )
 
     def __call__(self, gpos: GenomicPosition) -> int:
         """
@@ -58,17 +79,18 @@ class Scale:
         chrom_offset = self._chrom_offsets_map[chrom]
         clen = self._chrom_lengths_map[chrom]
         pos = max(0, min(pos, clen - 1))
-        return chrom_offset + pos // self.binsize
+        return chrom_offset + pos // self._binsize
 
     def invert(self, index: int) -> GenomicPosition:
         """
         Returns the genomic position of the start of the bin at the given index.
         """
-        index = max(0, min(index, self.n_bins - 1))
+        n_bins = self._chrom_offsets[-1]
+        index = max(0, min(index, n_bins - 1))
         i = bisect_right(self._chrom_offsets, index)
         chrom = self._chrom_names[i - 1]
         rel_offset = index - self._chrom_offsets[i - 1]
-        return chrom, rel_offset * self.binsize
+        return chrom, rel_offset * self._binsize
 
     def rebin(self, binsize: int) -> Scale:
         """
@@ -76,10 +98,3 @@ class Scale:
         different bin size.
         """
         return Scale(self._chrom_lengths_map, binsize)
-
-    @property
-    def chromsizes(self) -> dict[str, int]:
-        """
-        A dictionary of the ordered chromosome names and lengths.
-        """
-        return self._chrom_lengths_map

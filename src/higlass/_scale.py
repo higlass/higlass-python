@@ -69,3 +69,10 @@ class Scale:
         chrom = self._chrom_names[i - 1]
         rel_offset = index - self._chrom_offsets[i - 1]
         return chrom, rel_offset * self.binsize
+
+    def rebin(self, binsize: int) -> Scale:
+        """
+        Returns a new scale with the same genomic coordinate system but a
+        different bin size.
+        """
+        return Scale(self._chrom_lengths_map, binsize)

@@ -54,3 +54,11 @@ def test_call_out_of_bounds(scale):
 def test_invert_out_of_bounds(scale):
     assert scale.invert(-1) == ("chr1", 0)
     assert scale.invert(60) == ("chr3", 29000)
+
+
+def test_rebin(scale):
+    new_scale = scale.rebin(500)
+    assert scale.binsize == 1000
+    assert scale.n_bins == 60
+    assert new_scale.binsize == 500
+    assert new_scale.n_bins == 120

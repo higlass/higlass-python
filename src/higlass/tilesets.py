@@ -2,9 +2,7 @@ import functools
 import hashlib
 import pathlib
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Optional, Sequence
-
-from typing_extensions import Literal
+from typing import Any, Callable, Dict, List, Literal, Optional, Sequence
 
 from ._utils import TrackType
 from .api import track

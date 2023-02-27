@@ -25,13 +25,11 @@ jobs:
         python -m pip install --upgrade pip
         pip install -e .[dev]
 
-    - name: Formatting with Black
-      run: |
-        black . --check
-
     - name: Linting with Ruff
-      run: |
-        ruff .
+      run: ruff .
+
+    - name: Formatting with Black
+      run: black --check .
 
   Test:
     runs-on: ubuntu-latest

@@ -6,6 +6,7 @@ from typing import (
     TYPE_CHECKING,
     ClassVar,
     Generic,
+    Literal,
     TypeVar,
     Union,
     cast,
@@ -14,7 +15,6 @@ from typing import (
 
 import higlass_schema as hgs
 from pydantic import BaseModel
-from typing_extensions import Literal
 
 import higlass._display as display
 import higlass._utils as utils

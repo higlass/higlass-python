@@ -22,7 +22,7 @@ from ._background_server import BackgroundServer
 @dataclass(frozen=True)
 class TilesetResource:
     tileset: LocalTileset
-    provider: "TilesetProvider"
+    provider: TilesetProvider
 
     @property
     def server(self) -> str:

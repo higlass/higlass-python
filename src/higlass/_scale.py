@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import itertools
 from bisect import bisect_right
-from typing import Tuple
+from typing import Iterable, Tuple
 
 GenomicPosition = Tuple[str, int]
 

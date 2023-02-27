@@ -39,7 +39,7 @@ class Scale:
         binsize: int = 1,
     ):
         chromsizes = dict(chromsizes)
-        names, lengths = list(chromsizes.keys()), list(chromsizes.values())
+        names, lengths = zip(*chromsizes.items())
         lengths_binned = [(length + binsize - 1) // binsize for length in lengths]
         chrom_offsets = list(itertools.accumulate(lengths_binned, initial=0))
         self._chrom_names = names

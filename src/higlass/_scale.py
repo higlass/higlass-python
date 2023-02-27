@@ -23,8 +23,8 @@ class Scale:
     chromsizes : dict | list[tuple]
         A dictionary of chromosome names and lengths or a list of tuples
         of chromosome names and lengths.
-    binsize : int
-        The size of each bin in the partition in bp.
+    binsize : int, optional
+        The size of each bin in the partition in bp (default: 1).
 
     Notes
     -----

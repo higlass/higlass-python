@@ -7,5 +7,6 @@ __pycache__/
 demo/
 notebooks/mnt/
 docs/_build/
+dist/
 
 hg/_version.py

@@ -10,6 +10,7 @@ def scale():
 
 
 def get_data():
+    # (gpos, offset, binstart)
     return [
         (("chr1", 0), 0, ("chr1", 0)),
         (("chr1", 900), 0, ("chr1", 0)),
@@ -36,8 +37,8 @@ def get_data():
 
 
 @pytest.mark.parametrize("gpos, offset, binstart", get_data())
-def test_offset(scale, gpos, offset, binstart):
-    assert scale.offset(gpos) == offset
+def test_call(scale, gpos, offset, binstart):
+    assert scale(gpos) == offset
 
 
 @pytest.mark.parametrize("gpos, offset, binstart", get_data())
@@ -45,9 +46,9 @@ def test_invert(scale, gpos, offset, binstart):
     assert scale.invert(offset) == binstart
 
 
-def test_offset_out_of_bounds(scale):
-    assert scale.offset(("chr1", -1)) == 0
-    assert scale.offset(("chr3", 30000)) == 59
+def test_call_out_of_bounds(scale):
+    assert scale(("chr1", -1)) == 0
+    assert scale(("chr3", 30000)) == 59
 
 
 def test_invert_out_of_bounds(scale):

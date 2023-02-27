@@ -67,9 +67,7 @@ class Scale:
         return self._chrom_offsets[-1]
 
     def __repr__(self) -> str:
-        return (
-            f"Scale(chromsizes={self._chrom_lengths_map}, binsize={self._binsize})"
-        )
+        return f"Scale(chromsizes={self._chrom_lengths_map}, binsize={self._binsize})"
 
     def __call__(self, gpos: GenomicPosition) -> int:
         """

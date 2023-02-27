@@ -12,11 +12,11 @@ class Scale:
     A bidirectional mapping between a composite genomic coordinate system and
     a partition of that coordinate system into a sequence of bins.
 
-    The partition is a 1D array of bins of a fixed size, with the exception of
+    The partition is a sequence of bins of a fixed size, with the exception of
     the last bin in each chromosome, which may be smaller than the fixed size.
-    The scale provides a mapping from a genomic coordinate to the index of the
-    bin in which it falls, and a mapping from a bin index to the genomic
-    coordinate of the bin's start.
+    Bins do not cross chromosome boundaries. The scale provides a mapping from
+    a genomic coordinate to the index of the bin in which it falls, and a
+    mapping from a bin index to the genomic coordinate of the bin's start.
 
     Parameters
     ----------

@@ -89,10 +89,10 @@ class _PropertiesMixin:
 
 class _OptionsMixin:
     def opts(
-        self: "TrackT",  # type: ignore
+        self: TrackT,  # type: ignore
         inplace: bool = False,
         **options,
-    ) -> "TrackT":  # type: ignore
+    ) -> TrackT:  # type: ignore
         """Configures options for a Track.
 
         A convenience method to update `track.options`.
@@ -127,10 +127,10 @@ class _OptionsMixin:
 
 class _TilesetMixin:
     def tileset(
-        self: "TrackT",  # type: ignore
-        tileset: "TilesetResource",
+        self: TrackT,  # type: ignore
+        tileset: TilesetResource,
         inplace: bool = False,
-    ) -> "TrackT":  # type: ignore
+    ) -> TrackT:  # type: ignore
         """Replace or add a tileset to a Track.
 
         A convenience method to update a track with a tileset.
@@ -240,7 +240,7 @@ class View(hgs.View[TrackT], _PropertiesMixin, Generic[TrackT]):
             view.initialYDomain = y
         return view
 
-    def __or__(self, other: "View[TrackT]" | "Viewconf[TrackT]"):
+    def __or__(self, other: View[TrackT] | Viewconf[TrackT]):
         """Horizontally concatenate with another view or viewconf.
 
         A convenience method for `hg.hconcat`.
@@ -257,7 +257,7 @@ class View(hgs.View[TrackT], _PropertiesMixin, Generic[TrackT]):
         """
         return hconcat(self, other)
 
-    def __truediv__(self, other: "View[TrackT]" | "Viewconf[TrackT]"):
+    def __truediv__(self, other: View[TrackT] | Viewconf[TrackT]):
         """Vertically concatenate two Views.
 
         A convenience method for `hg.vconcat`.
@@ -313,7 +313,7 @@ class View(hgs.View[TrackT], _PropertiesMixin, Generic[TrackT]):
 
     def project(
         self,
-        view: "View",
+        view: View,
         on: Literal["center", "top", "bottom", "left", "right"] = "center",
         inplace: bool = False,
         **kwargs,

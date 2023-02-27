@@ -69,8 +69,8 @@ class Scale:
     def __repr__(self) -> str:
         return f"Scale(chromsizes={self.chromsizes}, binsize={self.binsize})"
 
-    def __rich_repr__(self):
-        yield "chromsizes", list(self.chromsizes.items())
+    def __rich_repr__(self) -> Iterable[tuple]:
+        yield "chromsizes", self.chromsizes
         yield "binsize", self.binsize
 
     def __call__(self, gpos: GenomicPosition) -> int:

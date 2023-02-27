@@ -57,7 +57,7 @@ jobs:
   Release:
     needs: [Lint, Test]
     runs-on: ubuntu-latest
-    if: contains(github.ref, 'tags')
+    if: startsWith(github.ref, 'refs/tags')
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -70,12 +70,12 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install build twine
+          pip install build
 
-      - name: Build and publish Python
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.TWINE_API_KEY }}
-        run: |
-          python -m build .
-          twine upload dist/*
+      - name: Build
+        run: python -m build
+
+      - name: Publish distribution 📦 to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.TWINE_API_KEY }}

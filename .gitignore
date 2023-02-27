@@ -6,5 +6,6 @@ __pycache__/
 .ipynb_checkpoints/
 demo/
 notebooks/mnt/
+dist/
 
 hg/_version.py

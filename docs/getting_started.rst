@@ -9,10 +9,10 @@ datasets as well as extend HiGlass server functionality.
 Key features
 ------------
 
-- Author validated HiGlass view configs with a simplified API
-- Render HiGlass visualizations as standalone HTML or interactive Jupyter Widgets
-- Load local, remote, and in-memory datasets via a light-weight, background HiGlass server
-- Extend local HiGlass server with custom tilesets
+- **Author validated HiGlass view configs** with a simplified API
+- **Render interactive visualizations** as standalone HTML or interactive Jupyter Widgets
+- Load **local, remote, and in-memory datasets** via a light-weight, background HiGlass server
+- Extend HiGlass server with **custom tilesets**
 
 
 Example

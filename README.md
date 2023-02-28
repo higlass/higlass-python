@@ -41,25 +41,40 @@ view_lock = hg.lock(view1, view2)
 
 ## Development
 
-Create a virtual environment with Jupyter installed.
+**higlass-python** uses [the recommended](https://packaging.python.org/en/latest/flow/#) `hatchling` build-system,
+which is convenient to use via the [`hatch` CLI](https://hatch.pypa.io/latest/). We recommend installing `hatch` 
+globally (e.g., via `pipx`) and running the various commands defined within `pyproject.toml`. `hatch` will take care
+of creating and synchronizing a virtual environment with all dependencies defined in `pyproject.toml`.
+
+### Commands Cheatsheet
+
+All commands are run from the root of the project, from a terminal:
+
+| Command                | Action                                                              |
+| :--------------------- | :------------------------------------------------------------------ |
+| `hatch run fix`        | Format project with `black .` and apply linting with `ruff --fix .` |
+| `hatch run lint`       | Lint project with `ruff .`.                                         |
+| `hatch run test`       | Run unit tests with `pytest` in latest Python version.              |
+| `hatch run test:test`  | Run unit tests with `pytest` in all target Python versions.         |
+| `hatch run docs:build` | Build the documentation in `docs/_build/html`.                      |
+| `hatch run docs:serve` | Start an dev-server for live editing RST files in `docs/`.          |
+
+> **Note**: `hatch build` and `hatch publish` are available to build and publish the project to
+PyPI, but all releases are handled automatically via CI.
+
+Alternatively, you can develop **higlass-python** by manually creating a virtual environment and
+managing installation and dependencies with `pip`. For example, create a virtual environment 
+with `conda`:
 
 ```bash
-conda create -n higlass python=3.11 jupyterlab
+conda create -n higlass python=3.11
+conda activate higlass
 ```
 
-Install the package in _editable_ mode. The `.[dev]` ensures that you also install linting/testing tools.
+and install **higlass-python** in _editable_ mode with all optional dependencies:
 
 ```bash
-pip install -e ".[dev]"
+pip install -e ".[dev,fuse,docs]"
 ```
 
 Our CI checks formatting (`black .`), linting (`ruff .`), and tests (`pytest`).
-
-## Editing the docs
-
-To work on the docs, start the autoserver and edit the rst files in the `docs` directory:
-
-```bash
-cd docs
-./serve.sh
-```

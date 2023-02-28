@@ -490,40 +490,21 @@ You can clear all active server resources by reseting the server:
 BigWig Files
 """"""""""""
 
-In this example, we'll set up a server containing both a chromosome labels
-track and a bigwig track. Furthermore, the bigwig track will be ordered
-according to the chromosome info in the specified file.
+The top-level `hg.bigwig` utility is available for viewing local
+bigWig files. The returned tileset can be used to create both a
+chromosome labels track and a horizontal bar track for these data.
 
 .. code-block:: python
 
+    import higlass as hg
 
-    from higlass.client import View, Track
-    from higlass.tilesets import bigwig, chromsizes
-    import higlass.tilesets
+    ts = hg.bigwig("../data/wgEncodeCaltechRnaSeqHuvecR1x75dTh1014IlnaPlusSignalRep2.bigWig")
 
-    chromsizes_fp = '../data/chromSizes_hg19_reordered.tsv'
-    bigwig_fp = '../data/wgEncodeCaltechRnaSeqHuvecR1x75dTh1014IlnaPlusSignalRep2.bigWig'
-
-    with open(chromsizes_fp) as f:
-        chromsizes_arr = []
-        for line in f.readlines():
-            chrom, size = line.split('\t')
-            chromsizes_arr.append((chrom, int(size)))
-
-    cs = chromsizes(chromsizes_fp)
-    ts = bigwig(bigwig_fp, chromsizes=chromsizes_arr)
-
-    tr0 = Track('top-axis')
-    tr1 = Track('horizontal-bar', tileset=ts)
-    tr2 = Track('horizontal-chromosome-labels', position='top', tileset=cs)
-
-    view1 = View([tr0, tr1, tr2])
-    display, server, viewconf = higlass.display([view1])
-
-    display
-
-The client view will be composed such that three tracks are visible. Two of them
-are served from the local server.
+    hg.view(
+        hg.track("top-axis"),
+        ts.track("chromosome-labels"),
+        ts.track("horizontal-bar"),
+    )
 
 .. image:: img/jupyter-bigwig.png
 
@@ -533,13 +514,13 @@ Serving custom data
 
 
 To display data, we need to define a tileset. Tilesets define two functions:
-``tileset_info``:
+``info``:
 
 .. code-block:: python
 
     > from higlass.tilesets import bigwig
     > ts1 = bigwig('http://hgdownload.cse.ucsc.edu/goldenpath/hg19/encodeDCC/wgEncodeSydhTfbs/wgEncodeSydhTfbsGm12878InputStdSig.bigWig')
-    > ts1.tileset_info()
+    > ts1.info()
     {
      'min_pos': [0],
      'max_pos': [4294967296],
@@ -577,7 +558,7 @@ data (e.g. normalization types like ``ice``).
 Numpy Matrix
 """"""""""""
 
-By way of example, let's explore a numpy matrix by implementing the `tileset_info` and `tiles`
+By way of example, let's explore a numpy matrix by implementing the ``info`` and ``tiles``
 functions described above. To start let's make the matrix using the
 `Eggholder function <https://en.wikipedia.org/wiki/Test_functions_for_optimization>`_.
 
@@ -596,179 +577,69 @@ Then we can define the data and tell the server how to render it.
 
 .. code-block:: python
 
+    import higlass as hg
     from  clodius.tiles import npmatrix
-    from higlass.tilesets import Tileset
+    from higlass.tilesets import LocalTileset
 
-    ts = Tileset(
-        tileset_info=lambda: npmatrix.tileset_info(data),
-        tiles=lambda tids: npmatrix.tiles_wrapper(data, tids)
+    ts = hg.server.add(
+        LocalTileset(
+            info=lambda: npmatrix.tileset_info(data),
+            tiles=lambda tids: npmatrix.tiles_wrapper(data, tids),
+            uid="example-npmatrix",
+        )
     )
 
-    display, server, viewconf = higlass.display([
-        View([
-            Track(track_type='top-axis', position='top'),
-            Track(track_type='left-axis', position='left'),
-            Track(track_type='heatmap',
-                  position='center',
-                  tileset=ts,
-                  height=250,
-                  options={ 'valueScaleMax': 0.5 }),
-
-        ])
-    ])
-    display
+    hg.view(
+        hg.track("top-axis"),
+        hg.track("left-axis"),
+        ts.track("heatmap", height=250).opts(valueScaleMax=0.5),
+    )
 
 .. image:: img/eggholder-function.png
 
-Displaying Many Points
-""""""""""""""""""""""
 
-To display, for example, a list of 1 million points in a HiGlass window inside of a Jupyter notebook.
-First we need to import the custom track type for displaying labelled points:
+Plugin Tracks
+"""""""""""""
 
-.. code-block:: javascript
+The **higlass-python** package also provides a way to include custom tracks in
+your view configuration. These tracks are defined in a separate (JavaScript)
+package, and can be included in Python in with some additional setup.
 
-    %%javascript
+The ``PluginTrack`` provides a mechanism to hook into the schema validation
+as well as provide the plugin source for the renderer. The ``plugin_url`` is a
+special field which points to the JavaScript source code.
 
-    require(["https://unpkg.com/higlass-labelled-points-track@0.1.11/dist/higlass-labelled-points-track"],
-        function(hglib) {
-
-    });
-
-Then we have to set up a data server to output the data in "tiles".
+A plugin can be created by subclassing ``hg.PluginTrack`` and specifying the ``type``
+and ``plugin_url``. For example,
 
 .. code-block:: python
 
-    import numpy as np
-    import pandas as pd
-    from higlass.client import View, Track
-    from higlass.tilesets import dfpoints
+    import higlass as hg
 
-    length = int(1e6)
-    df = pd.DataFrame({
-        'x': np.random.random((length,)),
-        'y': np.random.random((length,)),
-        'v': range(1, length+1),
-    })
+    from typing import ClassVar, Literal
 
-    ts = dfpoints(df, x_col='x', y_col='y')
+    class PileupTrack(hg.PluginTrack):
+        type: Literal["pileup"] = "pileup"
+        plugin_url: ClassVar[str] = "https://unpkg.com/higlass-pileup/dist/higlass-pileup.min.js"
 
-    display, server, viewconf = higlass.display([
-        View([
-            Track('left-axis'),
-            Track('top-axis'),
-            Track('labelled-points-track',
-                   tileset=ts,
-                   position='center',
-                   height=600,
-                   options={
-                        'xField': 'x',
-                        'yField': 'y',
-                        'labelField': 'v'
-            }),
-        ])
-    ])
+    # Specify the track-specific data
+    pileup_data = {
+        "type": "bam",
+        "url": "https://pkerp.s3.amazonaws.com/public/bamfile_test/SRR1770413.sorted.bam",
+        "chromSizesUrl": "https://pkerp.s3.amazonaws.com/public/bamfile_test/GCF_000005845.2_ASM584v2_genomic.chrom.sizes",
+        "options": {"maxTileWidth": 30000},
+    }
 
-    display
-
-.. image:: img/jupyter-labelled-points.png
-
-This same technique can be used to display points in a GeoJSON file.
-First we have to extract the values from the GeoJSON file and
-create a dataframe:
-
-.. code-block:: python
-
-    import math
-
-    def lat2y(a):
-      return 180.0/math.pi*math.log(math.tan(math.pi/4.0+a*(math.pi/180.0)/2.0))
-
-    x = [t['geometry']['coordinates'][0] for t in trees['features']]
-    y = [-lat2y(t['geometry']['coordinates'][1]) for t in trees['features']]
-    names = [t['properties']['SPECIES'] for t in trees['features']]
-
-    df = pd.DataFrame({ 'x': x, 'y': y, 'names': names })
-    df = df.sample(frac=1).reset_index(drop=True)
-
-And then create the tileset and track, as before.
-
-.. code-block:: python
-
-    from higlass.client import View, Track
-    from higlass.tilesets import dfpoints
-
-    ts = dfpoints(df, x_col='x', y_col='y')
-
-    display, server, viewconf = higlass.display([
-        View([
-            Track('left-axis'),
-            Track('top-axis'),
-            Track('osm-tiles', position='center'),
-            Track('labelled-points-track',
-                   tileset=ts,
-                   position='center',
-                   height=600,
-                   options={
-                        'xField': 'x',
-                        'yField': 'y',
-                        'labelField': 'names'
-            }),
-        ])
-    ])
-
-    display
-
-.. image:: img/geojson-jupyter.png
-
-
-Other constructs
-""""""""""""""""
-
-The examples containing dense data above use the `bundled_tiles_wrapper_2d`
-function to translate lists of tile_ids to tile data. This consolidates tiles
-that are within rectangular blocks and fulfills them simultaneously. The
-return type is a list of ``(tile_id, formatted_tile_data)`` tuples.
-
-In cases where we don't have such a function handy, there's the simpler
-`tiles_wrapper_2d` which expects the target to fullfill just single tile
-requests:
-
-.. code-block:: python
-
-    from clodius.tiles.format import format_dense_tile
-    from clodius.tiles.utils import tiles_wrapper_2d
-    from higlass.tilesets import Tileset
-
-    ts = Tileset(
-        tileset_info=tileset_info,
-        tiles=lambda tile_ids: tiles_wrapper_2d(tile_ids,
-                        lambda z,x,y: format_dense_tile(tile_data(z, x, y)))
+    # Create and use the custom track
+    pileup_track = PileupTrack(data=pileup_data, height=180).opts(
+        axisPositionHorizontal="right",
+        axisLabelFormatting="normal",
+        showCoverage=True,
+        colorScale=[
+            "#2c7bb6","#92c5de","#ffffbf","#fdae61","#808080", "#DCDCDC",
+        ],
     )
 
+    hg.view((pileup_track, "center"))
 
-In this case, we expect *tile_data* to simply return a matrix of values.
-
-
-Troubleshooting
----------------
-
-Accessing the server log
-^^^^^^^^^^^^^^^^^^^^^^^^
-
-A local server writes its log records to an in-memory `StringIO <https://docs.python.org/3/library/io.html#io.StringIO>`_ buffer. The server's name can be used to access its logger.
-
-.. code-block:: python
-
-    import logging
-
-    logger = logging.getLogger(server.name)
-    logger.info('Hi!')
-
-    # convert the stream into a string
-    print(server.log.getvalue())
-
-    # write the log to a file
-    with open('higlass-server.log', 'wt') as f:
-        f.write(server.log.getvalue())
-
+.. image:: img/jupyter-pileup-no-code.png

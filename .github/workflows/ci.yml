@@ -1,26 +1,33 @@
-name: tests
+name: CI
 
-on: 
+on:
   push:
     branches:
       - main
     tags:
       - "v*" # Push events to matching v*, i.e. v1.0, v20.15.10
   pull_request:
-    branches:
-      - main
   workflow_dispatch:
 
 jobs:
-  test:
-    name: ${{ matrix.platform }} py${{ matrix.python-version }}
-    runs-on: ${{ matrix.platform }}
+  Lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: "3.x"
+      - run: |
+          pipx install hatch
+          hatch run lint
+
+  Test:
+    name: Test ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        # platform: [ubuntu-latest, windows-latest, macos-latest]
-        # python-version: [3.7, 3.8, 3.9, '3.10']
-        platform: [ubuntu-latest]
-        python-version: [3.7]
+        python-version: ['3.7', '3.8', '3.9', '3.10', '3.11']
 
     steps:
       - uses: actions/checkout@v2
@@ -32,15 +39,14 @@ jobs:
 
       - name: Install dependencies
         run: |
-          # python -m pip install --upgrade pip
-          # pip install setuptools tox tox-gh-actions
-          echo "TODO!"
+          pipx install hatch
+          hatch run test
 
-  deploy:
+  Release:
     # this will run when you have tagged a commit, starting with "v*"
     # and requires that you have put your twine API key in your 
     # github secrets (see readme for details)
-    needs: [test]
+    needs: [Test]
     runs-on: ubuntu-latest
     if: contains(github.ref, 'tags')
     steps:

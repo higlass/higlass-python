@@ -1,5 +1,4 @@
-from __future__ import annotations
-
+import functools
 import json
 from collections import OrderedDict
 from typing import (
@@ -18,10 +17,9 @@ from pydantic import BaseModel as PydanticBaseModel
 from pydantic import Extra, Field
 from pydantic.class_validators import root_validator
 from pydantic.generics import GenericModel as PydanticGenericModel
-from typing_extensions import Literal, TypedDict, Annotated
+from typing_extensions import Annotated, Literal, TypedDict
 
 from .utils import exclude_properties_titles, get_schema_of, simplify_enum_schema
-import functools
 
 
 # Override Basemodel
@@ -145,6 +143,7 @@ class Overlay(BaseModel):
 
 
 LockEntry = Tuple[float, float, float]
+
 
 # We'd rather have tuples in our final model, because a
 # __root__ model is clunky from a python user perspective.
@@ -415,7 +414,7 @@ class CombinedTrack(BaseTrack[Literal["combined"]]):
     class Config:
         extra = Extra.ignore
 
-    contents: List[Track]
+    contents: List["Track"]
     position: Optional[str] = None
 
 

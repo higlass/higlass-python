@@ -6,7 +6,7 @@ from pydantic import BaseModel, schema_of
 def simplify_schema(root_schema: Dict[str, Any]) -> Dict[str, Any]:
     """Lift defintion reference to root if only definition"""
     # type of root is not a reference to a definition
-    if not "$ref" in root_schema:
+    if "$ref" not in root_schema:
         return root_schema
 
     defs = list(root_schema["definitions"].values())
@@ -36,7 +36,6 @@ def get_schema_of(type_: Any):
 
 
 def simplify_enum_schema(schema: Dict[str, Any]):
-
     # reduce union of enums into single enum
     if "anyOf" in schema:
         enum = []

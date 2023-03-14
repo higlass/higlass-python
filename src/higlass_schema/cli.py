@@ -1,11 +1,10 @@
 import argparse
 import sys
 
-from .schema import schema_json, Viewconf, View, Track
-
 from pydantic import ValidationError
-
 from rich.console import Console
+
+from .schema import Track, View, Viewconf, schema_json
 
 console = Console()
 
@@ -21,16 +20,17 @@ def check(args: argparse.Namespace) -> None:
             Viewconf[View[Track]].parse_raw(raw)
         else:
             Viewconf[View[Track]].parse_file(args.path)
-        console.print("✅ Valid viewconf.", style="green")
+        console.print("✅ valid viewconf.", style="green")
     except ValidationError:
+        msg = "❌ Invalid viewconf."
         if args.verbose:
-            console.print("❌ invalid viewconf.", style="yellow")
+            console.print(msg, style="yellow")
             console.print_exception()
-        else:
-            console.print(
-                "❌ Invalid viewconf. Run [white]`hgschema check --verbose`[/white] for more details.",
-                style="yellow",
-            )
+
+        console.print(
+            f"{msg} Run [white]`hgschema check --verbose`[/white] for more details.",
+            style="yellow",
+        )
         sys.exit(1)
 
 

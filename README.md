@@ -5,7 +5,7 @@ on top of [`higlass-schema`](https://github.com/higlass/higlass-schema) and
 [`higlass-widget`](https://github.com/higlass/higlass-widget).
 
 [![License](https://img.shields.io/pypi/l/higlass-python.svg?color=green)](https://github.com/higlass/higlass-python/raw/main/LICENSE)
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/higlass/higlass-python/blob/main/notebooks/Examples.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/higlass/higlass-python/blob/main/examples/Examples.ipynb)
 
 ## Usage
 

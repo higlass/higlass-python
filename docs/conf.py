@@ -3,8 +3,9 @@
 
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
-from higlass import __version__
 from pkg_resources import parse_version
+
+from higlass import __version__
 
 # -*- coding: utf-8 -*-
 #

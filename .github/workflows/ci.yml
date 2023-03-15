@@ -22,6 +22,25 @@ jobs:
           pipx install hatch
           hatch run lint
 
+  Schema:
+    name: JS viewconf validation with generated JSON Schema
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
+
+      - run: |
+          pip install -e .
+          higlass-schema export > schema.json
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '16.x'
+      - run: npm install -g ajv-cli
+      - run: ajv validate -s schema.json -d "tests/fixtures/{docs/examples/viewconfs,test/{view-configs,view-configs-more}}/*.json"
+
   Test:
     name: Test ${{ matrix.python-version }}
     runs-on: ubuntu-latest

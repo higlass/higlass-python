@@ -1,4 +1,3 @@
-import functools
 import json
 from collections import OrderedDict
 from typing import (
@@ -34,13 +33,9 @@ class BaseModel(PydanticBaseModel):
     def __rich_repr__(self):
         return iter(self)
 
-    # Omit fields which are None by default.
-    @functools.wraps(PydanticBaseModel.dict)
     def dict(self, exclude_none: bool = True, **kwargs):
         return super().dict(exclude_none=exclude_none, **kwargs)
 
-    # Omit fields which are None by default.
-    @functools.wraps(PydanticBaseModel.json)
     def json(self, exclude_none: bool = True, **kwargs):
         return super().json(exclude_none=exclude_none, **kwargs)
 
@@ -57,13 +52,9 @@ class GenericModel(PydanticGenericModel):
     def __rich_repr__(self):
         return iter(self)
 
-    # Omit fields which are None by default.
-    @functools.wraps(PydanticBaseModel.dict)
     def dict(self, exclude_none: bool = True, **kwargs):
         return super().dict(exclude_none=exclude_none, **kwargs)
 
-    # Omit fields which are None by default.
-    @functools.wraps(PydanticBaseModel.json)
     def json(self, exclude_none: bool = True, **kwargs):
         return super().json(exclude_none=exclude_none, **kwargs)
 
@@ -543,10 +534,10 @@ class Viewconf(GenericModel, Generic[ViewT]):
         @staticmethod
         def schema_extra(schema: Dict[str, Any], _) -> None:
             exclude_properties_titles(schema)
-            # manually add minItems for views/trackSourceServers
+            # manually add minItems for views
             # because pydantic.conlist breaks generics and Annotated
             # fields don't added
-            for prop in ("views", "trackSourceServers"):
+            for prop in ["views"]:
                 schema["properties"][prop]["minItems"] = 1
 
     editable: Optional[bool] = True
@@ -555,7 +546,7 @@ class Viewconf(GenericModel, Generic[ViewT]):
     zoomFixed: Optional[bool] = None
     compactLayout: Optional[bool] = None
     exportViewUrl: Optional[str] = None
-    trackSourceServers: Optional[Annotated[List[str], Field(min_items=1)]] = None
+    trackSourceServers: Optional[List[str]] = None
     views: Optional[Annotated[List[ViewT], Field(min_items=1)]] = None
     zoomLocks: Optional[ZoomLocks] = None
     locationLocks: Optional[LocationLocks] = None

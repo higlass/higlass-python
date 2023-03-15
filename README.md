@@ -1,4 +1,4 @@
-# higlass-python v2 🔎
+# higlass-python 🔎
 
 a fresh python library for [`higlass`](https://github.com/higlass/higlass) built 
 on top of [`higlass-schema`](https://github.com/higlass/higlass-schema) and
@@ -8,6 +8,13 @@ on top of [`higlass-schema`](https://github.com/higlass/higlass-schema) and
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/higlass/higlass-python/blob/main/notebooks/Examples.ipynb)
 
 ## Usage
+
+> **Note** A release candidate for `higlass-python` v1 is now available on 
+> PyPI and can be installed via pip:
+
+```sh
+pip install --pre higlass-python
+```
 
 ```python
 import higlass as hg
@@ -38,6 +45,9 @@ view_lock = hg.lock(view1, view2)
 ```
 
 ![Side-by-side Hi-C heatmaps, linked by pan and zoom](https://user-images.githubusercontent.com/24403730/159050305-e6a48f03-fba1-4ff7-8eee-2e9c5c40ef88.gif)
+
+
+To learn more about the new API, check out the [updated documentation](https://higlass.io/higlass-python).
 
 ## Development
 

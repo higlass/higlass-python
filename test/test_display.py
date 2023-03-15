@@ -1,7 +1,8 @@
 from unittest.mock import MagicMock
 
-from higlass._display import HTMLRenderer, RendererRegistry, renderers
 import pytest
+
+from higlass._display import HTMLRenderer, RendererRegistry, renderers
 
 
 def test_registry():

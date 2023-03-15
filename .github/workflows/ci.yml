@@ -30,7 +30,9 @@ jobs:
       # doesn't detect higlass as a local module, so
       # there are differences with import block sorting locally
       # and in CI. We should hopefully enable this rule in the future.
-      run: ruff --ignore I001 .
+      run: |
+        ruff --ignore I001 .
+        ruff src/ # everything seems to be working in src ...
 
     - name: Formatting with Black
       run: black --check .

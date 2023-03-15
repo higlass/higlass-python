@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import pytest
-from pydantic import BaseModel
 from higlass._utils import copy_unique, ensure_list
+from pydantic import BaseModel
 
 
 def test_copy_unique():

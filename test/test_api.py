@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import pytest
 import higlass as hg
+import pytest
 
 
 @pytest.mark.parametrize(

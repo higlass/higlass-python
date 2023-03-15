@@ -48,9 +48,9 @@ def test_temporary_renderer():
 
     registry.enable("foo")
 
-    with registry.enable("mock"):
+    with registry.enable("mock") as render:
         assert registry.active == "mock"
-        registry.get()({"hello": "world"})
+        render({"hello": "world"})
 
     mock.assert_called_once_with({"hello": "world"})
 

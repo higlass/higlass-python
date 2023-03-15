@@ -141,12 +141,8 @@ class HTMLRenderer(BaseRenderer):
         return {"text/html": html}
 
 
-class PluginRegistry(Protocol):
-    active: str | None
-
-
 @contextlib.contextmanager
-def managed_enable(registry: PluginRegistry, reset: str | None):
+def managed_enable(registry: RendererRegistry, reset: str | None):
     """Temporarily enables a renderer.
 
     Parameters
@@ -158,13 +154,13 @@ def managed_enable(registry: PluginRegistry, reset: str | None):
         The previous name of the active plugin.
     """
     try:
-        yield registry
+        yield registry.get()
     finally:
         registry.active = reset
 
 
 @dataclass
-class RendererRegistry(PluginRegistry):
+class RendererRegistry:
     """A registery for multiple HiGlass renderers.
 
     Allows for multiple renders to be registered, and dynamically enabled/disabled

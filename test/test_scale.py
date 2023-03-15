@@ -1,5 +1,4 @@
 import pytest
-
 from higlass._scale import Scale
 
 

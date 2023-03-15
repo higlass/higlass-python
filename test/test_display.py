@@ -1,7 +1,6 @@
 from unittest.mock import MagicMock
 
 import pytest
-
 from higlass._display import HTMLRenderer, RendererRegistry, renderers
 
 

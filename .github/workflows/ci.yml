@@ -26,13 +26,7 @@ jobs:
         pip install -e .[dev]
 
     - name: Linting with Ruff
-      # TODO: fix me! For some reason ruff's isorting
-      # doesn't detect higlass as a local module, so
-      # there are differences with import block sorting locally
-      # and in CI. We should hopefully enable this rule in the future.
-      run: |
-        ruff --ignore I001 .
-        ruff src/ # everything seems to be working in src ...
+      run: ruff .
 
     - name: Formatting with Black
       run: black --check .

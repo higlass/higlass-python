@@ -23,11 +23,12 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 url = { homepage = "https://github.com/higlass/higlass-schema" }
+requires-python = ">=3.7"
 dynamic = ["version"]
 dependencies = [
     "importlib_metadata ; python_version < '3.8'",
-    "pydantic",
-    "rich",
+    "pydantic>=1.10,<2.0",
+    "rich>=13.3.3",
 ]
 
 [project.optional-dependencies]

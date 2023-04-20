@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 import functools
 import hashlib
 import pathlib
+import typing
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Literal, Optional, Sequence
 
 from ._utils import TrackType
 from .api import track
@@ -18,27 +20,40 @@ __all__ = [
     "bed2ddb",
 ]
 
-TileId = str
-Tile = Dict[str, Any]
-TilesetInfo = Dict[str, Any]
-
-DataType = Literal["vector", "multivec", "matrix"]
+DataType = typing.Literal["vector", "multivec", "matrix"]
 
 
-@dataclass
 class LocalTileset:
-    tiles: Callable[[Sequence[TileId]], List[Tile]]
-    info: Callable[[], TilesetInfo]
-    uid: str
-    datatype: Optional[DataType] = None
-    name: Optional[str] = None
+    def __init__(
+        self,
+        datatype: DataType,
+        tiles: typing.Callable[[typing.Sequence[str]], list[typing.Any]],
+        info: typing.Callable[[], typing.Any],
+        uid: str,
+        name: str | None = None,
+    ):
+        self.datatype = datatype
+        self._tiles = tiles
+        self._info = info
+        self._uid = uid
+        self.name = name
+
+    @property
+    def uid(self) -> str:
+        return self._uid
+
+    def tiles(self, tile_ids: typing.Sequence[str]) -> list[typing.Any]:
+        return self._tiles(tile_ids)
+
+    def info(self) -> typing.Any:
+        return self._info()
 
 
 @dataclass
 class RemoteTileset:
     uid: str
     server: str
-    name: Optional[str] = None
+    name: str | None = None
 
     def track(self, type_: TrackType, **kwargs):
         t = track(
@@ -56,8 +71,10 @@ def remote(uid: str, server: str = "https://higlass.io/api/v1", **kwargs):
     return RemoteTileset(uid, server, **kwargs)
 
 
-def hash_absolute_filepath_as_default_uid(fn: Callable[[str, str], LocalTileset]):
-    def wrapper(filepath: str, uid: Optional[str] = None):
+def hash_absolute_filepath_as_default_uid(
+    fn: typing.Callable[[str, str], LocalTileset]
+):
+    def wrapper(filepath: str, uid: None | str = None):
         if uid is None:
             abspath = pathlib.Path(filepath).absolute()
             uid = hashlib.md5(str(abspath).encode()).hexdigest()

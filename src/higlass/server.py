@@ -1,25 +1,58 @@
 from __future__ import annotations
 
 import functools
-from typing import Callable, Dict, Optional
+import typing
 
+from servir import Provider
+from servir import TilesetResource as _TilesetResource
 from typing_extensions import ParamSpec
 
-from higlass.tilesets import LocalTileset
-
-from ._provider import TilesetProvider, TilesetResource
+from higlass._utils import datatype_default_track
+from higlass.api import track
+from higlass.tilesets import LocalTileset, TrackType
 
 __all__ = [
-    "HgServer",
-    "server",
+    "HiGlassServer",
+    "TilesetResource",
+    "_create_tileset_helper",
 ]
 
-P = ParamSpec("P")
+
+class TilesetResource:
+    def __init__(self, resource: _TilesetResource):
+        self._resource = resource
+
+    @property
+    def tileset(self):
+        return self._resource.tileset
+
+    @property
+    def server(self):
+        return self._resource.server
+
+    def track(self, type_: TrackType | None = None, **kwargs):
+        # use default track based on datatype if available
+        if type_ is None:
+            if getattr(self.tileset, "datatype", None) is None:
+                raise ValueError("No default track for tileset")
+            else:
+                type_ = typing.cast(
+                    TrackType, datatype_default_track[self.tileset.datatype]
+                )
+        t = track(
+            type_=type_,
+            server=self.server,
+            tilesetUid=self.tileset.uid,
+            **kwargs,
+        )
+        if self.tileset.name:
+            t.opts(name=self.tileset.name, inplace=True)
+        return t
 
 
-class HgServer:
+class HiGlassServer:
     def __init__(self):
-        self._provider: TilesetProvider | None = None
+        self._provider: Provider | None = None
         # We need to keep references to served resources,
         # because the background server uses weakrefs.
         self._tilesets: dict[str, TilesetResource] = {}
@@ -37,35 +70,19 @@ class HgServer:
 
     def enable_proxy(self):
         try:
-            import jupyter_server_proxy
+            import jupyter_server_proxy  # noqa: F401
         except ImportError as e:
             raise ImportError(
                 'Install "jupyter-server-proxy" to enable server proxying.'
             ) from e
         if not self._provider:
-            self._provider = TilesetProvider().start()
+            self._provider = Provider().start()
         self._provider.proxy = True
 
     def disable_proxy(self):
         if not self._provider:
             raise RuntimeError("Server not started.")
         self._provider.proxy = False
-
-    def register(
-        self, tileset_fn: Callable[P, LocalTileset]
-    ) -> Callable[P, TilesetResource]:
-        """Register a tileset function for this server.
-
-        This is just a convenience method to avoid the repetition of creating
-        a tileset and manually adding the tileset to the server.
-        """
-
-        @functools.wraps(tileset_fn)
-        def wrapper(*args, **kwargs):
-            ts = tileset_fn(*args, **kwargs)
-            return self.add(ts)
-
-        return wrapper
 
     def add(
         self,
@@ -77,16 +94,17 @@ class HgServer:
         Note: Only tilesets with new uids are added to the server. If the tileset
               uid matches one already on the server, the existing tileset resource
               is returned. Existing tilesets can only be cleared with
-              `HgServer.reset()`.
+              `HiGlassServer.reset()`.
         """
         if self._provider is None:
-            self._provider = TilesetProvider().start(port=port)
+            self._provider = Provider().start(port=port)
 
         if port is not None and port != self._provider.port:
             self._provider.stop().start(port=port)
 
         if tileset.uid not in self._tilesets:
-            self._tilesets[tileset.uid] = self._provider.create(tileset)
+            server_resource = self._provider.create(tileset)
+            self._tilesets[tileset.uid] = TilesetResource(server_resource)
 
         return self._tilesets[tileset.uid]
 
@@ -99,4 +117,18 @@ class HgServer:
         yield "port", port
 
 
-server = HgServer()
+_P = ParamSpec("_P")
+
+
+def _create_tileset_helper(
+    server: HiGlassServer,
+    tileset_fn: typing.Callable[_P, LocalTileset],
+) -> typing.Callable[_P, TilesetResource]:
+    """Create a top-level helper function that adds the tileset to the server."""
+
+    @functools.wraps(tileset_fn)
+    def wrapper(*args: typing.Any, **kwargs: typing.Any) -> TilesetResource:
+        tileset = typing.cast(typing.Any, tileset_fn)(*args, **kwargs)
+        return server.add(tileset)
+
+    return wrapper  # type: ignore

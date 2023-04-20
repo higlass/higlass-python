@@ -26,13 +26,12 @@ license = { text = "MIT" }
 dynamic = ["version"]
 readme = "README.md"
 dependencies = [
-    "higlass-schema",
-    "higlass-widget",
+    "servir>=0.0.5",
+    "higlass-schema>=0.0.6",
+    "higlass-widget>=0.0.7",
     "jinja2",
-    "portpicker",
-    "uvicorn",
-    "starlette",
-    "jupyter-server-proxy",
+    "jupyter-server-proxy>=3.0",
+    "typing-extensions ; python_version<'3.9'",
 ]
 urls = { homepage = "https://github.com/higlass/higlass-python" }
 
@@ -96,3 +95,6 @@ extend-select = [
     "F403", # unused-star-used
     "F401", # unused import
 ]
+
+[tool.ruff.isort]
+known-first-party = ["higlass"]

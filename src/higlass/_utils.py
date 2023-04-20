@@ -51,6 +51,18 @@ T = TypeVar("T")
 
 
 def ensure_list(x: T | list[T] | None) -> list[T]:
+    """Ensures that x is a list.
+
+    Parameters
+    ----------
+    x : T | list[T] | None
+        The object to be converted to a list.
+
+    Returns
+    -------
+    list[T]
+        The object as a list.
+    """
     if x is None:
         return []
     return x if isinstance(x, list) else [x]

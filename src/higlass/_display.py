@@ -36,7 +36,7 @@ HTML_TEMPLATE = jinja2.Template(
 
 def viewconf_to_html(
     viewconf: dict,
-    higlass_version: str = "1.11",
+    higlass_version: str = "1.12",
     react_version: str = "17",
     pixijs_version: str = "6",
     output_div: str = "vis",

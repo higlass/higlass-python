@@ -1,3 +1,5 @@
+from unittest.mock import MagicMock
+
 import pytest
 
 from higlass._display import HTMLRenderer, RendererRegistry, renderers
@@ -29,6 +31,32 @@ def test_registry():
     mimebundle = render({})
 
     assert isinstance(mimebundle, dict)
+    assert mimebundle["text/plain"] == "some content"
+
+
+def test_temporary_renderer():
+    registry = RendererRegistry()
+    mock = MagicMock()
+
+    def renderer(viewconf: dict, **metadata):
+        return {
+            "text/plain": "some content",
+        }
+
+    registry.register("foo", renderer)
+    registry.register("mock", mock)
+
+    registry.enable("foo")
+
+    with registry.enable("mock") as render:
+        assert registry.active == "mock"
+        render({"hello": "world"})
+
+    mock.assert_called_once_with({"hello": "world"})
+
+    render = registry.get()
+    mimebundle = render({})
+    assert registry.active == "foo"
     assert mimebundle["text/plain"] == "some content"
 
 

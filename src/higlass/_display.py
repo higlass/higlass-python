@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import contextlib
 import json
 import uuid
 from dataclasses import dataclass, field
@@ -140,6 +141,24 @@ class HTMLRenderer(BaseRenderer):
         return {"text/html": html}
 
 
+@contextlib.contextmanager
+def managed_enable(registry: RendererRegistry, reset: str | None):
+    """Temporarily enables a renderer.
+
+    Parameters
+    ----------
+    registry : PluginRegistry
+        The plugin registry to potentially reset the active plugin.
+
+    reset : str | None
+        The previous name of the active plugin.
+    """
+    try:
+        yield registry.get()
+    finally:
+        registry.active = reset
+
+
 @dataclass
 class RendererRegistry:
     """A registery for multiple HiGlass renderers.
@@ -185,7 +204,9 @@ class RendererRegistry:
         """
         if name not in self.renderers:
             raise ValueError(f"Renderer '{name}' has not been registered.")
+        prev = self.active
         self.active = name
+        return managed_enable(self, prev)
 
     def get(self):
         """Get the enabled renderer."""

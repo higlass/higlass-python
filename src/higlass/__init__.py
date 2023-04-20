@@ -11,6 +11,7 @@ except PackageNotFoundError:
 from higlass_schema import *
 
 import higlass.tilesets
+from higlass._display import renderers
 from higlass.api import *
 from higlass.fuse import fuse
 from higlass.server import HiGlassServer, _create_tileset_helper

@@ -49,7 +49,6 @@ class LocalTileset:
         return self._info()
 
 
-
 @dataclass
 class RemoteTileset:
     uid: str

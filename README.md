@@ -46,14 +46,14 @@ view_lock = hg.lock(view1, view2)
 ![Side-by-side Hi-C heatmaps, linked by pan and zoom](https://user-images.githubusercontent.com/24403730/159050305-e6a48f03-fba1-4ff7-8eee-2e9c5c40ef88.gif)
 
 To learn more about the new API, check out the
-[updated documentation](https://higlass.github.io/higlass-python/).
+[updated documentation](http://docs-python.higlass.io/).
 
 ## Upgrade Guide
 
 **higlass-python** v1.0 is a total rewrite of our prior
 implementation, aimed to offer a more ergonomic and flexible API. While this
 might present challenges when upgrading existing code, we've prepared
-[documentation](https://higlass.github.io/higlass-python/) to guide you through the new API usage.
+[documentation](http://docs-python.higlass.io/) to guide you through the new API usage.
 
 If you find a missing feature, please open an issue – we're committed to
 supporting your use cases with the new API.

@@ -7,14 +7,13 @@ on top of [`higlass-schema`](https://github.com/higlass/higlass-schema) and
 [![License](https://img.shields.io/pypi/l/higlass-python.svg?color=green)](https://github.com/higlass/higlass-python/raw/main/LICENSE)
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/higlass/higlass-python/blob/main/examples/Examples.ipynb)
 
-## Usage
-
-> **Note** A release candidate for `higlass-python` v1 is now available on 
-> PyPI and can be installed via pip:
+## Installation
 
 ```sh
-pip install --pre higlass-python
+pip install higlass-python
 ```
+
+## Usage
 
 ```python
 import higlass as hg

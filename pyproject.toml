@@ -23,10 +23,9 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 url = { homepage = "https://github.com/higlass/higlass-schema" }
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 dynamic = ["version"]
 dependencies = [
-    "importlib_metadata ; python_version < '3.8'",
     "pydantic>=1.10,<2.0",
     "rich>=13.3.3",
 ]
@@ -51,14 +50,21 @@ source = "vcs"
 features = ["dev"]
 
 [tool.hatch.envs.default.scripts]
-fix = "black . && ruff --fix ."
-lint = "black --check . && ruff ."
+lint = [
+  "ruff {args:.}",
+  "black --check --diff {args:.}",
+]
+fmt = [
+  "black {args:.}",
+  "ruff --fix {args:.}",
+  "lint",
+]
 test = "pytest ."
 
 # https://github.com/charliermarsh/ruff
 [tool.ruff]
 line-length = 88
-target-version = "py37"
+target-version = "py38"
 src = ["src", "tests"]
 extend-select = [
     "E",    # style errors

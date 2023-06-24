@@ -228,24 +228,26 @@ class AxisSpecificLocks(BaseModel):
 
 
 class LocationLocks(BaseModel):
-    locksByViewUid: Dict[str, Union[str, AxisSpecificLocks]] = {}
-    locksDict: Dict[str, Lock] = {}
+    locksByViewUid: Dict[str, Union[str, AxisSpecificLocks]] = Field(
+        default_factory=dict
+    )
+    locksDict: Dict[str, Lock] = Field(default_factory=dict)
 
 
 class ZoomLocks(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    locksByViewUid: Dict[str, str] = {}
-    locksDict: Dict[str, Lock] = {}
+    locksByViewUid: Dict[str, str] = Field(default_factory=dict)
+    locksDict: Dict[str, Lock] = Field(default_factory=dict)
 
 
 class ValueScaleLocks(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    locksByViewUid: Dict[str, str] = {}
-    locksDict: Dict[str, ValueScaleLock] = {}
+    locksByViewUid: Dict[str, str] = Field(default_factory=dict)
+    locksDict: Dict[str, ValueScaleLock] = Field(default_factory=dict)
 
 
 ##################################################

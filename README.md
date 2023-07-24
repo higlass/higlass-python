@@ -1,8 +1,9 @@
 # higlass-python 🔎
 
-a fresh python library for [`higlass`](https://github.com/higlass/higlass) built
-on top of [`higlass-schema`](https://github.com/higlass/higlass-schema) and
-[`higlass-widget`](https://github.com/higlass/higlass-widget).
+A fresh Python library for [`higlass`](https://github.com/higlass/higlass) built
+on top of:
+* [`higlass-schema`](https://github.com/higlass/higlass-schema): Pydantic models for HiGlass.
+* [`higlass-widget`](https://github.com/higlass/higlass-widget): A cross-platform [AnyWidget](https://github.com/manzt/anywidget) for Jupyter environments.
 
 [![License](https://img.shields.io/pypi/l/higlass-python.svg?color=green)](https://github.com/higlass/higlass-python/raw/main/LICENSE)
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/higlass/higlass-python/blob/main/examples/Examples.ipynb)

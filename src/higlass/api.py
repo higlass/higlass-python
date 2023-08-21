@@ -385,11 +385,11 @@ class Viewconf(hgs.Viewconf[View[TrackT]], _PropertiesMixin, Generic[TrackT]):
         plugin_urls = [] if self.views is None else gather_plugin_urls(self.views)
         return renderer(self.dict(), plugin_urls=plugin_urls)
 
-    def widget(self):
+    def widget(self, **kwargs):
         """Create a Jupyter Widget display for this view config."""
         from higlass_widget import HiGlassWidget
 
-        return HiGlassWidget(self.dict())
+        return HiGlassWidget(self.dict(), **kwargs)
 
     @classmethod
     def from_url(cls, url: str, **kwargs):

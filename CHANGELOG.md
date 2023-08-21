@@ -1,3 +1,7 @@
+## [v1.0.1](https://github.com/higlass/higlass-python/compare/v1.0.1...v1.0.0)
+
+- Pass kwargs in to Viewconf.widget() so that they can be passed on to the higlass widget and potentially make their way to the higlass component
+
 ## [v0.4.8](https://github.com/higlass/higlass-python/compare/v0.4.8...v0.4.7)
 
 - Bumped higlass version

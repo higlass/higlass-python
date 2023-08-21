@@ -28,7 +28,7 @@ readme = "README.md"
 dependencies = [
     "servir>=0.0.5",
     "higlass-schema>=0.0.6",
-    "higlass-widget>=0.0.7",
+    "anywidget>=0.6.3",
     "jinja2",
     "jupyter-server-proxy>=3.0",
     "typing-extensions ; python_version<'3.9'",
@@ -41,6 +41,7 @@ dev = [
     "pytest",
     "ruff",
     "jupyterlab",
+    "anywidget[dev]>=0.6.3",
 ]
 docs = [
     "Sphinx",

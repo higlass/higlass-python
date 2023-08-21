@@ -39,7 +39,7 @@ urls = { homepage = "https://github.com/higlass/higlass-python" }
 dev = [
     "black[jupyter]",
     "pytest",
-    "ruff",
+    "ruff==0.0.285",
     "jupyterlab",
     "anywidget[dev]>=0.6.3",
 ]

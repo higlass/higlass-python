@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import typing
 
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
@@ -213,7 +214,7 @@ class IframeVideo(Directive):
     required_arguments = 1
     optional_arguments = 0
     final_argument_whitespace = False
-    option_spec = {
+    option_spec: typing.ClassVar = {
         "height": directives.nonnegative_int,
         "width": directives.nonnegative_int,
         "align": align,

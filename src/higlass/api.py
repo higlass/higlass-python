@@ -387,7 +387,7 @@ class Viewconf(hgs.Viewconf[View[TrackT]], _PropertiesMixin, Generic[TrackT]):
 
     def widget(self, **kwargs):
         """Create a Jupyter Widget display for this view config."""
-        from higlass_widget import HiGlassWidget
+        from higlass._widget import HiGlassWidget
 
         return HiGlassWidget(self.dict(), **kwargs)
 

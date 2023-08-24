@@ -1,6 +1,21 @@
 Examples
 ########
 
+Passing in an auth token
+------------------------
+
+If the source higlass server requires authentication, an auth token
+can be passed in to the `Authorization` header of the request. To do
+this, the viewer needs to be instantiated as a widget with the
+contents of the authorization header passed in.
+
+.. code-block:: python
+
+    from higlass import view
+
+    v1 = view(...)
+    v1.widget(authToken=f"Bearer <my_token>")
+
 Synchronizing location, zoom and value scales
 ---------------------------------------------
 

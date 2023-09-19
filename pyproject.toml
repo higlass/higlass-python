@@ -56,6 +56,8 @@ fuse = [
 
 [tool.hatch.build]
 sources = ["src"]
+only-packages = true
+artifacts = ["src/higlass/widget.js"]
 
 [tool.hatch.version]
 source = "vcs"

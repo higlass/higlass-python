@@ -9,5 +9,3 @@ notebooks/mnt/
 docs/_build/
 dist/
 .venv
-
-hg/_version.py

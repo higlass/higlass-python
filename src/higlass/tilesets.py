@@ -101,6 +101,23 @@ def bigwig(filepath: str, uid: str):
 
 
 @hash_absolute_filepath_as_default_uid
+def beddb(filepath: str, uid: str):
+    try:
+        from clodius.tiles.beddb import tiles, tileset_info
+    except ImportError:
+        raise ImportError(
+            'You must have `clodius` installed to use "vector" data-server.'
+        )
+
+    return LocalTileset(
+        datatype="vector",
+        tiles=functools.partial(tiles, filepath),
+        info=functools.partial(tileset_info, filepath),
+        uid=uid,
+    )
+
+
+@hash_absolute_filepath_as_default_uid
 def multivec(filepath: str, uid: str):
     try:
         from clodius.tiles.multivec import tiles, tileset_info

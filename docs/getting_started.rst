@@ -182,6 +182,39 @@ or loading an existing view config via URL to access a sub-track:
   # }
 
 
+Add Genome Position SearchBox
+.. code-block:: python
+
+import higlass as hg
+search_box_obj = hg.GenomePositionSearchBox(
+    autocompleteServer="//higlass.io/api/v1",
+    autocompleteId="OHJakQICQD6gTD7skx4EWA",
+    chromInfoId="hg19",
+    chromInfoServer="//higlass.io/api/v1",
+    visible=True)
+
+mm10 = hg.remote(
+    uid="QDutvmyiSrec5nX4pA5WGQ",
+    server="//higlass.io/api/v1",
+)
+
+view1 = hg.view(
+
+    mm10.track("gene-annotations",height=150).opts(
+        minHeight = 24,
+    ),
+    genomePositionSearchBox = search
+)
+
+#In order to get access to track sources from higlass.io data sources
+list_of_track_source_servers = [
+    "//higlass.io/api/v1",
+    "https://resgen.io/api/v1/gt/paper-data"
+  ]
+
+view1.viewconf(trackSourceServers = list_of_track_source_servers, exportViewUrl = "/api/v1/viewconfs")
+
+
 View extent
 -----------
 

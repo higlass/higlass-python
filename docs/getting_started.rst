@@ -182,7 +182,13 @@ or loading an existing view config via URL to access a sub-track:
   # }
 
 
+
+
 Add Genome Position SearchBox
+-------------------
+
+
+
 .. code-block:: python
 
     import higlass as hg

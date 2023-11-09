@@ -9,7 +9,7 @@ from simple_httpfs import HttpFs
 
 FsName = Literal["http", "https", "ftp"]
 
-logger = logging.getLogger("hg.fuse")
+logger = logging.getLogger("higlass.fuse")
 
 
 class MultiHttpFs(LoggingMixIn, Operations):

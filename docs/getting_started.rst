@@ -192,12 +192,6 @@ Add Genome Position SearchBox
 .. code-block:: python
 
     import higlass as hg
-    search_box_obj = hg.GenomePositionSearchBox(
-        autocompleteServer="//higlass.io/api/v1",
-        autocompleteId="OHJakQICQD6gTD7skx4EWA",
-        chromInfoId="hg19",
-        chromInfoServer="//higlass.io/api/v1",
-        visible=True)
     
     mm10 = hg.remote(
         uid="QDutvmyiSrec5nX4pA5WGQ",
@@ -209,7 +203,12 @@ Add Genome Position SearchBox
         mm10.track("gene-annotations",height=150).opts(
             minHeight = 24,
         ),
-        genomePositionSearchBox = search
+        genomePositionSearchBox = hg.GenomePositionSearchBox(
+            autocompleteServer="//higlass.io/api/v1",
+            autocompleteId="OHJakQICQD6gTD7skx4EWA",
+            chromInfoId="hg19",
+            chromInfoServer="//higlass.io/api/v1",
+            visible=True)
     )
     
     #In order to get access to track sources from higlass.io data sources

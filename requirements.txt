@@ -1,4 +1,3 @@
-clodius
 cytoolz
 flask
 flask-cors

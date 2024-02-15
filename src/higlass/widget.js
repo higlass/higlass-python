@@ -12,7 +12,7 @@ function toPts({ xDomain, yDomain }) {
   return [x, xe, y, ye];
 }
 
-export async function render({ model, el }) {
+async function render({ model, el }) {
   let viewconf = model.get("_viewconf");
   let options = model.get("_options") ?? {};
   let api = await hglib.viewer(el, viewconf, options);
@@ -39,3 +39,5 @@ export async function render({ model, el }) {
     });
   }
 }
+
+export default { render };

@@ -28,7 +28,7 @@ readme = "README.md"
 dependencies = [
     "servir>=0.0.5",
     "higlass-schema>=0.0.6",
-    "anywidget>=0.6.3",
+    "anywidget>=0.9.0",
     "jinja2",
     "jupyter-server-proxy>=3.0",
     "typing-extensions ; python_version<'3.9'",
@@ -74,6 +74,7 @@ test = "pytest ."
 
 [tool.hatch.envs.docs]
 features = ["docs"]
+python = "3.11"
 
 [tool.hatch.envs.docs.scripts]
 build = "sphinx-build -b html ./docs ./docs/_build/html"

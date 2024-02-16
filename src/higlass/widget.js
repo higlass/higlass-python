@@ -49,6 +49,10 @@ import { v4 } from "https://esm.sh/@lukeed/uuid@2";
 // Make sure plugins are registered and enabled
 window.higlassDataFetchersByType = window.higlassDataFetchersByType || {};
 
+function uid() {
+  return v4().split("-")[0];
+}
+
 /**
  * @template T
  * @param {import("npm:@anyiwdget/types").AnyModel} model
@@ -57,7 +61,7 @@ window.higlassDataFetchersByType = window.higlassDataFetchersByType || {};
  * @returns {Promise<{ data: T, buffers: DataView[] }>}
  */
 function send(model, payload, { timeout = 3000 } = {}) {
-  let uuid = globalThis.crypto.randomUUID();
+  let uuid = uid();
   return new Promise((resolve, reject) => {
     let timer = setTimeout(() => {
       reject(new Error(`Promise timed out after ${timeout} ms`));
@@ -126,7 +130,7 @@ function createDataFetcherForModel(model) {
 }
 
 export default () => {
-  let id = `jupyter-${v4().split("-")[0]}`;
+  let id = `jupyter-${uid()}`;
   return {
     async initialize({ model }) {
       let tsId = model.get("_ts");

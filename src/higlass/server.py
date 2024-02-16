@@ -41,7 +41,7 @@ class TilesetResource:
                 )
         t = track(
             type_=type_,
-            server=self.server,
+            server="jupyter",
             tilesetUid=self.tileset.uid,
             **kwargs,
         )

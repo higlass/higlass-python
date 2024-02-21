@@ -649,18 +649,17 @@ class _TrackCreator(BaseModel):
 
 
 @overload
-def track(type_: hgs.EnumTrackType, uid: str | None = None, **kwargs) -> EnumTrack:
-    ...
+def track(type_: hgs.EnumTrackType, uid: str | None = None, **kwargs) -> EnumTrack: ...
 
 
 @overload
-def track(type_: Literal["heatmap"], uid: str | None = None, **kwargs) -> HeatmapTrack:
-    ...
+def track(
+    type_: Literal["heatmap"], uid: str | None = None, **kwargs
+) -> HeatmapTrack: ...
 
 
 @overload
-def track(type_: str, uid: str | None = None, **kwargs) -> PluginTrack:
-    ...
+def track(type_: str, uid: str | None = None, **kwargs) -> PluginTrack: ...
 
 
 def track(

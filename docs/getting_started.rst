@@ -624,6 +624,7 @@ Then we can define the data and tell the server how to render it.
             info=lambda: npmatrix.tileset_info(data),
             tiles=lambda tids: npmatrix.tiles_wrapper(data, tids),
             uid="example-npmatrix",
+            datatype="matrix",
         )
     )
 

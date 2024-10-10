@@ -183,3 +183,6 @@ def bed2ddb(filepath: str, uid: str):
         info=functools.partial(tileset_info, filepath),
         uid=uid,
     )
+
+
+by_filetype = {"cooler": cooler, "bigwig": bigwig}

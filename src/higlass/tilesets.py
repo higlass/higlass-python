@@ -72,7 +72,7 @@ def remote(uid: str, server: str = "https://higlass.io/api/v1", **kwargs):
 
 
 def hash_absolute_filepath_as_default_uid(
-    fn: typing.Callable[[str, str], LocalTileset]
+    fn: typing.Callable[[str, str], LocalTileset],
 ):
     def wrapper(filepath: str, uid: None | str = None):
         if uid is None:

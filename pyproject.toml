@@ -4,6 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "higlass-python"
+version = "1.1.0"
 description = "Python bindings for HiGlass"
 authors = [
     { name = "Fritz Lekschas", email = "code@lekschas.de" },
@@ -23,7 +24,6 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 license = { text = "MIT" }
-dynamic = ["version"]
 readme = "README.md"
 dependencies = [
     "servir>=0.0.5",
@@ -55,15 +55,8 @@ higlass-schema = { workspace = true }
 [tool.uv.workspace]
 members = ["packages/*"]
 
-[tool.hatch.build.targets.sdist]
-include = ["src"]
-
 [tool.hatch.build.targets.wheel]
-only-include = ["src"]
-sources = ["src"]
-
-[tool.hatch.version]
-source = "vcs"
+packages = ["src/higlass"]
 
 [tool.ruff]
 line-length = 88

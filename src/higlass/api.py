@@ -20,23 +20,23 @@ import higlass._display as display
 import higlass._utils as utils
 
 __all__ = [
+    "CombinedTrack",
     "EnumTrack",
     "HeatmapTrack",
     "IndependentViewportProjectionTrack",
-    "CombinedTrack",
     "PluginTrack",
     "TrackT",
     "View",
     "ViewT",
     "Viewconf",
-    "concat",
-    "hconcat",
-    "vconcat",
-    "track",
-    "view",
     "combine",
+    "concat",
     "divide",
+    "hconcat",
     "lock",
+    "track",
+    "vconcat",
+    "view",
 ]
 
 if TYPE_CHECKING:

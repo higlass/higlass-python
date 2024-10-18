@@ -1,0 +1,19 @@
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[project]
+name = "higlass-schema"
+version = "0.1.0"
+description = "Pydantic models for HiGlass"
+authors = [{ name = "Trevor Manz", email = "trevor.j.manz@gmail.com" }]
+license = { text = "MIT" }
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = ["pydantic>=1.10,<2.0", "rich>=13.0.0"]
+
+[project.urls]
+homepage = "https://github.com/higlass/higlass-schema"
+
+[project.scripts]
+higlass-schema = "higlass_schema.cli:main"

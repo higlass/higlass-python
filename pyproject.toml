@@ -5,71 +5,35 @@ build-backend = "hatchling.build"
 [project]
 name = "higlass-schema"
 description = "Pydantic models for HiGlass"
-authors = [
-    { name = "Trevor Manz", email = "trevor.j.manz@gmail.com" }
-]
+authors = [{ name = "Trevor Manz", email = "trevor.j.manz@gmail.com" }]
 license = { text = "MIT" }
 readme = "README.md"
-classifiers = [
-    "Development Status :: 3 - Alpha",
-    "Intended Audience :: Developers",
-    "Programming Language :: Python",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.7",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Operating System :: OS Independent",
-]
-url = { homepage = "https://github.com/higlass/higlass-schema" }
 requires-python = ">=3.8"
 dynamic = ["version"]
-dependencies = [
-    "pydantic>=1.10,<2.0",
-    "rich>=13.3.3",
-]
+dependencies = ["pydantic>=1.10,<2.0", "rich>=13.0.0"]
 
-[project.optional-dependencies]
-dev = [
-  "black",
-  "pytest",
-  "ruff",
-]
+[project.urls]
+homepage = "https://github.com/higlass/higlass-schema"
+
+[tool.uv]
+dev-dependencies = ["black", "pytest", "ruff"]
 
 [project.scripts]
 higlass-schema = "higlass_schema.cli:main"
 
-[tool.hatch.build]
-sources = ["src"]
-
 [tool.hatch.version]
 source = "vcs"
 
-[tool.hatch.envs.default]
-features = ["dev"]
-
-[tool.hatch.envs.default.scripts]
-lint = [
-  "ruff {args:.}",
-  "black --check --diff {args:.}",
-]
-fmt = [
-  "black {args:.}",
-  "ruff --fix {args:.}",
-  "lint",
-]
-test = "pytest ."
-
-# https://github.com/charliermarsh/ruff
 [tool.ruff]
 line-length = 88
 target-version = "py38"
 src = ["src", "tests"]
+
+[tool.ruff.lint]
 extend-select = [
-    "E",    # style errors
-    "F",    # flakes
-    "I",    # isort
-    "UP",   # pyupgrade
-    "RUF",  # ruff-specific rules
+    "E",   # style errors
+    "F",   # flakes
+    "I",   # isort
+    "UP",  # pyupgrade
+    "RUF", # ruff-specific rules
 ]

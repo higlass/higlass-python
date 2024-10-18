@@ -14,10 +14,19 @@ pip install higlass-schema
 
 ## Development
 
+Try it out:
+
 ```bash
-$ pip install -e .
-$ higlass-schema check ./example.json # [--verbose]
-$ higlass-schema export # prints JSON schema to stdout
+$ uvx --no-cache --from . higlass-schema check ./example.json # [--verbose]
+$ uvx --no-cache --from . higlass-schema export # prints JSON schema to stdout
+```
+
+Testing, linting, & formatting are enforced in CI. Locally, you can run:
+
+```sh
+uv run pytest # tests
+uv run ruff check # linting
+uv run ruff format --check # formatting (remove --check to apply)
 ```
 
 ## Release

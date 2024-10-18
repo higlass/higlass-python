@@ -15,29 +15,28 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
+      - uses: astral-sh/setup-uv@v3
         with:
-          python-version: "3.x"
+          version: "0.4.x"
       - run: |
-          pipx install hatch
-          hatch run lint
+          uv run ruff format --check
+          uv run ruff check
 
   Schema:
     name: JS viewconf validation with generated JSON Schema
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
+      - uses: astral-sh/setup-uv@v3
         with:
-          python-version: "3.x"
+          version: "0.4.x"
 
       - run: |
-          pip install -e .
-          higlass-schema export > schema.json
+          uvx --from . higlass-schema export > schema.json
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '16.x'
+          node-version: '20.x'
       - run: npm install -g ajv-cli
       - run: ajv validate -s schema.json -d "tests/fixtures/{docs/examples/viewconfs,test/{view-configs,view-configs-more}}/*.json"
 
@@ -46,17 +45,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.8', '3.9', '3.10', '3.11']
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+      - uses: astral-sh/setup-uv@v3
         with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install dependencies
-        run: |
-          pipx install hatch
-          hatch run test
+          version: "0.4.x"
+      - run: uv run pytest
+        env:
+          UV_PYTHON: ${{ matrix.python-version }}

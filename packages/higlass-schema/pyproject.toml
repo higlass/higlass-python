@@ -4,25 +4,19 @@ build-backend = "hatchling.build"
 
 [project]
 name = "higlass-schema"
+version = "0.1.6"
 description = "Pydantic models for HiGlass"
 authors = [{ name = "Trevor Manz", email = "trevor.j.manz@gmail.com" }]
 license = { text = "MIT" }
 readme = "README.md"
 requires-python = ">=3.8"
-dynamic = ["version"]
 dependencies = ["pydantic>=1.10,<2.0", "rich>=13.0.0"]
 
 [project.urls]
 homepage = "https://github.com/higlass/higlass-schema"
 
-[tool.uv]
-dev-dependencies = ["black", "pytest", "ruff"]
-
 [project.scripts]
 higlass-schema = "higlass_schema.cli:main"
-
-[tool.hatch.version]
-source = "vcs"
 
 [tool.ruff]
 line-length = 88

@@ -27,27 +27,33 @@ dynamic = ["version"]
 readme = "README.md"
 dependencies = [
     "servir>=0.0.5",
-    "higlass-schema>=0.0.6",
+    "higlass-schema",
     "anywidget>=0.9.0",
-    "jinja2",
     "jupyter-server-proxy>=3.0",
-    "typing-extensions ; python_version<'3.9'",
+    "typing-extensions>=4.0.0; python_version < '3.9'",
+    "jinja2>=3.0.0",
 ]
 urls = { homepage = "https://github.com/higlass/higlass-python" }
 
 [project.optional-dependencies]
 fuse = [
-    "fusepy",
-    "simple-httpfs"
+    "fusepy>=3.0.0",
+    "simple-httpfs~=0.4.0",
 ]
 
 [tool.uv]
 dev-dependencies = [
-    "anywidget[dev]",
-    "jupyterlab",
-    "pytest",
-    "ruff==0.0.285"
+    "anywidget[dev]>=0.9.13",
+    "jupyterlab>=4.2.5",
+    "pytest>=8.3.3",
+    "ruff>=0.7.0",
 ]
+
+[tool.uv.sources]
+higlass-schema = { workspace = true }
+
+[tool.uv.workspace]
+members = ["packages/*"]
 
 [tool.hatch.build.targets.sdist]
 include = ["src"]
@@ -62,6 +68,9 @@ source = "vcs"
 [tool.ruff]
 line-length = 88
 target-version = "py38"
+exclude = ["examples"]
+
+[tool.ruff.lint]
 extend-select = [
     "E",  # style errors
     # "D",  # pydocstyle
@@ -72,11 +81,13 @@ extend-select = [
     "W",  # style  warnings
 ]
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.isort]
+known-first-party = ["higlass"]
+
+[tool.ruff.lint.per-file-ignores]
 "__init__.py" = [
     "F403", # unused-star-used
     "F401", # unused import
 ]
 
-[tool.ruff.isort]
-known-first-party = ["higlass"]
+

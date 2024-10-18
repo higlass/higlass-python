@@ -9,4 +9,4 @@ except PackageNotFoundError:
     __version__ = "uninstalled"
 
 
-from .schema import *  # noqa
+from .schema import *

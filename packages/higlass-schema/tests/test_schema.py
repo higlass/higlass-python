@@ -1,9 +1,8 @@
 import pathlib
 
+import higlass_schema as hgs
 import pydantic
 import pytest
-
-import higlass_schema as hgs
 
 fixtures = pathlib.Path(__file__).parent / "fixtures"
 

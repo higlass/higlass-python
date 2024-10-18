@@ -2,18 +2,16 @@
 
 Documentation for all HiGlass software ([viewer][hgv], [app][hga], [server][hgs], [docker][hgd])
 
-Simple edits can be made in GitHub. For anything more extensive, preview it locally:
+Simple edits can be made in GitHub. For anything more extensive, build and preview it locally:
 
 ```
-git clone https://github.com/higlass/higlass.git
-cd higlass/docs
-git checkout develop
-pip install -r requirements.txt
-./serve.sh
+uv run build.py
+uv run python -m http.server 8000 --directory _build/html
 ```
 
-Docs are built and pushed to S3 by Travis.
-See [.travis.yml](https://github.com/higlass/higlass/blob/develop/.travis.yml) for details.
+Then open your browser to `http://localhost:8000`.
+
+Docs are built and deployed via GitHub Actions via a [workflow](.github/workflows/docs.yml).
 
 [hga]: https://github.com/higlass/higlass-app
 [hgd]: https://github.com/higlass/higlass-docker

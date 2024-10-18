@@ -36,22 +36,17 @@ dependencies = [
 urls = { homepage = "https://github.com/higlass/higlass-python" }
 
 [project.optional-dependencies]
-dev = [
-    "black[jupyter]",
-    "pytest",
-    "ruff==0.0.285",
-    "jupyterlab",
-    "anywidget[dev]>=0.6.3",
-]
-docs = [
-    "Sphinx",
-    "sphinx-autobuild",
-    "sphinx-js",
-    "markupsafe==2.0.1",
-]
 fuse = [
     "fusepy",
     "simple-httpfs"
+]
+
+[tool.uv]
+dev-dependencies = [
+    "anywidget[dev]",
+    "jupyterlab",
+    "pytest",
+    "ruff"
 ]
 
 [tool.hatch.build.targets.sdist]
@@ -63,25 +58,6 @@ sources = ["src"]
 
 [tool.hatch.version]
 source = "vcs"
-
-[tool.hatch.envs.default]
-features = ["dev", "fuse"]
-
-[tool.hatch.envs.default.scripts]
-fix = "black . && ruff --fix ."
-lint = "black --check . && ruff ."
-test = "pytest ."
-
-[tool.hatch.envs.docs]
-features = ["docs"]
-python = "3.11"
-
-[tool.hatch.envs.docs.scripts]
-build = "sphinx-build -b html ./docs ./docs/_build/html"
-serve = "cd docs && ./serve.sh"
-
-[[tool.hatch.envs.test.matrix]]
-python = ["38", "39", "310", "311"]
 
 [tool.ruff]
 line-length = 88

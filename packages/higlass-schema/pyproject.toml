@@ -17,17 +17,3 @@ homepage = "https://github.com/higlass/higlass-schema"
 
 [project.scripts]
 higlass-schema = "higlass_schema.cli:main"
-
-[tool.ruff]
-line-length = 88
-target-version = "py38"
-src = ["src", "tests"]
-
-[tool.ruff.lint]
-extend-select = [
-    "E",   # style errors
-    "F",   # flakes
-    "I",   # isort
-    "UP",  # pyupgrade
-    "RUF", # ruff-specific rules
-]

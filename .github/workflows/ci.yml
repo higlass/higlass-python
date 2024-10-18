@@ -13,53 +13,37 @@ jobs:
   Lint:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: "3.x"
-    - run: |
-        python -m pip install --upgrade hatch
-        hatch run lint
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+        with:
+          version: "0.4.x"
+      - run: |
+          uv run ruff check .
 
   Test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: ["3.8", "3.9", "3.10", "3.11"]
-
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ matrix.python-version }}
-    - run: |
-        python -m pip install --upgrade pip
-        pip install -e .[dev]
-        pytest
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+        with:
+          version: "0.4.x"
+      - run: uv run pytest
+        env:
+          UV_PYTHON: ${{ matrix.python-version }}
 
   Release:
     needs: [Lint, Test]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags')
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Setup Python
-        uses: actions/setup-python@v4
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
         with:
-          python-version: "3.x"
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install build
-
-      - name: Build
-        run: python -m build
-
+          version: "0.4.x"
+      - run: uv build
       - name: Publish distribution 📦 to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:

@@ -1,0 +1,39 @@
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[project]
+name = "higlass-schema"
+description = "Pydantic models for HiGlass"
+authors = [{ name = "Trevor Manz", email = "trevor.j.manz@gmail.com" }]
+license = { text = "MIT" }
+readme = "README.md"
+requires-python = ">=3.8"
+dynamic = ["version"]
+dependencies = ["pydantic>=1.10,<2.0", "rich>=13.0.0"]
+
+[project.urls]
+homepage = "https://github.com/higlass/higlass-schema"
+
+[tool.uv]
+dev-dependencies = ["black", "pytest", "ruff"]
+
+[project.scripts]
+higlass-schema = "higlass_schema.cli:main"
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.ruff]
+line-length = 88
+target-version = "py38"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+extend-select = [
+    "E",   # style errors
+    "F",   # flakes
+    "I",   # isort
+    "UP",  # pyupgrade
+    "RUF", # ruff-specific rules
+]

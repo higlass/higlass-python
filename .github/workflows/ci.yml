@@ -35,7 +35,7 @@ jobs:
           pip install -e .
           higlass-schema export > schema.json
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: '16.x'
       - run: npm install -g ajv-cli

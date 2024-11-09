@@ -38,6 +38,9 @@ jobs:
     needs: [Lint, Test]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags')
+    permissions:
+       id-token: write
+       contents: read
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v3
@@ -46,6 +49,3 @@ jobs:
       - run: uv build
       - name: Publish distribution 📦 to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          user: ${{ secrets.PYPI_USERNAME }}
-          password: ${{ secrets.PYPI_PASSWORD }}

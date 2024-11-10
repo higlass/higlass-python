@@ -14,29 +14,29 @@ from typing import (
 )
 
 import higlass_schema as hgs
-from pydantic import BaseModel
+from pydantic import RootModel
 
 import higlass._display as display
 import higlass._utils as utils
 
 __all__ = [
+    "CombinedTrack",
     "EnumTrack",
     "HeatmapTrack",
     "IndependentViewportProjectionTrack",
-    "CombinedTrack",
     "PluginTrack",
     "TrackT",
     "View",
     "ViewT",
     "Viewconf",
-    "concat",
-    "hconcat",
-    "vconcat",
-    "track",
-    "view",
     "combine",
+    "concat",
     "divide",
+    "hconcat",
     "lock",
+    "track",
+    "vconcat",
+    "view",
 ]
 
 if TYPE_CHECKING:
@@ -634,7 +634,7 @@ vconcat = functools.partial(concat, "vertical")
 # TODO: register plugins globally to work here?
 
 
-class _TrackCreator(BaseModel):
+class _TrackCreator(RootModel):
     """Create track instances from their track type.
 
     Used internally by `hg.track` to leverage pydantic's ability to get
@@ -642,10 +642,10 @@ class _TrackCreator(BaseModel):
 
     Example:
     -------
-    >>> assert isinstance(_TrackCreator(type="heatmap").__root__, HeatmapTrack)
+    >>> assert isinstance(_TrackCreator(type="heatmap").root, HeatmapTrack)
     """
 
-    __root__: Track
+    root: Track
 
 
 @overload
@@ -688,7 +688,7 @@ def track(
     if uid is None:
         uid = utils.uid()
     data = dict(type=type_, uid=uid, **kwargs)
-    return _TrackCreator.parse_obj(data).__root__
+    return _TrackCreator.model_validate(data).root
 
 
 def view(

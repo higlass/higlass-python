@@ -383,13 +383,13 @@ class Viewconf(hgs.Viewconf[View[TrackT]], _PropertiesMixin, Generic[TrackT]):
         """ "Displays the view config in an IPython environment."""
         renderer = display.renderers.get()
         plugin_urls = [] if self.views is None else gather_plugin_urls(self.views)
-        return renderer(self.dict(), plugin_urls=plugin_urls)
+        return renderer(self.model_dump(), plugin_urls=plugin_urls)
 
     def widget(self, **kwargs):
         """Create a Jupyter Widget display for this view config."""
         from higlass._widget import HiGlassWidget
 
-        return HiGlassWidget(self.dict(), **kwargs)
+        return HiGlassWidget(self.model_dump(), **kwargs)
 
     @classmethod
     def from_url(cls, url: str, **kwargs):
@@ -416,7 +416,7 @@ class Viewconf(hgs.Viewconf[View[TrackT]], _PropertiesMixin, Generic[TrackT]):
         with urllib.urlopen(request) as response:
             raw = response.read()
 
-        return cls.parse_raw(raw)
+        return cls.model_validate_json(raw)
 
     def locks(
         self,
@@ -745,16 +745,16 @@ def view(
     if layout is None:
         layout = hgs.Layout(x=x, y=y, w=width, h=height)
     else:
-        layout = hgs.Layout(**layout.dict())
+        layout = hgs.Layout(**layout.model_dump())
 
     if tracks is None:
         data = defaultdict(list)
     else:
-        data = defaultdict(list, tracks.dict())
+        data = defaultdict(list, tracks.model_dump())
 
     for track in _tracks:
         if isinstance(track, hgs.Tracks):
-            track = track.dict()
+            track = track.model_dump()
             for position, track_list in track.items():
                 data[position].extend(track_list)
         else:

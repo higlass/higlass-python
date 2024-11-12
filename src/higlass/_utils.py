@@ -75,7 +75,7 @@ ModelT = TypeVar("ModelT", bound=BaseModel)
 
 def copy_unique(model: ModelT) -> ModelT:
     """Creates a deep copy of a pydantic BaseModel with new UID."""
-    copy = model.__class__(**model.dict())
+    copy = model.__class__(**model.model_dump())
     if hasattr(copy, "uid"):
         setattr(copy, "uid", uid())
     return copy

@@ -27,7 +27,7 @@ dynamic = ["version"]
 readme = "README.md"
 dependencies = [
     "servir>=0.0.5",
-    "higlass-schema>=0.0.6,<0.2.0",
+    "higlass-schema>=0.2.0",
     "anywidget>=0.9.0",
     "jinja2",
     "jupyter-server-proxy>=3.0",

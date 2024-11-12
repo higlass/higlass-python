@@ -603,7 +603,7 @@ def concat(
         raise ValueError("concat method must be 'vertical' or 'horizontal'.")
 
     # gather views and adjust layout
-    views = [v.copy(deep=True) for v in b.views]
+    views = [v.model_copy(deep=True) for v in b.views]
     offset = 0 if a.views is None else max(map(mapper, a.views))
     for view in views:
         curr = getattr(view.layout, field)
@@ -616,7 +616,7 @@ def concat(
         locks = getattr(b, lockattr)
         if locks:
             if getattr(a, lockattr) is None:
-                setattr(a, lockattr, locks.copy(deep=True))
+                setattr(a, lockattr, locks.model_copy(deep=True))
             else:
                 getattr(a, lockattr).locksByViewUid.update(locks.locksByViewUid)
                 getattr(a, lockattr).locksDict.update(locks.locksDict)
@@ -806,8 +806,8 @@ def combine(t1: Track, t2: Track, uid: str | None = None, **kwargs) -> CombinedT
         uid = utils.uid()
 
     if isinstance(t1, CombinedTrack):
-        copy = CombinedTrack(**t1.dict())
-        copy.contents.append(t2.__class__(**t2.dict()))
+        copy = CombinedTrack(**t1.model_dump())
+        copy.contents.append(t2.__class__(**t2.model_dump()))
         for key, val in kwargs.items():
             setattr(copy, key, val)
         return copy
@@ -815,7 +815,7 @@ def combine(t1: Track, t2: Track, uid: str | None = None, **kwargs) -> CombinedT
     return CombinedTrack(
         type="combined",
         uid=uid,
-        contents=[track.__class__(**track.dict()) for track in (t1, t2)],
+        contents=[track.__class__(**track.model_dump()) for track in (t1, t2)],
         **kwargs,
     )
 

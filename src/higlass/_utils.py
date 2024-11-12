@@ -46,7 +46,7 @@ datatype_default_track = {
 
 
 def uid() -> str:
-    return str(uuid.uuid4())
+    return str(uuid.uuid4()).split("-")[0]
 
 
 T = TypeVar("T")

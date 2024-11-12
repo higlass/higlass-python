@@ -13,7 +13,6 @@ HTML_TEMPLATE = jinja2.Template(
 <!DOCTYPE html>
 <html>
   <head>
-    <link rel="stylesheet" href="https://esm.sh/higlass@{{ higlass_version }}/dist/hglib.css">
     <script src="https://unpkg.com/requirejs-toggle"></script>
     {% for plugin_url in plugin_urls %}
     <script src="{{ plugin_url }}"></script>
@@ -24,7 +23,7 @@ HTML_TEMPLATE = jinja2.Template(
     <div id="{{ output_div }}"></div>
   </body>
   <script type="module">
-    import hglib from "https://esm.sh/higlass@{{ higlass_version }}?deps=react@{{ react_version }},react-dom@{{ react_version }},pixi.js@{{ pixijs_version }}";
+    import * as hglib from "https://esm.sh/higlass@{{ higlass_version }}?deps=react@{{ react_version }},react-dom@{{ react_version }},pixi.js@{{ pixijs_version }}";
     hglib.viewer(
       document.getElementById('{{ output_div }}'),
       {{ viewconf }},
@@ -37,7 +36,7 @@ HTML_TEMPLATE = jinja2.Template(
 
 def viewconf_to_html(
     viewconf: dict,
-    higlass_version: str = "1.12",
+    higlass_version: str = "1.13",
     react_version: str = "17",
     pixijs_version: str = "6",
     output_div: str = "vis",

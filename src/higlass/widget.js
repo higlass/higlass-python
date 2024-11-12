@@ -1,4 +1,4 @@
-import hglib from "https://esm.sh/higlass@1.12?deps=react@17,react-dom@17,pixi.js@6";
+import * as hglib from "https://esm.sh/higlass@1.13?deps=react@17,react-dom@17,pixi.js@6";
 
 /**
  * @param {{

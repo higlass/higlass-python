@@ -9,7 +9,6 @@ import traitlets as t
 
 class HiGlassWidget(anywidget.AnyWidget):
     _esm = pathlib.Path(__file__).parent / "widget.js"
-    _css = "https://esm.sh/higlass@1.12/dist/hglib.css"
 
     _viewconf = t.Dict(allow_none=False).tag(sync=True)
     _options = t.Dict().tag(sync=True)

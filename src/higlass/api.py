@@ -14,29 +14,29 @@ from typing import (
 )
 
 import higlass_schema as hgs
-from pydantic import BaseModel
+from pydantic import RootModel
 
 import higlass._display as display
 import higlass._utils as utils
 
 __all__ = [
+    "CombinedTrack",
     "EnumTrack",
     "HeatmapTrack",
     "IndependentViewportProjectionTrack",
-    "CombinedTrack",
     "PluginTrack",
     "TrackT",
     "View",
     "ViewT",
     "Viewconf",
-    "concat",
-    "hconcat",
-    "vconcat",
-    "track",
-    "view",
     "combine",
+    "concat",
     "divide",
+    "hconcat",
     "lock",
+    "track",
+    "vconcat",
+    "view",
 ]
 
 if TYPE_CHECKING:
@@ -383,13 +383,13 @@ class Viewconf(hgs.Viewconf[View[TrackT]], _PropertiesMixin, Generic[TrackT]):
         """ "Displays the view config in an IPython environment."""
         renderer = display.renderers.get()
         plugin_urls = [] if self.views is None else gather_plugin_urls(self.views)
-        return renderer(self.dict(), plugin_urls=plugin_urls)
+        return renderer(self.model_dump(), plugin_urls=plugin_urls)
 
     def widget(self, **kwargs):
         """Create a Jupyter Widget display for this view config."""
         from higlass._widget import HiGlassWidget
 
-        return HiGlassWidget(self.dict(), **kwargs)
+        return HiGlassWidget(self.model_dump(), **kwargs)
 
     @classmethod
     def from_url(cls, url: str, **kwargs):
@@ -416,7 +416,7 @@ class Viewconf(hgs.Viewconf[View[TrackT]], _PropertiesMixin, Generic[TrackT]):
         with urllib.urlopen(request) as response:
             raw = response.read()
 
-        return cls.parse_raw(raw)
+        return cls.model_validate_json(raw)
 
     def locks(
         self,
@@ -603,7 +603,7 @@ def concat(
         raise ValueError("concat method must be 'vertical' or 'horizontal'.")
 
     # gather views and adjust layout
-    views = [v.copy(deep=True) for v in b.views]
+    views = [v.model_copy(deep=True) for v in b.views]
     offset = 0 if a.views is None else max(map(mapper, a.views))
     for view in views:
         curr = getattr(view.layout, field)
@@ -616,7 +616,7 @@ def concat(
         locks = getattr(b, lockattr)
         if locks:
             if getattr(a, lockattr) is None:
-                setattr(a, lockattr, locks.copy(deep=True))
+                setattr(a, lockattr, locks.model_copy(deep=True))
             else:
                 getattr(a, lockattr).locksByViewUid.update(locks.locksByViewUid)
                 getattr(a, lockattr).locksDict.update(locks.locksDict)
@@ -634,7 +634,7 @@ vconcat = functools.partial(concat, "vertical")
 # TODO: register plugins globally to work here?
 
 
-class _TrackCreator(BaseModel):
+class _TrackCreator(RootModel):
     """Create track instances from their track type.
 
     Used internally by `hg.track` to leverage pydantic's ability to get
@@ -642,10 +642,10 @@ class _TrackCreator(BaseModel):
 
     Example:
     -------
-    >>> assert isinstance(_TrackCreator(type="heatmap").__root__, HeatmapTrack)
+    >>> assert isinstance(_TrackCreator(type="heatmap").root, HeatmapTrack)
     """
 
-    __root__: Track
+    root: Track
 
 
 @overload
@@ -688,7 +688,7 @@ def track(
     if uid is None:
         uid = utils.uid()
     data = dict(type=type_, uid=uid, **kwargs)
-    return _TrackCreator.parse_obj(data).__root__
+    return _TrackCreator.model_validate(data).root
 
 
 def view(
@@ -745,16 +745,16 @@ def view(
     if layout is None:
         layout = hgs.Layout(x=x, y=y, w=width, h=height)
     else:
-        layout = hgs.Layout(**layout.dict())
+        layout = hgs.Layout(**layout.model_dump())
 
     if tracks is None:
         data = defaultdict(list)
     else:
-        data = defaultdict(list, tracks.dict())
+        data = defaultdict(list, tracks.model_dump())
 
     for track in _tracks:
         if isinstance(track, hgs.Tracks):
-            track = track.dict()
+            track = track.model_dump()
             for position, track_list in track.items():
                 data[position].extend(track_list)
         else:
@@ -806,8 +806,8 @@ def combine(t1: Track, t2: Track, uid: str | None = None, **kwargs) -> CombinedT
         uid = utils.uid()
 
     if isinstance(t1, CombinedTrack):
-        copy = CombinedTrack(**t1.dict())
-        copy.contents.append(t2.__class__(**t2.dict()))
+        copy = CombinedTrack(**t1.model_dump())
+        copy.contents.append(t2.__class__(**t2.model_dump()))
         for key, val in kwargs.items():
             setattr(copy, key, val)
         return copy
@@ -815,7 +815,7 @@ def combine(t1: Track, t2: Track, uid: str | None = None, **kwargs) -> CombinedT
     return CombinedTrack(
         type="combined",
         uid=uid,
-        contents=[track.__class__(**track.dict()) for track in (t1, t2)],
+        contents=[track.__class__(**track.model_dump()) for track in (t1, t2)],
         **kwargs,
     )
 

@@ -76,8 +76,12 @@ def hash_absolute_filepath_as_default_uid(
 ):
     def wrapper(filepath: str, uid: None | str = None):
         if uid is None:
-            abspath = pathlib.Path(filepath).absolute()
-            uid = hashlib.md5(str(abspath).encode()).hexdigest()
+            if isinstance(filepath, str):
+                abspath = pathlib.Path(filepath).absolute()
+                uid = hashlib.md5(str(abspath).encode()).hexdigest()
+            else:
+                # File-like object likely provided
+                uid = hashlib.md5(str(hash(filepath)).encode()).hexdigest()
         return fn(filepath, uid)
 
     return wrapper

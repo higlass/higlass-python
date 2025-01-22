@@ -5,6 +5,7 @@ import hashlib
 import pathlib
 import typing
 from dataclasses import dataclass
+from typing import IO, Union
 
 from ._utils import TrackType
 from .api import track
@@ -74,7 +75,7 @@ def remote(uid: str, server: str = "https://higlass.io/api/v1", **kwargs):
 def hash_absolute_filepath_as_default_uid(
     fn: typing.Callable[[str, str], LocalTileset]
 ):
-    def wrapper(filepath: str, uid: None | str = None):
+    def wrapper(filepath: Union[str, IO[bytes]], uid: None | str = None):
         if uid is None:
             if isinstance(filepath, str):
                 abspath = pathlib.Path(filepath).absolute()

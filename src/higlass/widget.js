@@ -1,4 +1,4 @@
-import * as hglib from "https://esm.sh/higlass@1.13?deps=react@17,react-dom@17,pixi.js@6";
+import * as hglib from "https://esm.sh/higlass@1.13.5?deps=react@17,react-dom@17,pixi.js@6";
 
 /**
  * @param {{
@@ -24,18 +24,26 @@ async function render({ model, el }) {
   });
 
   if (viewconf.views.length === 1) {
-    api.on("location", (loc) => {
-      model.set("location", toPts(loc));
-      model.save_changes();
-    }, viewconf.views[0].uid);
+    api.on(
+      "location",
+      (loc) => {
+        model.set("location", toPts(loc));
+        model.save_changes();
+      },
+      viewconf.views[0].uid
+    );
   } else {
     viewconf.views.forEach((view, idx) => {
-      api.on("location", (loc) => {
-        let copy = model.get("location").slice();
-        copy[idx] = toPts(loc);
-        model.set("location", copy);
-        model.save_changes();
-      }, view.uid);
+      api.on(
+        "location",
+        (loc) => {
+          let copy = model.get("location").slice();
+          copy[idx] = toPts(loc);
+          model.set("location", copy);
+          model.save_changes();
+        },
+        view.uid
+      );
     });
   }
 }

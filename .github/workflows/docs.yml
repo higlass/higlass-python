@@ -28,17 +28,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v3
+      - uses: astral-sh/setup-uv@v5
         with:
-          version: "0.4.x"
+          version: "0.5.x"
 
       - run: uv run docs/build.py
 
-      - uses: actions/configure-pages@v3
-      - uses: actions/upload-pages-artifact@v1
+      - uses: actions/configure-pages@v4
+      - uses: actions/upload-pages-artifact@v3
         with:
           path: './docs/_build/html'
-
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v1
+        uses: actions/deploy-pages@v4

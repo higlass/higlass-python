@@ -5,6 +5,7 @@ import hashlib
 import pathlib
 import typing
 from dataclasses import dataclass
+from typing import IO
 
 from ._utils import TrackType
 from .api import track
@@ -71,19 +72,21 @@ def remote(uid: str, server: str = "https://higlass.io/api/v1", **kwargs):
     return RemoteTileset(uid, server, **kwargs)
 
 
-def hash_absolute_filepath_as_default_uid(
-    fn: typing.Callable[[str, str], LocalTileset]
-):
-    def wrapper(filepath: str, uid: None | str = None):
+def hash_file_as_default_uid(fn: typing.Callable[[str | IO[bytes], str], LocalTileset]):
+    def wrapper(file: str | IO[bytes], uid: None | str = None):
         if uid is None:
-            abspath = pathlib.Path(filepath).absolute()
-            uid = hashlib.md5(str(abspath).encode()).hexdigest()
-        return fn(filepath, uid)
+            if isinstance(file, str):
+                abspath = pathlib.Path(file).absolute()
+                uid = hashlib.md5(str(abspath).encode()).hexdigest()
+            else:
+                # File-like object likely provided
+                uid = hashlib.md5(str(hash(file)).encode()).hexdigest()
+        return fn(file, uid)
 
     return wrapper
 
 
-@hash_absolute_filepath_as_default_uid
+@hash_file_as_default_uid
 def bigwig(filepath: str, uid: str):
     try:
         from clodius.tiles.bigwig import tiles, tileset_info
@@ -100,7 +103,7 @@ def bigwig(filepath: str, uid: str):
     )
 
 
-@hash_absolute_filepath_as_default_uid
+@hash_file_as_default_uid
 def beddb(filepath: str, uid: str):
     try:
         from clodius.tiles.beddb import tiles, tileset_info
@@ -117,7 +120,7 @@ def beddb(filepath: str, uid: str):
     )
 
 
-@hash_absolute_filepath_as_default_uid
+@hash_file_as_default_uid
 def multivec(filepath: str, uid: str):
     try:
         from clodius.tiles.multivec import tiles, tileset_info
@@ -134,7 +137,7 @@ def multivec(filepath: str, uid: str):
     )
 
 
-@hash_absolute_filepath_as_default_uid
+@hash_file_as_default_uid
 def cooler(filepath: str, uid: str):
     try:
         from clodius.tiles.cooler import tiles, tileset_info
@@ -151,7 +154,7 @@ def cooler(filepath: str, uid: str):
     )
 
 
-@hash_absolute_filepath_as_default_uid
+@hash_file_as_default_uid
 def hitile(filepath: str, uid: str):
     try:
         from clodius.tiles.hitile import tiles, tileset_info
@@ -168,7 +171,7 @@ def hitile(filepath: str, uid: str):
     )
 
 
-@hash_absolute_filepath_as_default_uid
+@hash_file_as_default_uid
 def bed2ddb(filepath: str, uid: str):
     try:
         from clodius.tiles.bed2ddb import tiles, tileset_info
@@ -183,3 +186,6 @@ def bed2ddb(filepath: str, uid: str):
         info=functools.partial(tileset_info, filepath),
         uid=uid,
     )
+
+
+by_filetype = {"cooler": cooler, "bigwig": bigwig}

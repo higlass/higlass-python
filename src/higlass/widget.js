@@ -12,10 +12,27 @@ function toPts({ xDomain, yDomain }) {
   return [x, xe, y, ye];
 }
 
+/**
+ * @param {HTMLElement} el
+ * @returns {() => void} unlisten
+ */
+function addEventListenersTo(el) {
+  let controller = new AbortController();
+
+  // prevent right click events from bubbling up to Jupyter/JupyterLab
+  el.addEventListener("contextmenu", (event) => event.stopPropagation(), {
+    signal: controller.signal,
+  });
+
+  return () => controller.abort();
+}
+
+/** @type {import("npm:@anywidget/types@0.2.0").Render} */
 async function render({ model, el }) {
   let viewconf = model.get("_viewconf");
   let options = model.get("_options") ?? {};
   let api = await hglib.viewer(el, viewconf, options);
+  let unlisten = addEventListenersTo(el);
 
   model.on("msg:custom", (msg) => {
     msg = JSON.parse(msg);
@@ -38,6 +55,9 @@ async function render({ model, el }) {
       }, view.uid);
     });
   }
+  return () => {
+    unlisten();
+  };
 }
 
 export default { render };

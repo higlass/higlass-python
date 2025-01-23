@@ -24,11 +24,13 @@ HTML_TEMPLATE = jinja2.Template(
   </body>
   <script type="module">
     import * as hglib from "https://esm.sh/higlass@{{ higlass_version }}?deps=react@{{ react_version }},react-dom@{{ react_version }},pixi.js@{{ pixijs_version }}";
-    hglib.viewer(
-      document.getElementById('{{ output_div }}'),
-      {{ viewconf }},
-    );
-    </script>
+
+    let el = document.getElementById('{{ output_div }}');
+    hglib.viewer(el, {{ viewconf }});
+
+    // prevent right click events from bubbling up to Jupyter/JupyterLab
+    el.addEventListener("contextmenu", (event) => event.stopPropagation());
+  </script>
 </html>
 """  # noqa
 )

@@ -89,3 +89,17 @@ left column and its corresponding action in the right column. The formatting is
 clean and easy to read.
 
 Our CI enforces formatting, linting, and tests.
+
+## Changelog
+
+Check the [GitHub Releases](https://github.com/higlass/higlass-python/releases) for a detailed changelog.
+
+## Release
+
+Releases are managed via the GitHub UI:
+
+1. [Draft a new release](https://github.com/higlass/higlass-python/releases/new)
+2. **Create a tag** in the format `v[major].[minor].[patch]`.
+   - *Note:* You can either create the tag in the GitHub UI or select an existing tag created via the Git CLI. The tag triggers publishing to PyPI.
+3. **Generate release notes** to summarize changes from merged PRs, and edit.
+4. Add details for significant changes or migration steps, and ensure titles are clear and consistent.

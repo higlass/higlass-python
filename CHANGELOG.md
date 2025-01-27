@@ -1,7 +1,39 @@
-## [v1.0.2](https://github.com/higlass/higlass-python/compare/v1.0.2...v1.0.1)
+## [v1.2.1](https://github.com/higlass/higlass-python/compare/v1.2.0...v1.2.1)
 
 - Calculate file pointer hash for track uids for tileset tracks
 - Fix view copy behavior to preserve specific plugin track class vars
+
+## [v1.2.0](https://github.com/higlass/higlass-python/compare/v1.1.2...v1.2.0)
+
+- **Breaking**: Migrate to higlass-schema v0.2.0 (pydantic v2)
+- Shorter automatic uids for Tracks and Views
+- Upgrade HiGlass front-end to v1.13
+
+This release does not introduce changes to the `higlass-python` API itself. However, it migrates the core data objects created and modified by the `higlass-python` API from Pydantic v1 to Pydantic v2. We are marking this as a **breaking release**, as some methods and attributes on these objects are now deprecated. 
+
+Libraries relying on `higlass-schema` (Pydantic models for Python) may encounter breaking changes if they use methods that have changed between Pydantic v1 and v2. We expect this update to improve compatibility and make it easier to use `higlass-python` in environments that depend on Pydantic v2 (which are increasing).
+
+## [v1.1.2](https://github.com/higlass/higlass-python/compare/v1.1.1...v1.1.2)
+
+- Pin higlass-schema version upper bound for <v1.2
+
+## [v1.1.1](https://github.com/higlass/higlass-python/compare/v1.1.0...v1.1.1)
+
+- Upgrade anywidget version
+- Add vertical track variants for auto layout
+
+## [v1.1.0](https://github.com/higlass/higlass-python/compare/v1.0.3...v1.1.0)
+
+- Add bedlike file support
+
+## [v1.0.3](https://github.com/higlass/higlass-python/compare/v1.0.2...v1.0.3)
+
+- Ensure JS is included in PyPI wheel
+
+## [v1.0.2](https://github.com/higlass/higlass-python/compare/v1.0.1...v1.0.2)
+
+- Added docs on passing in an auth header
+- Ensure JS is included in PyPI wheel
 
 ## [v1.0.1](https://github.com/higlass/higlass-python/compare/v1.0.1...v1.0.0)
 

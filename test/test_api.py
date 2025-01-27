@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import ClassVar, Literal
+
 import pytest
 
 import higlass as hg
@@ -205,3 +207,37 @@ def test_options_mixin():
     assert track is other
     assert track.uid == other.uid
     assert track.options and track.options["foo"] == "bar"
+
+
+def test_plugin_track():
+    """Test that plugin track attributes are maintained after a copy."""
+    some_url = "https://some_url"
+
+    # Here we'll create a custom plugin track.
+    class PileupTrack(hg.PluginTrack):
+        type: Literal["pileup"] = "pileup"
+        plugin_url: ClassVar[str] = some_url
+
+    # Specify the track-specific data
+    pileup_data = {
+        "type": "bam",
+        "url": "https://some_url/sorted.bam",
+        "chromSizesUrl": "https://some_url/sorted.chromsizes.bam",
+        "options": {"maxTileWidth": 30000},
+    }
+
+    # Create and use the custom track
+    pileup_track = PileupTrack(data=pileup_data)
+
+    view = hg.view((pileup_track, "top"))
+    uid1 = view.uid
+    assert view.tracks.top[0].plugin_url == some_url
+
+    # The .domain() function creates a copy of the view. We want to make sure
+    # that the plugin_url attribute of the PluginTrack is maintained
+    view = view.domain(x=[0, 10])
+    uid2 = view.uid
+    assert view.tracks.top[0].plugin_url == some_url
+
+    # Check to make sure the copy behavior changed the uid as expected
+    assert uid1 != uid2

@@ -96,3 +96,51 @@ Create the viewer:
         ts.track("horizontal-stacked-bar", height=50),
     )
     view.domain(x=[0, 1000000])
+
+Pileup track
+------------
+
+The **higlass-python** package also provides a way to include custom tracks in
+your view configuration. These tracks are defined in a separate (JavaScript)
+package, and can be included in Python in with some additional setup.
+
+The ``PluginTrack`` provides a mechanism to hook into the schema validation
+as well as provide the plugin source for the renderer. The ``plugin_url`` is a
+special field which points to the JavaScript source code.
+
+A plugin can be created by subclassing ``hg.PluginTrack`` and specifying the ``type``
+and ``plugin_url``. For example,
+
+.. code-block:: python
+
+    from typing import Literal, ClassVar
+    import higlass as hg
+
+    class PileupTrack(hg.PluginTrack):
+        type: Literal["pileup"] = "pileup"
+        plugin_url: ClassVar[str] = "https://unpkg.com/higlass-pileup/dist/higlass-pileup.min.js"
+
+
+    # Specify the track-specific data
+    pileup_data = {
+        "type": "bam",
+        "url": "https://pkerp.s3.amazonaws.com/public/bamfile_test/SRR1770413.sorted.bam",
+        "chromSizesUrl": "https://pkerp.s3.amazonaws.com/public/bamfile_test/GCF_000005845.2_ASM584v2_genomic.chrom.sizes",
+        "options": {"maxTileWidth": 30000},
+    }
+
+    # Create and use the custom track
+    pileup_track = PileupTrack(data=pileup_data, height=180).opts(
+        axisPositionHorizontal="right",
+        axisLabelFormatting="normal",
+        showCoverage=True,
+        colorScale=[
+            "#2c7bb6","#92c5de","#ffffbf","#fdae61","#808080", "#DCDCDC",
+        ],
+    )
+
+    view = hg.view((pileup_track, "top")).domain(x = [1_636_200, 1_636_800])
+    view
+
+.. image:: img/jupyter-pileup-2025.png
+

@@ -102,4 +102,5 @@ Releases are managed via the GitHub UI:
 2. **Create a tag** in the format `v[major].[minor].[patch]`.
    - *Note:* You can either create the tag in the GitHub UI or select an existing tag created via the Git CLI. The tag triggers publishing to PyPI.
 3. **Generate release notes** to summarize changes from merged PRs, and edit.
+   - Documentation and CI changes don't belong in release notes
 4. Add details for significant changes or migration steps, and ensure titles are clear and consistent.

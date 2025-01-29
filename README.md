@@ -96,11 +96,18 @@ Check the [GitHub Releases](https://github.com/higlass/higlass-python/releases) 
 
 ## Release
 
-Releases are managed via the GitHub UI:
+Releases are managed via the GitHub UI.
 
-1. [Draft a new release](https://github.com/higlass/higlass-python/releases/new)
-2. **Create a tag** in the format `v[major].[minor].[patch]`.
-   - *Note:* You can either create the tag in the GitHub UI or select an existing tag created via the Git CLI. The tag triggers publishing to PyPI.
-3. **Generate release notes** to summarize changes from merged PRs, and edit.
-   - Documentation and CI changes don't belong in release notes
-4. Add details for significant changes or migration steps, and ensure titles are clear and consistent.
+[Draft a new release](https://github.com/higlass/higlass-python/releases/new):
+
+1. **Create a tag**
+   - Click _"Choose a tag"_, then **type a new tag** in the format `v[major].[minor].[patch]` to create it.
+   - _Note_: The UI is not obvious about this. You can create a tag here, not just select one. Tag creation triggers a [workflow](.github/workflows/ci.yml) to publish to PyPI.
+
+2. **Generate release notes**
+   - Click _"Generate Release Notes"_ to auto-summarize changes from merged PRs.
+   - Edit to exclude irrelevant changes for end users (e.g., docs or CI).
+
+3. **Document significant changes**
+   - Add migration steps or noteworthy updates.
+   - Ensure PR titles are clear and consistent.

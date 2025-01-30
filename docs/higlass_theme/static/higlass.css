@@ -147,6 +147,11 @@ a:active {
 
 pre, tt, code {
     font-family: 'Roboto Mono', 'Consolas', 'Menlo', 'Deja Vu Sans Mono', 'Bitstream Vera Sans Mono', monospace;
+    overflow: hidden;
+}
+
+img {
+    width: 100%;
 }
 
 div.document {

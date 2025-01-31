@@ -670,3 +670,25 @@ div.document {
     display: none;
   }
 }
+
+@media screen and (min-width: 940px) {
+  div.sphinxsidebar {
+    max-height: 100%;
+    overflow-y: auto;
+    position: absolute;
+    top: 100px;
+  }
+}
+
+@media screen and (max-width: 940px) {
+  div.sphinxsidebar {
+    display: block;
+    float: none;
+    width: unset;
+    margin: 50px -30px -20px -30px;
+    padding: 10px 20px;
+    background: #333;
+    color: #fff;
+    position: static;
+  }
+}

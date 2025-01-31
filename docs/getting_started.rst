@@ -185,7 +185,7 @@ or loading an existing view config via URL to access a sub-track:
 
 
 Add Genome Position SearchBox
--------------------
+-----------------------------
 
 
 
@@ -458,7 +458,7 @@ that may take a long time to complete with a slow internet connection.
 
 For a better user experience, we recommend downloading the data locally first.
 
-.. code-block:: python
+.. code-block:: bash
 
     !wget http://hgdownload.cse.ucsc.edu/goldenpath/hg19/encodeDCC/wgEncodeSydhTfbs/wgEncodeSydhTfbsGm12878InputStdSig.bigWig
 

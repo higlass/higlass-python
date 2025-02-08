@@ -41,8 +41,8 @@ fuse = [
     "simple-httpfs"
 ]
 
-[tool.uv]
-dev-dependencies = [
+[dependency-groups]
+dev = [
     "anywidget[dev]",
     "jupyterlab",
     "pytest",

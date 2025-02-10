@@ -28,31 +28,69 @@ function assert(expression, msg = "") {
 }
 
 /**
+ * Send a custom message to Python and _await_ a response.
+ *
+ * Unlike typical "fire-and-forget" messages, this function returns a `Promise`
+ * that resolves when a response is received back from Python.
+ *
+ * A message is sent with a unique `id` and a payload. The Python handler should:
+ *
+ * 1. Process the message.
+ * 2. Respond with the same `id` and a new payload.
+ *
+ * An `AbortSignal` can be used to adjust whether the promise should reject (default: a 3s timeout).
+ *
+ * **Example:**
+ *
+ * ```js
+ * let response = await sendCustomMessage(model, { payload: "hello" });
+ * console.log(response.payload); // HELLO
+ * ```
+ *
+ * **Python handler:**
+ *
+ * ```py
+ * widget = Widget()
+ * widget.on_msg(lambda msg, buffers: widget.send({
+ *     "id": msg["id"], "payload": msg["payload"].upper()
+ * }))
+ * ```
+ *
  * @template T
  * @param {import("npm:@anywidget/types").AnyModel} model
- * @param {unknown} payload
- * @param {{ timeout?: number }} [options]
- * @returns {Promise<{ data: T, buffers: DataView[] }>}
+ * @param {{ payload: unknown, signal?: AbortSignal, buffers?: Array<ArrayBuffer> }} options
+ * @return {Promise<{ payload: T, buffers: Array<DataView> }>}
  */
-function send(model, payload, { timeout = 3000 } = {}) {
-  let uuid = uid();
+function sendCustomMessage(model, options) {
+  let id = uid();
+  let signal = options.signal ?? AbortSignal.timeout(3000);
+
   return new Promise((resolve, reject) => {
-    let timer = setTimeout(() => {
-      reject(new Error(`Promise timed out after ${timeout} ms`));
+    if (signal.aborted) {
+      reject(signal.reason);
+    }
+
+    signal.addEventListener("abort", () => {
       model.off("msg:custom", handler);
-    }, timeout);
+      reject(signal.reason);
+    });
+
     /**
-     * @param {{ uuid: string, payload: T }} msg
+     * @param {{ id: string, payload: T }} msg
      * @param {DataView[]} buffers
      */
     function handler(msg, buffers) {
-      if (!(msg.uuid === uuid)) return;
-      clearTimeout(timer);
-      resolve({ data: msg.payload, buffers });
+      if (!(msg.id === id)) return;
+      resolve({ payload: msg.payload, buffers });
       model.off("msg:custom", handler);
     }
+
     model.on("msg:custom", handler);
-    model.send({ payload, uuid });
+    model.send(
+      { id, payload: options.payload },
+      undefined,
+      options.buffers ?? [],
+    );
   });
 }
 
@@ -107,14 +145,22 @@ function createDataFetcherForModel(model) {
     let config = { ...dataConfig, server: "jupyter" };
     return new hgc.dataFetchers.DataFetcher(config, pubSub, {
       async fetchTiles({ tileIds }) {
-        let { data } = await send(model, { type: "tiles", tileIds });
-        let result = hgc.services.tileResponseToData(data, "jupyter", tileIds);
+        let response = await sendCustomMessage(model, {
+          payload: { type: "tiles", tileIds },
+        });
+        let result = hgc.services.tileResponseToData(
+          response.payload,
+          "jupyter",
+          tileIds,
+        );
         return result;
       },
       async fetchTilesetInfo({ server, tilesetUid }) {
         assert(server === "jupyter", "must be a jupyter server");
-        let { data } = await send(model, { type: "tileset_info", tilesetUid });
-        return data;
+        let response = await sendCustomMessage(model, {
+          payload: { type: "tileset_info", tilesetUid },
+        });
+        return response.payload;
       },
       registerTileset() {
         throw new Error("Not implemented");

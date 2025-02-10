@@ -9,3 +9,4 @@ notebooks/mnt/
 docs/_build/
 dist/
 .venv
+examples/test.mcool

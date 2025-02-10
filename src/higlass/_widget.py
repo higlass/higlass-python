@@ -4,8 +4,8 @@ import json
 import pathlib
 
 import anywidget
-import traitlets as t
 import ipywidgets
+import traitlets as t
 
 
 class HiGlassWidget(anywidget.AnyWidget):

@@ -1,7 +1,7 @@
 import * as hglib from "https://esm.sh/higlass@1.13?deps=react@17,react-dom@17,pixi.js@6";
 import { v4 } from "https://esm.sh/@lukeed/uuid@2.0.1";
 
-/** @import { HGC, PluginDataFetcherConstructor } from "./types.ts" */
+/** @import { HGC, PluginDataFetcherConstructor, GenomicLocation } from "./types.ts" */
 
 // Make sure plugins are registered and enabled
 window.higlassDataFetchersByType = window.higlassDataFetchersByType ||
@@ -172,12 +172,10 @@ function createDataFetcherForModel(model) {
 }
 
 /**
- * @param {{
- *   xDomain: [number, number],
- *   yDomain: [number, number],
- * }} location
+ * @param {GenomicLocation} location
+ * @returns {[number, number, number, number]}
  */
-function toPts({ xDomain, yDomain }) {
+function locationToCoordinates({ xDomain, yDomain }) {
   let [x, xe] = xDomain;
   let [y, ye] = yDomain;
   return [x, xe, y, ye];
@@ -198,10 +196,18 @@ function addEventListenersTo(el) {
   return () => controller.abort();
 }
 
+/**
+ * @typedef State
+ * @property {{ views: Array<{ uid: string }> }} _viewconf
+ * @property {Record<string, unknown>} _options
+ * @property {`IPYMODEL_${string}`} _ts
+ * @property {Array<number> | Array<Array<number>>} location
+ */
+
 export default () => {
   let id = `jupyter-${uid()}`;
   return {
-    /** @type{import("npm:@anywidget/types@0.2.0").Initialize<{ _ts: string }>} */
+    /** @type {import("npm:@anywidget/types@0.2.0").Initialize<State>} */
     async initialize({ model }) {
       let tsId = model.get("_ts");
       let tsModel = await model.widget_manager.get_model(
@@ -212,9 +218,8 @@ export default () => {
         dataFetcher: createDataFetcherForModel(tsModel),
       };
     },
-    /** @type{import("npm:@anywidget/types@0.2.0").Render} */
+    /** @type {import("npm:@anywidget/types").Render<State>} */
     async render({ model, el }) {
-      /** @type {{ views: Array<{ uid: string }> }} */
       let viewconf = model.get("_viewconf");
       let options = model.get("_options") ?? {};
       let resolved = resolveJupyterServers(viewconf, model.get("_ts"));
@@ -229,20 +234,25 @@ export default () => {
       });
 
       if (viewconf.views.length === 1) {
-        api.on("location", (loc) => {
-          model.set("location", toPts(loc));
+        api.on("location", (/** @type {GenomicLocation} */ loc) => {
+          model.set("location", locationToCoordinates(loc));
           model.save_changes();
         }, viewconf.views[0].uid);
       } else {
         viewconf.views.forEach((view, idx) => {
-          api.on("location", (loc) => {
-            let copy = model.get("location").slice();
-            copy[idx] = toPts(loc);
-            model.set("location", copy);
+          api.on("location", (/** @type{GenomicLocation} */ loc) => {
+            /** @type {Array<Array<number>>} */
+            // @ts-expect-error - Location is array of arrays when multiple views
+            let location = model.get("location");
+            model.set(
+              "location",
+              location.with(idx, locationToCoordinates(loc)),
+            );
             model.save_changes();
           }, view.uid);
         });
       }
+
       return () => {
         unlisten();
       };

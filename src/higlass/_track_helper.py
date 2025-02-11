@@ -3,6 +3,8 @@ from __future__ import annotations
 import functools
 import typing
 
+from typing_extensions import ParamSpec
+
 from higlass._protocols import TilesetResource, TilesetResourceFactory
 from higlass._utils import datatype_default_track
 from higlass.api import track
@@ -48,7 +50,7 @@ class TrackHelper:
         return t
 
 
-_P = typing.ParamSpec("_P")
+_P = ParamSpec("_P")
 
 
 def _bind_track_helper(

@@ -16,7 +16,6 @@ from typing import (
 import higlass_schema as hgs
 from pydantic import RootModel
 
-import higlass._display as display
 import higlass._utils as utils
 
 __all__ = [
@@ -40,7 +39,7 @@ __all__ = [
 ]
 
 if TYPE_CHECKING:
-    from higlass.server import TilesetResource
+    from higlass._track_helper import TrackHelper
 
 ## Mixins
 
@@ -128,7 +127,7 @@ class _OptionsMixin:
 class _TilesetMixin:
     def tileset(
         self: TrackT,  # type: ignore
-        tileset: TilesetResource,
+        tileset: TrackHelper,
         inplace: bool = False,
     ) -> TrackT:  # type: ignore
         """Replace or add a tileset to a Track.
@@ -380,16 +379,18 @@ class Viewconf(hgs.Viewconf[View[TrackT]], _PropertiesMixin, Generic[TrackT]):
     """Represents a top-level viewconfig, or a complete HiGlass visualization."""
 
     def _repr_mimebundle_(self, include=None, exclude=None):
-        """ "Displays the view config in an IPython environment."""
-        renderer = display.renderers.get()
-        plugin_urls = [] if self.views is None else gather_plugin_urls(self.views)
-        return renderer(self.model_dump(), plugin_urls=plugin_urls)
+        """Displays the view config in an IPython environment."""
+        return self.widget()._repr_mimebundle_()
 
     def widget(self, **kwargs):
         """Create a Jupyter Widget display for this view config."""
         from higlass._widget import HiGlassWidget
 
-        return HiGlassWidget(self.model_dump(), **kwargs)
+        return HiGlassWidget(
+            viewconf=self.model_dump(),
+            plugin_urls=[] if self.views is None else gather_plugin_urls(self.views),
+            **kwargs,
+        )
 
     @classmethod
     def from_url(cls, url: str, **kwargs):

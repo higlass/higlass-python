@@ -11,17 +11,14 @@ except PackageNotFoundError:
 from higlass_schema import *
 
 import higlass.tilesets
-from higlass._display import renderers
+from higlass._tileset_registry import create_jupyter_track_helper
 from higlass.api import *
 from higlass.fuse import fuse
-from higlass.server import HiGlassServer, _create_tileset_helper
 from higlass.tilesets import remote
 
-server = HiGlassServer()
-
-bigwig = _create_tileset_helper(server, higlass.tilesets.bigwig)
-multivec = _create_tileset_helper(server, higlass.tilesets.multivec)
-cooler = _create_tileset_helper(server, higlass.tilesets.cooler)
-hitile = _create_tileset_helper(server, higlass.tilesets.hitile)
-bed2ddb = _create_tileset_helper(server, higlass.tilesets.bed2ddb)
-beddb = _create_tileset_helper(server, higlass.tilesets.beddb)
+bigwig = create_jupyter_track_helper(higlass.tilesets.bigwig)
+multivec = create_jupyter_track_helper(higlass.tilesets.multivec)
+cooler = create_jupyter_track_helper(higlass.tilesets.cooler)
+hitile = create_jupyter_track_helper(higlass.tilesets.hitile)
+bed2ddb = create_jupyter_track_helper(higlass.tilesets.bed2ddb)
+beddb = create_jupyter_track_helper(higlass.tilesets.beddb)

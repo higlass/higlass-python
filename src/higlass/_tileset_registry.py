@@ -3,8 +3,6 @@ from __future__ import annotations
 import typing
 import weakref
 
-from higlass._utils import resolve_tileset_uid
-
 __all__ = ["TilesetProtocol", "TilesetRegistry"]
 
 
@@ -14,9 +12,11 @@ class TilesetRegistry:
     )
 
     @classmethod
-    def add(cls, tileset: TilesetProtocol) -> None:
+    def add(cls, tileset: TilesetProtocol) -> str:
         """Register a tileset with a given ID."""
-        cls._registry[resolve_tileset_uid(tileset)] = tileset
+        uid = getattr(tileset, "uid", f"ts{id(tileset)}")
+        cls._registry[uid] = tileset
+        return uid
 
     @classmethod
     def get(cls, tileset_id: str) -> TilesetProtocol:

@@ -79,7 +79,3 @@ def copy_unique(model: ModelT) -> ModelT:
     if hasattr(copy, "uid"):
         setattr(copy, "uid", uid())
     return copy
-
-
-def resolve_tileset_uid(obj: object) -> str:
-    return getattr(obj, "uid", f"ts{id(obj)}")

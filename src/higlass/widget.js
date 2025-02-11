@@ -1,7 +1,7 @@
 import * as hglib from "https://esm.sh/higlass@1.13?deps=react@17,react-dom@17,pixi.js@6";
 import { v4 } from "https://esm.sh/@lukeed/uuid@2.0.1";
 
-/** @import { HGC, PluginDataFetcherConstructor, GenomicLocation } from "./types.ts" */
+/** @import { HGC, PluginDataFetcherConstructor, GenomicLocation, Viewconf } from "./types.ts" */
 
 // Make sure plugins are registered and enabled
 window.higlassDataFetchersByType = window.higlassDataFetchersByType ||
@@ -58,7 +58,7 @@ function assert(expression, msg = "") {
  *
  * @template T
  * @param {import("npm:@anywidget/types").AnyModel} model
- * @param {{ payload: unknown, signal?: AbortSignal, buffers?: Array<ArrayBuffer> }} options
+ * @param {{ payload: unknown, signal?: AbortSignal }} options
  * @return {Promise<{ payload: T, buffers: Array<DataView> }>}
  */
 function sendCustomMessage(model, options) {
@@ -86,11 +86,7 @@ function sendCustomMessage(model, options) {
     }
 
     model.on("msg:custom", handler);
-    model.send(
-      { id, payload: options.payload },
-      undefined,
-      options.buffers ?? [],
-    );
+    model.send({ id, payload: options.payload });
   });
 }
 
@@ -100,9 +96,8 @@ function sendCustomMessage(model, options) {
  * Finds tracks with `server: 'jupyter'`, removes the key, and adds a `data` object
  * with `type: dataFetcherId` and the track’s `tilesetUid`.
  *
- * @param {Record<string, unknown>} viewConfig - The original view configuration.
- * @param {string} dataFetcherId - The identifier for Jupyter-based data sources.
- * @returns {Record<string, unknown>} A modified deep copy of the view config.
+ * @param {Viewconf} viewConfig - The original view configuration.
+ * @returns {Viewconf} A modified deep copy of the view config.
  *
  * @example
  * ```js
@@ -112,18 +107,18 @@ function sendCustomMessage(model, options) {
  * );
  * // Returns:
  * // {
- * //   views: [{ tracks: { top: [{ tilesetUid: 'abc', data: { type: 'jupyter-123', tilesetUid: 'abc' } }] } }]
+ * //   views: [{ tracks: { top: [{ tilesetUid: 'abc', data: { type: 'jupyter', tilesetUid: 'abc' } }] } }]
  * // }
  * ```
  */
-function resolveJupyterServers(viewConfig, dataFetcherId) {
+function resolveJupyterServers(viewConfig) {
   let copy = JSON.parse(JSON.stringify(viewConfig));
   for (let view of copy.views) {
     for (let track of Object.values(view.tracks).flat()) {
       if (track?.server === "jupyter") {
         delete track.server;
         track.data = track.data || {};
-        track.data.type = dataFetcherId;
+        track.data.type = "jupyter";
         track.data.tilesetUid = track.tilesetUid;
       }
     }
@@ -144,23 +139,23 @@ function createDataFetcherForModel(model) {
   const DataFetcher = function createDataFetcher(hgc, dataConfig, pubSub) {
     let config = { ...dataConfig, server: "jupyter" };
     return new hgc.dataFetchers.DataFetcher(config, pubSub, {
-      async fetchTiles({ tileIds }) {
-        let response = await sendCustomMessage(model, {
-          payload: { type: "tiles", tileIds },
-        });
-        let result = hgc.services.tileResponseToData(
-          response.payload,
-          "jupyter",
-          tileIds,
-        );
-        return result;
-      },
       async fetchTilesetInfo({ server, tilesetUid }) {
         assert(server === "jupyter", "must be a jupyter server");
         let response = await sendCustomMessage(model, {
           payload: { type: "tileset_info", tilesetUid },
         });
         return response.payload;
+      },
+      async fetchTiles({ tileIds }) {
+        let response = await sendCustomMessage(model, {
+          payload: { type: "tiles", tileIds },
+        });
+        let result = hgc.services.tileResponseToData(
+          response.payload,
+          config.server,
+          tileIds,
+        );
+        return result;
       },
       registerTileset() {
         throw new Error("Not implemented");
@@ -198,33 +193,31 @@ function addEventListenersTo(el) {
 
 /**
  * @typedef State
- * @property {{ views: Array<{ uid: string }> }} _viewconf
+ * @property {Viewconf} _viewconf
  * @property {Record<string, unknown>} _options
- * @property {`IPYMODEL_${string}`} _ts
+ * @property {`IPYMODEL_${string}`} _tileset_client
  * @property {Array<number> | Array<Array<number>>} location
  */
 
 export default () => {
-  let id = `jupyter-${uid()}`;
   return {
     /** @type {import("npm:@anywidget/types@0.2.0").Initialize<State>} */
     async initialize({ model }) {
-      let tsId = model.get("_ts");
-      let tsModel = await model.widget_manager.get_model(
-        tsId.slice("IPY_MODEL_".length),
+      let tilesetClientModel = await model.widget_manager.get_model(
+        model.get("_tileset_client").slice("IPY_MODEL_".length),
       );
-      window.higlassDataFetchersByType[tsId] = {
-        name: id,
-        dataFetcher: createDataFetcherForModel(tsModel),
+      window.higlassDataFetchersByType["jupyter"] = {
+        name: "jupyter",
+        dataFetcher: createDataFetcherForModel(tilesetClientModel),
       };
     },
     /** @type {import("npm:@anywidget/types").Render<State>} */
     async render({ model, el }) {
-      let viewconf = model.get("_viewconf");
+      let viewconf = resolveJupyterServers(
+        model.get("_viewconf"),
+      );
       let options = model.get("_options") ?? {};
-      let resolved = resolveJupyterServers(viewconf, model.get("_ts"));
-      let api = await hglib.viewer(el, resolved, options);
-
+      let api = await hglib.viewer(el, viewconf, options);
       let unlisten = addEventListenersTo(el);
 
       model.on("msg:custom", (msg) => {

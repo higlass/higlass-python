@@ -8,6 +8,61 @@ window.higlassDataFetchersByType = window.higlassDataFetchersByType ||
   {};
 
 /**
+ * @param {string} href
+ * @returns {Promise<void>}
+ */
+function loadScript(href) {
+  /** @param {string} href */
+  function isScriptLoaded(href) {
+    return document.querySelector(`script[src="${href}"]`) !== null;
+  }
+
+  return new Promise((resolve, reject) => {
+    if (isScriptLoaded(href)) {
+      return resolve();
+    }
+    let script = document.createElement("script");
+    script.src = href;
+    script.async = true;
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error(`Failed to load ${href}`));
+    document.head.appendChild(script);
+  });
+}
+
+/**
+ * Temporarily disables RequireJS to reliably load legacy scripts, then restores it.
+ *
+ * Clears `window.require`, `window.requirejs`, and `window.define` to prevent
+ * interference from RequireJS when loading scripts.
+ *
+ * @param {Array<string>} pluginUrls - URLs of the scripts to load.
+ * @returns {Promise<void>} Resolves when all scripts have been processed.
+ */
+async function requireScripts(pluginUrls) {
+  let backup = {
+    // @ts-expect-error - not on the window
+    define: window.define,
+    require: window.require,
+    // @ts-expect-error - not on the window
+    requirejs: window.requirejs,
+  };
+  for (const field of Object.keys(backup)) {
+    window[field] = undefined;
+  }
+
+  let results = await Promise.allSettled(pluginUrls.map(loadScript));
+
+  results.forEach((result, i) => {
+    if (result.status === "rejected") {
+      console.warn(`Failed to load script: ${pluginUrls[i]}`, result.reason);
+    }
+  });
+
+  Object.assign(window, backup);
+}
+
+/**
  * Create a unique identifier.
  * @returns {string}
  */
@@ -197,12 +252,16 @@ function addEventListenersTo(el) {
  * @property {Record<string, unknown>} _options
  * @property {`IPYMODEL_${string}`} _tileset_client
  * @property {Array<number> | Array<Array<number>>} location
+ * @property {Array<string>} _plugin_urls
  */
 
 export default () => {
+  /** @type {Promise<void>} */
+  let scriptsPromise = Promise.resolve();
   return {
     /** @type {import("npm:@anywidget/types@0.2.0").Initialize<State>} */
     async initialize({ model }) {
+      scriptsPromise = requireScripts(model.get("_plugin_urls"));
       let tilesetClientModel = await model.widget_manager.get_model(
         model.get("_tileset_client").slice("IPY_MODEL_".length),
       );
@@ -213,6 +272,7 @@ export default () => {
     },
     /** @type {import("npm:@anywidget/types").Render<State>} */
     async render({ model, el }) {
+      await scriptsPromise;
       let viewconf = resolveJupyterServers(
         model.get("_viewconf"),
       );

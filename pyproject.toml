@@ -45,7 +45,7 @@ dev = [
     "anywidget[dev]",
     "jupyterlab",
     "pytest",
-    "ruff==0.0.285"
+    "ruff==0.0.285",
 ]
 
 [tool.hatch.build.targets.sdist]

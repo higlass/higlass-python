@@ -65,13 +65,17 @@ class HiGlassWidget(anywidget.AnyWidget):
     _viewconf = t.Dict(allow_none=False).tag(sync=True)
     _options = t.Dict().tag(sync=True)
     _tileset_client = t.Any().tag(sync=True, **ipywidgets.widget_serialization)
+    _plugin_urls = t.List().tag(sync=True)
 
     # readonly properties
     location = t.List(t.Union([t.Float(), t.Tuple()]), read_only=True).tag(sync=True)
 
-    def __init__(self, viewconf: dict, **viewer_options):
+    def __init__(self, viewconf: dict, plugin_urls: list[str] | None, **viewer_options):
         super().__init__(
-            _viewconf=viewconf, _tileset_client=_TILESET_CLIENT, _options=viewer_options
+            _viewconf=viewconf,
+            _tileset_client=_TILESET_CLIENT,
+            _plugin_urls=plugin_urls,
+            _options=viewer_options,
         )
 
     def reload(self, *items):

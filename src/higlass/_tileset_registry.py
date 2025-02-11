@@ -30,6 +30,10 @@ class TilesetRegistry:
         """Retrieve a tileset by its ID, or None if it no longer exists."""
         return cls._registry.get(tileset_id)
 
+    @classmethod
+    def clear(cls) -> None:
+        cls._registry.clear()
+
 
 class JupyterTilesetResource(TilesetResource):
     def __init__(self, tileset: LocalTileset):

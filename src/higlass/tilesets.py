@@ -7,23 +7,57 @@ import typing
 from dataclasses import dataclass
 from typing import IO
 
-from ._utils import TrackType
-from .api import track
+import higlass.api
+from higlass._tileset_registry import TilesetProtocol, TilesetRegistry
+from higlass._utils import TrackType, datatype_default_track
 
 __all__ = [
     "LocalTileset",
     "RemoteTileset",
-    "remote",
+    "bed2ddb",
     "bigwig",
-    "multivec",
     "cooler",
     "hitile",
-    "bed2ddb",
+    "multivec",
+    "register",
+    "remote",
 ]
 
 DataType = typing.Literal["vector", "multivec", "matrix"]
 
+T = typing.TypeVar("T", bound=TilesetProtocol)
 
+
+def register(klass: type[T]) -> type[T]:
+    def track(
+        self: TilesetProtocol, type_: TrackType | None = None, **kwargs
+    ) -> higlass.api.Track:
+        # use default track based on datatype if available
+        if type_ is None:
+            datatype = getattr(self, "datatype", None)
+            if datatype is None:
+                raise ValueError("No default track for tileset")
+            else:
+                type_ = typing.cast(TrackType, datatype_default_track[datatype])
+        track = higlass.api.track(
+            type_=type_,
+            server="jupyter",
+            tilesetUid=self.uid,
+            **kwargs,
+        )
+        name = getattr(self, "name")
+        if name:
+            track.opts(name=name, inplace=True)
+
+        # add tileset registry when creating a track
+        TilesetRegistry.add(self)
+        return track
+
+    setattr(klass, "track", track)
+    return klass
+
+
+@register
 class LocalTileset:
     def __init__(
         self,
@@ -57,15 +91,15 @@ class RemoteTileset:
     name: str | None = None
 
     def track(self, type_: TrackType, **kwargs):
-        t = track(
+        track = higlass.api.track(
             type_=type_,
             server=self.server,
             tilesetUid=self.uid,
             **kwargs,
         )
         if self.name:
-            t.opts(name=self.name, inplace=True)
-        return t
+            track.opts(name=self.name, inplace=True)
+        return track
 
 
 def remote(uid: str, server: str = "https://higlass.io/api/v1", **kwargs):

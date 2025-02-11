@@ -28,8 +28,7 @@ def test_len(scale):
 
 def test_repr(scale):
     assert repr(scale) == (
-        "Scale(chromsizes={'chr1': 10000, 'chr2': 20000, 'chr3': 30000}, "
-        "binsize=1000)"
+        "Scale(chromsizes={'chr1': 10000, 'chr2': 20000, 'chr3': 30000}, binsize=1000)"
     )
 
 

@@ -294,13 +294,9 @@ export default () => {
       } else {
         viewconf.views.forEach((view, idx) => {
           api.on("location", (/** @type{GenomicLocation} */ loc) => {
-            /** @type {Array<Array<number>>} */
-            // @ts-expect-error - Location is array of arrays when multiple views
-            let location = model.get("location");
-            model.set(
-              "location",
-              location.with(idx, locationToCoordinates(loc)),
-            );
+            let location = model.get("location").slice();
+            location[idx] = locationToCoordinates(loc);
+            model.set("location", location);
             model.save_changes();
           }, view.uid);
         });

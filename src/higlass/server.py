@@ -1,6 +1,11 @@
 from __future__ import annotations
 
+import typing
+
 from servir import Provider, TilesetResource
+
+if typing.TYPE_CHECKING:
+    from higlass.tilesets import LocalTileset
 
 __all__ = ["HiGlassServer"]
 

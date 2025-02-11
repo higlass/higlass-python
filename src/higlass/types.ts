@@ -79,3 +79,8 @@ export type GenomicLocation = {
   xDomain: [number, number];
   yDomain: [number, number];
 };
+
+/** Partial types for the viewconf */
+export type Viewconf = {
+  views: Array<{ uid: string }>;
+};

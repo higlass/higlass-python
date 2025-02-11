@@ -11,7 +11,7 @@ Key features
 
 - **Author validated HiGlass view configs** with a simplified API
 - **Render interactive visualizations** as standalone HTML or interactive Jupyter Widgets
-- Load **local, remote, and in-memory datasets** via a light-weight, background HiGlass server
+- Load **local, remote, and in-memory datasets** via a light-weight, anywidget-based HiGlass server
 - Extend HiGlass server with **custom tilesets**
 
 
@@ -58,7 +58,7 @@ Whats going on here:
 
 - ``tileset1`` defines a remote tileset (data source), pointing to an exisiting
   HiGlass server.
-- ``tileset2`` defines a local tileset, configuring a background HiGlass server
+- ``tileset2`` defines a local tileset, configuring an anywidget-based HiGlass server
   to serve tiles from the included cooler file.
 - ``track1`` and ``track2`` specify separate ``hg.HeatmapTrack`` objects derived
   from the above tilesets, which are inserted into two separate views (``view1`` and ``view2`` respectively).

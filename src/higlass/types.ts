@@ -74,3 +74,8 @@ export type HGC = {
     ): Record<string, unknown>;
   };
 };
+
+export type GenomicLocation = {
+  xDomain: [number, number];
+  yDomain: [number, number];
+};

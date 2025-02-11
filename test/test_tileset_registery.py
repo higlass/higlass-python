@@ -5,7 +5,7 @@ import typing
 import pytest
 
 from higlass._tileset_registry import TilesetRegistry
-from higlass.tilesets import LocalTileset
+from higlass.tilesets import LocalTileset, register
 
 
 def mock_tileset(uid: str) -> LocalTileset:
@@ -23,7 +23,7 @@ def registry() -> typing.Generator[type[TilesetRegistry]]:
     TilesetRegistry.clear()
 
 
-def tileset_registry(registry: type[TilesetRegistry]) -> None:
+def test_tileset_registry(registry: type[TilesetRegistry]) -> None:
     ts1 = mock_tileset(uid="mock_id_1")
     TilesetRegistry.add(ts1)
     ts2 = mock_tileset(uid="mock_id_2")
@@ -32,3 +32,25 @@ def tileset_registry(registry: type[TilesetRegistry]) -> None:
     TilesetRegistry.add(ts3)
     assert ts1 == TilesetRegistry.get("mock_id_1")
     assert ts3 == TilesetRegistry.get("mock_id_2")
+
+
+def test_custom_tileset_without_uid(registry: type[TilesetRegistry]) -> None:
+    @register
+    class MyTileset:
+        def tiles(self, tile_ids: typing.Sequence[str]) -> list[typing.Any]: ...
+
+        def info(self) -> typing.Any: ...
+
+    ts = MyTileset()
+    # doesn't create a tileset
+    assert len(TilesetRegistry._registry) == 0
+
+    ts.track("heatmap")
+    assert len(TilesetRegistry._registry) == 1
+
+    ts.track("heatmap")
+    assert len(TilesetRegistry._registry) == 1
+
+    ts2 = MyTileset()
+    ts2.track("heatmap")
+    assert len(TilesetRegistry._registry) == 2

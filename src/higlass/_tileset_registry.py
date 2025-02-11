@@ -3,6 +3,8 @@ from __future__ import annotations
 import typing
 import weakref
 
+from higlass._utils import resolve_tileset_uid
+
 __all__ = ["TilesetProtocol", "TilesetRegistry"]
 
 
@@ -14,7 +16,7 @@ class TilesetRegistry:
     @classmethod
     def add(cls, tileset: TilesetProtocol) -> None:
         """Register a tileset with a given ID."""
-        cls._registry[tileset.uid] = tileset
+        cls._registry[resolve_tileset_uid(tileset)] = tileset
 
     @classmethod
     def get(cls, tileset_id: str) -> TilesetProtocol:
@@ -30,9 +32,6 @@ class TilesetRegistry:
 
 
 class TilesetProtocol(typing.Protocol):
-    @property
-    def uid(self) -> str: ...
-
     def tiles(self, tile_ids: typing.Sequence[str]) -> list[typing.Any]: ...
 
     def info(self) -> typing.Any: ...

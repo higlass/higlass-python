@@ -9,7 +9,7 @@ from typing import IO
 
 import higlass.api
 from higlass._tileset_registry import TilesetProtocol, TilesetRegistry
-from higlass._utils import TrackType, datatype_default_track
+from higlass._utils import TrackType, datatype_default_track, resolve_tileset_uid
 
 __all__ = [
     "LocalTileset",
@@ -42,11 +42,11 @@ def register(klass: type[T]) -> type[T]:
         track = higlass.api.track(
             type_=type_,
             server="jupyter",
-            tilesetUid=self.uid,
+            tilesetUid=resolve_tileset_uid(self),
             **kwargs,
         )
-        name = getattr(self, "name")
-        if name:
+        name = getattr(self, "name", None)
+        if name is not None:
             track.opts(name=name, inplace=True)
 
         # add tileset registry when creating a track

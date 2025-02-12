@@ -3,7 +3,6 @@ from __future__ import annotations
 import functools
 from collections import defaultdict
 from typing import (
-    TYPE_CHECKING,
     ClassVar,
     Generic,
     Literal,
@@ -38,8 +37,6 @@ __all__ = [
     "view",
 ]
 
-if TYPE_CHECKING:
-    from higlass._track_helper import TrackHelper
 
 ## Mixins
 
@@ -124,46 +121,16 @@ class _OptionsMixin:
         return track
 
 
-class _TilesetMixin:
-    def tileset(
-        self: TrackT,  # type: ignore
-        tileset: TrackHelper,
-        inplace: bool = False,
-    ) -> TrackT:  # type: ignore
-        """Replace or add a tileset to a Track.
-
-        A convenience method to update a track with a tileset.
-
-        Parameters
-        ----------
-        tileset : TilesetResource
-            A tileset resource returned from `hg.server`.
-
-        inplace : bool, optional
-            Whether to modify the existing track in place or return
-            a new track (default: `False`)
-
-        Returns
-        -------
-        track : A track with the bound tileset.
-
-        """
-        track = self if inplace else utils.copy_unique(self)
-        track.server = tileset.server
-        track.tilesetUid = tileset.tileset.uid
-        return track
-
-
 ## Extend higlass-schema classes
 
 
-class EnumTrack(hgs.EnumTrack, _OptionsMixin, _PropertiesMixin, _TilesetMixin):
+class EnumTrack(hgs.EnumTrack, _OptionsMixin, _PropertiesMixin):
     """Represents a generic track."""
 
     ...
 
 
-class HeatmapTrack(hgs.HeatmapTrack, _OptionsMixin, _PropertiesMixin, _TilesetMixin):
+class HeatmapTrack(hgs.HeatmapTrack, _OptionsMixin, _PropertiesMixin):
     """Represets a specialized heatmap track."""
 
     ...
@@ -173,20 +140,19 @@ class IndependentViewportProjectionTrack(
     hgs.IndependentViewportProjectionTrack,
     _OptionsMixin,
     _PropertiesMixin,
-    _TilesetMixin,
 ):
     """Represents a view-independent viewport projection track."""
 
     ...
 
 
-class CombinedTrack(hgs.CombinedTrack, _OptionsMixin, _PropertiesMixin, _TilesetMixin):
+class CombinedTrack(hgs.CombinedTrack, _OptionsMixin, _PropertiesMixin):
     """Represents a track combining multiple tracks."""
 
     ...
 
 
-class PluginTrack(hgs.BaseTrack, _OptionsMixin, _PropertiesMixin, _TilesetMixin):
+class PluginTrack(hgs.BaseTrack, _OptionsMixin, _PropertiesMixin):
     """Represents an unknown plugin track."""
 
     plugin_url: ClassVar[str]

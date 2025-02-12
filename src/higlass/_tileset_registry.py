@@ -26,7 +26,9 @@ class TilesetProtocol(typing.Protocol):
 
 
 class TilesetRegistry:
-    _registry = weakref.WeakValueDictionary[str, TilesetProtocol]()
+    _registry: weakref.WeakValueDictionary[str, TilesetProtocol] = (
+        weakref.WeakValueDictionary()
+    )
 
     @classmethod
     def add(cls, tileset: TilesetProtocol) -> str:

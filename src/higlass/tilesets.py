@@ -72,6 +72,45 @@ def remote(
 
 
 class Tileset(abc.ABC):
+    """Base class for defining custom tilesets in `higlass`.
+
+    Subclasses must implement the `tiles` and `info` methods.
+
+    The provided `track` method is a helper which automatically registers the
+    tileset with the `TilesetRegistry` and returns a HiGlass track object
+    ready for visualization.
+
+    Parameters
+    ----------
+    klass : type[T]
+        A class implementing `TilesetProtocol`.
+
+    Returns
+    -------
+    type[T]
+        The input class, now with an added `track` method.
+
+    Examples
+    --------
+    >>> import higlass as hg
+    >>> from dataclasses import dataclass
+    >>> from clodius.tiles import cooler
+    >>>
+    >>> @dataclass
+    >>> class MyCoolerTileset(hg.Tileset):
+    >>>     filepath: str
+    >>>     datatype = "matrix"
+    >>>
+    >>>     def info(self):
+    >>>         return tileset_info(self.filepath)
+    >>>
+    >>>     def tiles(self, tile_ids):
+    >>>         return tiles(self.filepath, tile_ids)
+    >>>
+    >>> tileset = MyCoolerTileset("test.mcool")
+    >>> hg.view(tileset.track("heatmap"))
+    """
+
     @abc.abstractmethod
     def tiles(self, tile_ids: typing.Sequence[str], /) -> list[dict]: ...
 

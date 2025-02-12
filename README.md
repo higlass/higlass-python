@@ -1,9 +1,8 @@
 # higlass-python 🔎
 
 A fresh Python library for [`higlass`](https://github.com/higlass/higlass) built
-on top of:
-* [`higlass-schema`](https://github.com/higlass/higlass-schema): Pydantic models for HiGlass.
-* [`higlass-widget`](https://github.com/higlass/higlass-widget): A cross-platform [AnyWidget](https://github.com/manzt/anywidget) for Jupyter environments.
+on top of [`higlass-schema`](https://github.com/higlass/higlass-schema) and
+[anyiwdget](https://github.com/manzt/anywidget).
 
 [![License](https://img.shields.io/pypi/l/higlass-python.svg?color=green)](https://github.com/higlass/higlass-python/raw/main/LICENSE)
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/higlass/higlass-python/blob/main/examples/Examples.ipynb)
@@ -51,10 +50,11 @@ To learn more about the new API, check out the
 
 ## Upgrade Guide
 
-**higlass-python** v1.0 is a total rewrite of our prior
-implementation, aimed to offer a more ergonomic and flexible API. While this
-might present challenges when upgrading existing code, we've prepared
-[documentation](http://docs-python.higlass.io/) to guide you through the new API usage.
+**higlass-python** v1.0 is a total rewrite of our prior implementation, aimed to
+offer a more ergonomic and flexible API. While this might present challenges
+when upgrading existing code, we've prepared
+[documentation](http://docs-python.higlass.io/) to guide you through the new API
+usage.
 
 If you find a missing feature, please open an issue – we're committed to
 supporting your use cases with the new API.
@@ -76,13 +76,13 @@ and understanding are greatly appreciated.
 
 All commands are run from the root of the project, from a terminal:
 
-| Command | Action |
-|---------|--------|
-| `uv run ruff check --fix && uv run ruff format` | Lint and apply formatting |
-| `uv run check` | Check linting rules |
-| `uv run ruff format --check` | Check formatting |
-| `uv run pytest` | Run unit tests |
-| `uv run docs/build.py` | Build the documentation in `docs/_build/html` |
+| Command                                         | Action                                        |
+| ----------------------------------------------- | --------------------------------------------- |
+| `uv run ruff check --fix && uv run ruff format` | Lint and apply formatting                     |
+| `uv run check`                                  | Check linting rules                           |
+| `uv run ruff format --check`                    | Check formatting                              |
+| `uv run pytest`                                 | Run unit tests                                |
+| `uv run docs/build.py`                          | Build the documentation in `docs/_build/html` |
 
 This table now includes only the UV-related commands, with each command in the
 left column and its corresponding action in the right column. The formatting is
@@ -92,7 +92,8 @@ Our CI enforces formatting, linting, and tests.
 
 ## Changelog
 
-Check the [GitHub Releases](https://github.com/higlass/higlass-python/releases) for a detailed changelog.
+Check the [GitHub Releases](https://github.com/higlass/higlass-python/releases)
+for a detailed changelog.
 
 ## Release
 
@@ -101,8 +102,11 @@ Releases are managed via the GitHub UI.
 [Draft a new release](https://github.com/higlass/higlass-python/releases/new):
 
 1. **Create a tag**
-   - Click _"Choose a tag"_, then **type a new tag** in the format `v[major].[minor].[patch]` to create it.
-   - _Note_: The UI is not obvious about this. You can create a tag here, not just select one. Tag creation triggers a [workflow](.github/workflows/ci.yml) to publish to PyPI.
+   - Click _"Choose a tag"_, then **type a new tag** in the format
+     `v[major].[minor].[patch]` to create it.
+   - _Note_: The UI is not obvious about this. You can create a tag here, not
+     just select one. Tag creation triggers a
+     [workflow](.github/workflows/ci.yml) to publish to PyPI.
 
 2. **Generate release notes**
    - Click _"Generate Release Notes"_ to auto-summarize changes from merged PRs.

@@ -162,7 +162,7 @@ class ClodiusTileset(TilesetProtocol):
     tiles_impl: typing.Callable[[typing.Sequence[str]], list[typing.Any]]
     info_impl: typing.Callable[[], TilesetInfo]
 
-    def tiles(self, *, tile_ids: typing.Sequence[str]) -> list[dict]:
+    def tiles(self, tile_ids: typing.Sequence[str], /) -> list[dict]:
         return self.tiles_impl(tile_ids)
 
     def info(self) -> TilesetInfo:

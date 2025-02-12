@@ -3,7 +3,6 @@ from __future__ import annotations
 import functools
 from collections import defaultdict
 from typing import (
-    TYPE_CHECKING,
     ClassVar,
     Generic,
     Literal,
@@ -38,8 +37,6 @@ __all__ = [
     "view",
 ]
 
-if TYPE_CHECKING:
-    from higlass._track_helper import TrackHelper
 
 ## Mixins
 

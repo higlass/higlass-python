@@ -5,7 +5,7 @@ import typing
 import pytest
 
 from higlass._tileset_registry import TilesetRegistry
-from higlass.tilesets import ClodiusTileset, register
+from higlass.tilesets import ClodiusTileset, Tileset
 
 
 def mock_tileset() -> ClodiusTileset:
@@ -42,8 +42,7 @@ def test_tilesets_are_weakly_referenced(Registry: type[TilesetRegistry]) -> None
 
 
 def test_custom_tileset_without_uid(Registry: type[TilesetRegistry]) -> None:
-    @register
-    class MyTileset:
+    class MyTileset(Tileset):
         def tiles(self, tile_ids: typing.Sequence[str]) -> list[typing.Any]:
             return []
 

@@ -10,6 +10,32 @@ except PackageNotFoundError:
 
 from higlass_schema import *
 
-import higlass.tilesets as tilesets
-from higlass.api import *
-from higlass.tilesets import bed2ddb, beddb, bigwig, cooler, hitile, multivec, remote
+from higlass.api import (
+    CombinedTrack,
+    EnumTrack,
+    HeatmapTrack,
+    IndependentViewportProjectionTrack,
+    PluginTrack,
+    TrackT,
+    View,
+    Viewconf,
+    ViewT,
+    combine,
+    concat,
+    divide,
+    hconcat,
+    lock,
+    track,
+    vconcat,
+    view,
+)
+from higlass.tilesets import (
+    Tileset,
+    bed2ddb,
+    beddb,
+    bigwig,
+    cooler,
+    hitile,
+    multivec,
+    remote,
+)

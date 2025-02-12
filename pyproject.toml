@@ -33,9 +33,6 @@ dependencies = [
 requires-python = ">=3.8"
 urls = { homepage = "https://github.com/higlass/higlass-python" }
 
-[project.optional-dependencies]
-fuse = ["fusepy", "simple-httpfs"]
-
 [dependency-groups]
 dev = ["anywidget[dev]", "jupyterlab", "pytest", "ruff"]
 

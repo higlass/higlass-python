@@ -30,21 +30,14 @@ dependencies = [
     "anywidget>=0.9.0",
     "typing-extensions ; python_version<'3.9'",
 ]
+requires-python = ">=3.8"
 urls = { homepage = "https://github.com/higlass/higlass-python" }
 
 [project.optional-dependencies]
-fuse = [
-    "fusepy",
-    "simple-httpfs"
-]
+fuse = ["fusepy", "simple-httpfs"]
 
 [dependency-groups]
-dev = [
-    "anywidget[dev]",
-    "jupyterlab",
-    "pytest",
-    "ruff==0.0.285",
-]
+dev = ["anywidget[dev]", "jupyterlab", "pytest", "ruff==0.0.285"]
 
 [tool.hatch.build.targets.sdist]
 include = ["src"]
@@ -60,13 +53,13 @@ source = "vcs"
 line-length = 88
 target-version = "py38"
 extend-select = [
-    "E",  # style errors
+    "E", # style errors
     # "D",  # pydocstyle
-    "F",  # pyflakes
-    "I",  # isort
+    "F",   # pyflakes
+    "I",   # isort
     "RUF", # ruff-specific rules
-    "UP", # pyupgrade
-    "W",  # style  warnings
+    "UP",  # pyupgrade
+    "W",   # style  warnings
 ]
 
 [tool.ruff.per-file-ignores]

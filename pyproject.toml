@@ -37,7 +37,7 @@ urls = { homepage = "https://github.com/higlass/higlass-python" }
 fuse = ["fusepy", "simple-httpfs"]
 
 [dependency-groups]
-dev = ["anywidget[dev]", "jupyterlab", "pytest", "ruff==0.0.285"]
+dev = ["anywidget[dev]", "jupyterlab", "pytest", "ruff"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/higlass"]

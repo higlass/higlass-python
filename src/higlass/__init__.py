@@ -29,6 +29,7 @@ from higlass.api import (
     vconcat,
     view,
 )
+from higlass.server import HiGlassServer
 from higlass.tilesets import (
     Tileset,
     bed2ddb,
@@ -39,3 +40,6 @@ from higlass.tilesets import (
     multivec,
     remote,
 )
+
+# a stub server with some helpful warnings
+server = HiGlassServer()

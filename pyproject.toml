@@ -39,12 +39,8 @@ fuse = ["fusepy", "simple-httpfs"]
 [dependency-groups]
 dev = ["anywidget[dev]", "jupyterlab", "pytest", "ruff==0.0.285"]
 
-[tool.hatch.build.targets.sdist]
-include = ["src"]
-
 [tool.hatch.build.targets.wheel]
-only-include = ["src"]
-sources = ["src"]
+packages = ["src/higlass"]
 
 [tool.hatch.version]
 source = "vcs"

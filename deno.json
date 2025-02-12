@@ -8,5 +8,8 @@
     "rules": {
       "exclude": ["prefer-const"]
     }
+  },
+  "fmt": {
+    "exclude": ["examples"]
   }
 }

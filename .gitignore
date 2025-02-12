@@ -10,3 +10,4 @@ docs/_build/
 dist/
 .venv
 examples/test.mcool
+*.bigWig

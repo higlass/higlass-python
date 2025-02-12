@@ -4,6 +4,7 @@ import concurrent.futures
 import functools
 import itertools
 import json
+import logging
 import os
 import pathlib
 import typing
@@ -16,6 +17,8 @@ import traitlets as t
 from higlass._tileset_registry import TilesetRegistry
 
 __all__ = ["HiGlassWidget"]
+
+logger = logging.getLogger("higlass.widget")
 
 
 class TilesetInfo(pydantic.BaseModel):
@@ -59,8 +62,10 @@ class JupyterTilesetClient(ipywidgets.Widget):
 
     def _handle_custom_message(self, widget, msg, buffers):
         message = CustomMessage(**msg)
+        logger.debug("handle_custom_message: %s", message)
 
         def respond_with(payload: object):
+            logger.debug("handle_custom_message::respond_with: %s", message.id)
             self.send({"id": message.id, "payload": payload})
 
         def process_message():

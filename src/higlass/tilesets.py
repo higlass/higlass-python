@@ -1,14 +1,13 @@
 from __future__ import annotations
 
 import functools
-import hashlib
 import pathlib
 import typing
 from dataclasses import dataclass
 from typing import IO
 
 import higlass.api
-from higlass._tileset_registry import TilesetProtocol, TilesetRegistry
+from higlass._tileset_registry import TilesetInfo, TilesetProtocol, TilesetRegistry
 from higlass._utils import TrackType, datatype_default_track
 
 __all__ = [
@@ -29,9 +28,62 @@ T = typing.TypeVar("T", bound=TilesetProtocol)
 
 
 def register(klass: type[T]) -> type[T]:
+    """Decorator that adds a `track` method to a class implementing `TilesetProtocol`.
+
+    The `track` method automatically registers the tileset with the `TilesetRegistry`
+    and returns a HiGlass track object, which can be used for visualization.
+
+    Parameters
+    ----------
+    klass : type[T]
+        A class that implements `TilesetProtocol`.
+
+    Returns
+    -------
+    type[T]
+        The input class, now with an added `track` method.
+
+    Examples
+    --------
+    >>> from dataclasses import dataclass
+    >>> from clodius.tiles.cooler import tiles, tileset_info
+    >>>
+    >>> @register
+    >>> @dataclass
+    >>> class MyCoolerTileset:
+    >>>     filepath: str
+    >>>     datatype = "matrix"
+    >>>
+    >>>     def info(self):
+    >>>         return tileset_info(self.filepath)
+    >>>
+    >>>     def tiles(self, tile_ids):
+    >>>         return tiles(self.filepath, tile_ids)
+    >>>
+    >>> tileset = MyCoolerTileset("test.mcool")
+    >>> track = tileset.track("heatmap")
+    """
+
     def track(
-        self: TilesetProtocol, type_: TrackType | None = None, **kwargs
+        self: TilesetProtocol, type_: TrackType | None = None, /, **kwargs
     ) -> higlass.api.Track:
+        """
+        Create a HiGlass track for the tileset.
+
+        Registers the tileset with the `TilesetRegistry` and returns a track
+        of the given `type_`. Defaults to a type based on the tileset's `datatype`
+        if not specified.
+
+        Parameters
+        ----------
+        type_ : TrackType, optional
+            Track type. If `None`, a default is inferred.
+
+        Returns
+        -------
+        higlass.api.Track
+            The configured HiGlass track.
+        """
         # use default track based on datatype if available
         if type_ is None:
             datatype = getattr(self, "datatype", None)
@@ -59,29 +111,23 @@ def register(klass: type[T]) -> type[T]:
 
 
 @register
-class LocalTileset:
+class LocalTileset(TilesetProtocol):
     def __init__(
         self,
         datatype: DataType,
         tiles: typing.Callable[[typing.Sequence[str]], list[typing.Any]],
-        info: typing.Callable[[], typing.Any],
-        uid: str,
+        info: typing.Callable[[], TilesetInfo],
         name: str | None = None,
     ):
         self.datatype = datatype
         self._tiles = tiles
         self._info = info
-        self._uid = uid
         self.name = name
 
-    @property
-    def uid(self) -> str:
-        return self._uid
-
-    def tiles(self, tile_ids: typing.Sequence[str]) -> list[typing.Any]:
+    def tiles(self, tile_ids: typing.Sequence[str]) -> list[dict]:
         return self._tiles(tile_ids)
 
-    def info(self) -> typing.Any:
+    def info(self) -> TilesetInfo:
         return self._info()
 
 
@@ -98,7 +144,7 @@ class RemoteTileset:
             tilesetUid=self.uid,
             **kwargs,
         )
-        if self.name:
+        if self.name is not None:
             track.opts(name=self.name, inplace=True)
         return track
 
@@ -107,22 +153,7 @@ def remote(uid: str, server: str = "https://higlass.io/api/v1", **kwargs):
     return RemoteTileset(uid, server, **kwargs)
 
 
-def hash_file_as_default_uid(fn: typing.Callable[[str | IO[bytes], str], LocalTileset]):
-    def wrapper(file: str | IO[bytes], uid: None | str = None):
-        if uid is None:
-            if isinstance(file, str):
-                abspath = pathlib.Path(file).absolute()
-                uid = hashlib.md5(str(abspath).encode()).hexdigest()
-            else:
-                # File-like object likely provided
-                uid = hashlib.md5(str(hash(file)).encode()).hexdigest()
-        return fn(file, uid)
-
-    return wrapper
-
-
-@hash_file_as_default_uid
-def bigwig(filepath: str, uid: str):
+def bigwig(filepath: str | pathlib.Path) -> LocalTileset:
     try:
         from clodius.tiles.bigwig import tiles, tileset_info
     except ImportError:
@@ -134,12 +165,10 @@ def bigwig(filepath: str, uid: str):
         datatype="vector",
         tiles=functools.partial(tiles, filepath),
         info=functools.partial(tileset_info, filepath),
-        uid=uid,
     )
 
 
-@hash_file_as_default_uid
-def beddb(filepath: str, uid: str):
+def beddb(filepath: str | pathlib.Path) -> LocalTileset:
     try:
         from clodius.tiles.beddb import tiles, tileset_info
     except ImportError:
@@ -151,12 +180,10 @@ def beddb(filepath: str, uid: str):
         datatype="vector",
         tiles=functools.partial(tiles, filepath),
         info=functools.partial(tileset_info, filepath),
-        uid=uid,
     )
 
 
-@hash_file_as_default_uid
-def multivec(filepath: str, uid: str):
+def multivec(filepath: str | pathlib.Path) -> LocalTileset:
     try:
         from clodius.tiles.multivec import tiles, tileset_info
     except ImportError:
@@ -168,12 +195,10 @@ def multivec(filepath: str, uid: str):
         datatype="multivec",
         tiles=functools.partial(tiles, filepath),
         info=functools.partial(tileset_info, filepath),
-        uid=uid,
     )
 
 
-@hash_file_as_default_uid
-def cooler(filepath: str, uid: str):
+def cooler(filepath: str | pathlib.Path) -> LocalTileset:
     try:
         from clodius.tiles.cooler import tiles, tileset_info
     except ImportError:
@@ -185,12 +210,10 @@ def cooler(filepath: str, uid: str):
         datatype="matrix",
         tiles=functools.partial(tiles, filepath),
         info=functools.partial(tileset_info, filepath),
-        uid=uid,
     )
 
 
-@hash_file_as_default_uid
-def hitile(filepath: str, uid: str):
+def hitile(filepath: str | pathlib.Path) -> LocalTileset:
     try:
         from clodius.tiles.hitile import tiles, tileset_info
     except ImportError:
@@ -202,12 +225,10 @@ def hitile(filepath: str, uid: str):
         datatype="vector",
         tiles=functools.partial(tiles, filepath),
         info=functools.partial(tileset_info, filepath),
-        uid=uid,
     )
 
 
-@hash_file_as_default_uid
-def bed2ddb(filepath: str, uid: str):
+def bed2ddb(filepath: str | pathlib.Path) -> LocalTileset:
     try:
         from clodius.tiles.bed2ddb import tiles, tileset_info
     except ImportError:
@@ -219,7 +240,6 @@ def bed2ddb(filepath: str, uid: str):
         datatype="2d-rectangle-domains",
         tiles=functools.partial(tiles, filepath),
         info=functools.partial(tileset_info, filepath),
-        uid=uid,
     )
 
 

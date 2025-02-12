@@ -2,7 +2,7 @@
 
 A fresh Python library for [`higlass`](https://github.com/higlass/higlass) built
 on top of [`higlass-schema`](https://github.com/higlass/higlass-schema) and
-[anyiwdget](https://github.com/manzt/anywidget).
+[anywidget](https://github.com/manzt/anywidget).
 
 [![License](https://img.shields.io/pypi/l/higlass-python.svg?color=green)](https://github.com/higlass/higlass-python/raw/main/LICENSE)
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/higlass/higlass-python/blob/main/examples/Examples.ipynb)

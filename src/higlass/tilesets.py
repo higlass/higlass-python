@@ -4,15 +4,12 @@ import functools
 import pathlib
 import typing
 from dataclasses import dataclass
-from typing import IO
 
 import higlass.api
 from higlass._tileset_registry import TilesetInfo, TilesetProtocol, TilesetRegistry
 from higlass._utils import TrackType, datatype_default_track
 
 __all__ = [
-    "LocalTileset",
-    "RemoteTileset",
     "bed2ddb",
     "bigwig",
     "cooler",
@@ -22,7 +19,15 @@ __all__ = [
     "remote",
 ]
 
-DataType = typing.Literal["vector", "multivec", "matrix"]
+DataType = typing.Literal[
+    "2d-rectangle-domains",
+    "bedlike",
+    "chromsizes",
+    "gene-annotations",
+    "matrix",
+    "multivec",
+    "vector",
+]
 
 T = typing.TypeVar("T", bound=TilesetProtocol)
 
@@ -110,27 +115,6 @@ def register(klass: type[T]) -> type[T]:
     return klass
 
 
-@register
-class LocalTileset(TilesetProtocol):
-    def __init__(
-        self,
-        datatype: DataType,
-        tiles: typing.Callable[[typing.Sequence[str]], list[typing.Any]],
-        info: typing.Callable[[], TilesetInfo],
-        name: str | None = None,
-    ):
-        self.datatype = datatype
-        self._tiles = tiles
-        self._info = info
-        self.name = name
-
-    def tiles(self, tile_ids: typing.Sequence[str]) -> list[dict]:
-        return self._tiles(tile_ids)
-
-    def info(self) -> TilesetInfo:
-        return self._info()
-
-
 @dataclass
 class RemoteTileset:
     uid: str
@@ -149,98 +133,65 @@ class RemoteTileset:
         return track
 
 
-def remote(uid: str, server: str = "https://higlass.io/api/v1", **kwargs):
-    return RemoteTileset(uid, server, **kwargs)
+def remote(
+    uid: str, server: str = "https://higlass.io/api/v1", name: str | None = None
+):
+    """Create a remote tileset reference.
+
+    Parameters
+    ----------
+    uid : str
+        The unique identifier for the remote tileset.
+    server : str, optional
+        The HiGlass server URL (default is "https://higlass.io/api/v1").
+    name : str, optional
+        An optional name for the tileset.
+
+    Returns
+    -------
+    RemoteTileset
+        A RemoteTileset instance that can be used to create HiGlass tracks.
+    """
+    return RemoteTileset(uid, server, name)
 
 
-def bigwig(filepath: str | pathlib.Path) -> LocalTileset:
-    try:
-        from clodius.tiles.bigwig import tiles, tileset_info
-    except ImportError:
-        raise ImportError(
-            'You must have `clodius` installed to use "vector" data-server.'
+@register
+@dataclass
+class ClodiusTileset(TilesetProtocol):
+    datatype: DataType
+    tiles_impl: typing.Callable[[typing.Sequence[str]], list[typing.Any]]
+    info_impl: typing.Callable[[], TilesetInfo]
+
+    def tiles(self, *, tile_ids: typing.Sequence[str]) -> list[dict]:
+        return self.tiles_impl(tile_ids)
+
+    def info(self) -> TilesetInfo:
+        return self.info_impl()
+
+
+def create_lazy_clodius_loader(
+    kind: str, datatype: DataType
+) -> typing.Callable[[str | pathlib.Path], ClodiusTileset]:
+    def load(filepath: str | pathlib.Path) -> ClodiusTileset:
+        try:
+            module = __import__(
+                f"clodius.tiles.{kind}", fromlist=["tiles", "tileset_info"]
+            )
+        except (ImportError, AttributeError):
+            raise ImportError(f"You must have `clodius` installed to use `hg.{kind}`.")
+
+        return ClodiusTileset(
+            datatype=datatype,
+            tiles_impl=functools.partial(module.tiles, filepath),
+            info_impl=functools.partial(module.tileset_info, filepath),
         )
 
-    return LocalTileset(
-        datatype="vector",
-        tiles=functools.partial(tiles, filepath),
-        info=functools.partial(tileset_info, filepath),
-    )
+    return load
 
 
-def beddb(filepath: str | pathlib.Path) -> LocalTileset:
-    try:
-        from clodius.tiles.beddb import tiles, tileset_info
-    except ImportError:
-        raise ImportError(
-            'You must have `clodius` installed to use "vector" data-server.'
-        )
-
-    return LocalTileset(
-        datatype="vector",
-        tiles=functools.partial(tiles, filepath),
-        info=functools.partial(tileset_info, filepath),
-    )
-
-
-def multivec(filepath: str | pathlib.Path) -> LocalTileset:
-    try:
-        from clodius.tiles.multivec import tiles, tileset_info
-    except ImportError:
-        raise ImportError(
-            'You must have `clodius` installed to use "multivec" data-server.'
-        )
-
-    return LocalTileset(
-        datatype="multivec",
-        tiles=functools.partial(tiles, filepath),
-        info=functools.partial(tileset_info, filepath),
-    )
-
-
-def cooler(filepath: str | pathlib.Path) -> LocalTileset:
-    try:
-        from clodius.tiles.cooler import tiles, tileset_info
-    except ImportError:
-        raise ImportError(
-            'You must have `clodius` installed to use "matrix" data-server.'
-        )
-
-    return LocalTileset(
-        datatype="matrix",
-        tiles=functools.partial(tiles, filepath),
-        info=functools.partial(tileset_info, filepath),
-    )
-
-
-def hitile(filepath: str | pathlib.Path) -> LocalTileset:
-    try:
-        from clodius.tiles.hitile import tiles, tileset_info
-    except ImportError:
-        raise ImportError(
-            'You must have `clodius` installed to use "vector" data-server.'
-        )
-
-    return LocalTileset(
-        datatype="vector",
-        tiles=functools.partial(tiles, filepath),
-        info=functools.partial(tileset_info, filepath),
-    )
-
-
-def bed2ddb(filepath: str | pathlib.Path) -> LocalTileset:
-    try:
-        from clodius.tiles.bed2ddb import tiles, tileset_info
-    except ImportError:
-        raise ImportError(
-            'You must have `clodius` installed to use "vector" data-server.'
-        )
-
-    return LocalTileset(
-        datatype="2d-rectangle-domains",
-        tiles=functools.partial(tiles, filepath),
-        info=functools.partial(tileset_info, filepath),
-    )
-
-
-by_filetype = {"cooler": cooler, "bigwig": bigwig}
+bed2ddb = create_lazy_clodius_loader("bed2ddb", datatype="2d-rectangle-domains")
+beddb = create_lazy_clodius_loader("beddb", datatype="vector")
+bigwig = create_lazy_clodius_loader("bigwig", datatype="vector")
+cooler = create_lazy_clodius_loader("cooler", datatype="matrix")
+hitile = create_lazy_clodius_loader("hitile", datatype="vector")
+multivec = create_lazy_clodius_loader("multivec", datatype="multivec")

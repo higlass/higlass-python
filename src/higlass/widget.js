@@ -183,9 +183,7 @@ function resolveJupyterServers(viewConfig) {
 /**
  * @param {import("npm:@anywidget/types@0.2.0").AnyModel<State>} model */
 async function registerJupyterHiGlassDataFetcher(model) {
-  window.higlassDataFetchersByType ??= {};
-
-  if (window.higlassDataFetchersByType[NAME]) {
+  if (window?.higlassDataFetchersByType?.[NAME]) {
     return;
   }
 
@@ -225,6 +223,7 @@ async function registerJupyterHiGlassDataFetcher(model) {
   // @ts-expect-error - classic function definition (above) supports `new` invocation
   let dataFetcher = DataFetcher;
 
+  window.higlassDataFetchersByType ??= {};
   window.higlassDataFetchersByType[NAME] = { name: NAME, dataFetcher };
 }
 

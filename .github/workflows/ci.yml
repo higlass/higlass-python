@@ -34,6 +34,29 @@ jobs:
         env:
           UV_PYTHON: ${{ matrix.python-version }}
 
+  LintJavaScript:
+    name: JavaScript / Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - run: |
+          deno fmt --check
+          deno lint
+
+  TypecheckJavaScript:
+    name: JavaScript / Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - run: |
+          deno check src/higlass/widget.js
+
   Release:
     needs: [Lint, Test]
     runs-on: ubuntu-latest

@@ -6,7 +6,7 @@
   },
   "lint": {
     "rules": {
-      "exclude": ["prefer-const"]
+      "exclude": ["prefer-const", "no-window"]
     }
   },
   "fmt": {

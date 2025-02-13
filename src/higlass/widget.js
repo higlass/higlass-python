@@ -1,11 +1,9 @@
 import * as hglib from "https://esm.sh/higlass@1.13?deps=react@17,react-dom@17,pixi.js@6";
 import { v4 } from "https://esm.sh/@lukeed/uuid@2.0.1";
 
-/** @import { HGC, PluginDataFetcherConstructor, GenomicLocation, Viewconf } from "./types.ts" */
+/** @import { HGC, PluginDataFetcherConstructor, GenomicLocation, Viewconf, DataFetcher} from "./types.ts" */
 
-// Make sure plugins are registered and enabled
-window.higlassDataFetchersByType = window.higlassDataFetchersByType ||
-  {};
+const NAME = "jupyter";
 
 /**
  * @param {string} href
@@ -47,7 +45,8 @@ async function requireScripts(pluginUrls) {
     // @ts-expect-error - not on the window
     requirejs: window.requirejs,
   };
-  for (const field of Object.keys(backup)) {
+  for (let field of Object.keys(backup)) {
+    // @ts-expect-error - not on the window
     window[field] = undefined;
   }
 
@@ -170,10 +169,10 @@ function resolveJupyterServers(viewConfig) {
   let copy = JSON.parse(JSON.stringify(viewConfig));
   for (let view of copy.views) {
     for (let track of Object.values(view.tracks).flat()) {
-      if (track?.server === "jupyter") {
+      if (track?.server === NAME) {
         delete track.server;
         track.data = track.data || {};
-        track.data.type = "jupyter";
+        track.data.type = NAME;
         track.data.tilesetUid = track.tilesetUid;
       }
     }
@@ -182,32 +181,36 @@ function resolveJupyterServers(viewConfig) {
 }
 
 /**
- * @param {import("npm:@anywidget/types").AnyModel} model
- * @returns{PluginDataFetcherConstructor}
- */
-function createDataFetcherForModel(model) {
-  /**
-   * @param {HGC} hgc
-   * @param {Record<string, unknown>} dataConfig
-   * @param {unknown} pubSub
-   */
-  const DataFetcher = function createDataFetcher(hgc, dataConfig, pubSub) {
-    let config = { ...dataConfig, server: "jupyter" };
+ * @param {import("npm:@anywidget/types@0.2.0").AnyModel<State>} model */
+async function registerJupyterHiGlassDataFetcher(model) {
+  window.higlassDataFetchersByType ??= {};
+
+  if (window.higlassDataFetchersByType[NAME]) {
+    return;
+  }
+
+  let tModel = await model.widget_manager.get_model(
+    model.get("_tileset_client").slice("IPY_MODEL_".length),
+  );
+
+  /** @type {(...args: ConstructorParameters<PluginDataFetcherConstructor>) => DataFetcher} */
+  function DataFetcher(hgc, dataConfig, pubSub) {
+    let config = { ...dataConfig, server: NAME };
     return new hgc.dataFetchers.DataFetcher(config, pubSub, {
       async fetchTilesetInfo({ server, tilesetUid }) {
-        assert(server === "jupyter", "must be a jupyter server");
-        let response = await sendCustomMessage(model, {
+        assert(server === NAME, "must be a jupyter server");
+        let response = await sendCustomMessage(tModel, {
           payload: { type: "tileset_info", tilesetUid },
         });
         return response.payload;
       },
       async fetchTiles({ tileIds }) {
-        let response = await sendCustomMessage(model, {
+        let response = await sendCustomMessage(tModel, {
           payload: { type: "tiles", tileIds },
         });
         let result = hgc.services.tileResponseToData(
           response.payload,
-          config.server,
+          NAME,
           tileIds,
         );
         return result;
@@ -216,9 +219,13 @@ function createDataFetcherForModel(model) {
         throw new Error("Not implemented");
       },
     });
-  };
+  }
 
-  return /** @type{any} */ (DataFetcher);
+  /** @type {PluginDataFetcherConstructor} */
+  // @ts-expect-error - classic function definition (above) supports `new` invocation
+  let dataFetcher = DataFetcher;
+
+  window.higlassDataFetchersByType[NAME] = { name: NAME, dataFetcher };
 }
 
 /**
@@ -250,61 +257,49 @@ function addEventListenersTo(el) {
  * @typedef State
  * @property {Viewconf} _viewconf
  * @property {Record<string, unknown>} _options
- * @property {`IPYMODEL_${string}`} _tileset_client
+ * @property {`IPY_MODEL_${string}`} _tileset_client
  * @property {Array<number> | Array<Array<number>>} location
  * @property {Array<string>} _plugin_urls
  */
 
-export default () => {
-  /** @type {Promise<void>} */
-  let scriptsPromise = Promise.resolve();
-  return {
-    /** @type {import("npm:@anywidget/types@0.2.0").Initialize<State>} */
-    async initialize({ model }) {
-      scriptsPromise = requireScripts(model.get("_plugin_urls"));
-      let tilesetClientModel = await model.widget_manager.get_model(
-        model.get("_tileset_client").slice("IPY_MODEL_".length),
-      );
-      window.higlassDataFetchersByType["jupyter"] = {
-        name: "jupyter",
-        dataFetcher: createDataFetcherForModel(tilesetClientModel),
-      };
-    },
-    /** @type {import("npm:@anywidget/types").Render<State>} */
-    async render({ model, el }) {
-      await scriptsPromise;
-      let viewconf = resolveJupyterServers(
-        model.get("_viewconf"),
-      );
-      let options = model.get("_options") ?? {};
-      let api = await hglib.viewer(el, viewconf, options);
-      let unlisten = addEventListenersTo(el);
+export default {
+  /** @type {import("npm:@anywidget/types").Render<State>} */
+  async render({ model, el }) {
+    await Promise.all([
+      requireScripts(model.get("_plugin_urls")),
+      registerJupyterHiGlassDataFetcher(model),
+    ]);
+    let viewconf = resolveJupyterServers(
+      model.get("_viewconf"),
+    );
+    let options = model.get("_options") ?? {};
+    let api = await hglib.viewer(el, viewconf, options);
+    let unlisten = addEventListenersTo(el);
 
-      model.on("msg:custom", (msg) => {
-        msg = JSON.parse(msg);
-        let [fn, ...args] = msg;
-        api[fn](...args);
-      });
+    model.on("msg:custom", (msg) => {
+      msg = JSON.parse(msg);
+      let [fn, ...args] = msg;
+      api[fn](...args);
+    });
 
-      if (viewconf.views.length === 1) {
-        api.on("location", (/** @type {GenomicLocation} */ loc) => {
-          model.set("location", locationToCoordinates(loc));
+    if (viewconf.views.length === 1) {
+      api.on("location", (/** @type {GenomicLocation} */ loc) => {
+        model.set("location", locationToCoordinates(loc));
+        model.save_changes();
+      }, viewconf.views[0].uid);
+    } else {
+      viewconf.views.forEach((view, idx) => {
+        api.on("location", (/** @type{GenomicLocation} */ loc) => {
+          let location = model.get("location").slice();
+          location[idx] = locationToCoordinates(loc);
+          model.set("location", location);
           model.save_changes();
-        }, viewconf.views[0].uid);
-      } else {
-        viewconf.views.forEach((view, idx) => {
-          api.on("location", (/** @type{GenomicLocation} */ loc) => {
-            let location = model.get("location").slice();
-            location[idx] = locationToCoordinates(loc);
-            model.set("location", location);
-            model.save_changes();
-          }, view.uid);
-        });
-      }
+        }, view.uid);
+      });
+    }
 
-      return () => {
-        unlisten();
-      };
-    },
-  };
+    return () => {
+      unlisten();
+    };
+  },
 };

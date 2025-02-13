@@ -38,7 +38,7 @@ type TileSource<T> = {
   registerTileset: (request: RegisterTilesetRequest) => Promise<Response>;
 };
 
-type DataFetcher = {
+export type DataFetcher = {
   // Not available at runtime! (just used to mark the type for typescript)
   _tag: "DataFetcher";
 };

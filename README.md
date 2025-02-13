@@ -70,11 +70,19 @@ and understanding are greatly appreciated.
 
 ## Development
 
-**higlass-python** uses uses [uv](https://astral.sh/uv) for development.
+**higlass-python** is primarily a Python project, but it includes JavaScript for
+the anywidget-based front-end code (`src/higlass/widget.js`). We use
+[uv](https://github.com/astral-sh/uv) for Python development and
+[deno](https://github.com/denoland/deno) for linting and type-checking
+JavaScript.
+
+All formatting, linting, and tests are enforced in CI.
 
 ### Commands Cheatsheet
 
 All commands are run from the root of the project, from a terminal:
+
+#### Python
 
 | Command                                         | Action                                        |
 | ----------------------------------------------- | --------------------------------------------- |
@@ -84,11 +92,13 @@ All commands are run from the root of the project, from a terminal:
 | `uv run pytest`                                 | Run unit tests                                |
 | `uv run docs/build.py`                          | Build the documentation in `docs/_build/html` |
 
-This table now includes only the UV-related commands, with each command in the
-left column and its corresponding action in the right column. The formatting is
-clean and easy to read.
+#### JavaScript
 
-Our CI enforces formatting, linting, and tests.
+| Command                            | Action                        |
+| ---------------------------------- | ----------------------------- |
+| `deno fmt`                         | Format code                   |
+| `deno lint --fix`                  | Lint and auto-fix issues      |
+| `deno check src/higlass/widget.js` | Typecheck .js with TypeScript |
 
 ## Changelog
 

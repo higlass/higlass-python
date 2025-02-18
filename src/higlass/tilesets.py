@@ -6,6 +6,8 @@ import pathlib
 import typing
 from dataclasses import dataclass
 from typing import IO
+from clodius.tiles.utils import tiles_wrapper_2d
+from clodius.tiles.format import format_dense_tile
 
 from ._utils import TrackType
 from .api import track
@@ -155,6 +157,25 @@ def cooler(filepath: str, uid: str):
 
 
 @hash_file_as_default_uid
+def mrmatrix(filepath: str, uid: str):
+    try:
+        from clodius.tiles.mrmatrix import tiles, tileset_info
+    except ImportError:
+        raise ImportError(
+            'You must have `clodius` installed to use "matrix" data-server.'
+        )
+
+    return LocalTileset(
+        datatype="matrix",
+        info=lambda: tileset_info(filepath),
+        tiles=lambda tile_ids: tiles_wrapper_2d(
+            tile_ids, lambda z, x, y: format_dense_tile(tiles(filepath, z, x, y))
+        ),
+        uid=uid,
+    )
+
+
+@hash_file_as_default_uid
 def hitile(filepath: str, uid: str):
     try:
         from clodius.tiles.hitile import tiles, tileset_info
@@ -188,4 +209,4 @@ def bed2ddb(filepath: str, uid: str):
     )
 
 
-by_filetype = {"cooler": cooler, "bigwig": bigwig}
+by_filetype = {"cooler": cooler, "bigwig": bigwig, "mrmatrix": mrmatrix}

@@ -194,6 +194,7 @@ async function registerJupyterHiGlassDataFetcher(model) {
   /** @type {(...args: ConstructorParameters<PluginDataFetcherConstructor>) => DataFetcher} */
   function DataFetcher(hgc, dataConfig, pubSub) {
     let config = { ...dataConfig, server: NAME };
+
     return new hgc.dataFetchers.DataFetcher(config, pubSub, {
       async fetchTilesetInfo({ server, tilesetUid }) {
         assert(server === NAME, "must be a jupyter server");
@@ -202,17 +203,38 @@ async function registerJupyterHiGlassDataFetcher(model) {
         });
         return response.payload;
       },
-      async fetchTiles({ tileIds }) {
-        let response = await sendCustomMessage(tModel, {
-          payload: { type: "tiles", tileIds },
-        });
-        let result = hgc.services.tileResponseToData(
-          response.payload,
-          NAME,
-          tileIds,
-        );
-        return result;
-      },
+      fetchTiles: consolidator(
+        /** @param {Array<WithResolvers<{ tileIds: Array<string> }, Record<string, any>>>} requests */
+        async (requests) => {
+          const batches = await Promise.all(
+            Array.from(
+              chunkIterable(
+                new Set(requests.flatMap((r) => r.data.tileIds)),
+                20,
+              ),
+              async (tileIds) => {
+                let response = await sendCustomMessage(tModel, {
+                  payload: { type: "tiles", tileIds },
+                });
+                return hgc.services.tileResponseToData(
+                  response.payload,
+                  NAME,
+                  tileIds,
+                );
+              },
+            ),
+          );
+          for (let request of requests) {
+            /** @type {Record<string, unknown>} */
+            const requestData = {};
+            for (let id of request.data.tileIds) {
+              let tileData = batches.find((tile) => tile[id])?.[id];
+              if (tileData) requestData[id] = tileData;
+            }
+            request.resolve(requestData);
+          }
+        },
+      ),
       registerTileset() {
         throw new Error("Not implemented");
       },
@@ -302,3 +324,76 @@ export default {
     };
   },
 };
+
+/**
+ * @template T
+ * @template U
+ * @typedef {{ data: T, resolve: (success: U) => void, reject: (err: unknown) => void }} WithResolvers
+ */
+
+/**
+ * Collects multiple calls within the same frame to processes them as a batch.
+ *
+ * The provided `processBatch` function receives an array of items, each with
+ * associated resolvers for fulfilling the original request.
+ *
+ * @template T
+ * @template U
+ * @param {(batch: Array<WithResolvers<T, U>>) => void} processBatch - A function to process each batch.
+ * @returns {(item: T) => Promise<U>} - A function to enqueue items.
+ */
+function consolidator(processBatch) {
+  /** @type {Array<WithResolvers<T, U>>} */
+  let pending = [];
+  /** @type {number} */
+  let id = 0;
+
+  function run() {
+    processBatch(pending);
+    pending = [];
+    id = 0;
+  }
+
+  return function enqueue(data) {
+    id = id || requestAnimationFrame(() => run());
+    let { promise, resolve, reject } = /** @type {typeof defer<U>} */ (defer)();
+    pending.push({ data, resolve, reject });
+    return promise;
+  };
+}
+
+/**
+ * @template T
+ * @returns {{ promise: Promise<T>, resolve: (success: T) => void, reject: (err: unknown) => void }}
+ */
+function defer() {
+  let resolve, reject;
+  let promise = new Promise((res, rej) => {
+    resolve = res;
+    reject = rej;
+  });
+  // @ts-expect-error - can replace `Promise.withResolvers` in the future
+  return { promise, resolve, reject };
+}
+
+/**
+ * Iterator helper to chunk an array into smaller arrays of a fixed size.
+ *
+ * @template T
+ * @param {Iterable<T>} iterable
+ * @param {number} size
+ * @returns {Generator<Array<T>, void, unknown>}
+ */
+function* chunkIterable(iterable, size) {
+  let chunk = [];
+  for (const item of iterable) {
+    chunk.push(item);
+    if (chunk.length === size) {
+      yield chunk;
+      chunk = [];
+    }
+  }
+  if (chunk.length) {
+    yield chunk;
+  }
+}

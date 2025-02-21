@@ -357,24 +357,10 @@ function consolidator(processBatch) {
 
   return function enqueue(data) {
     id = id || requestAnimationFrame(() => run());
-    let { promise, resolve, reject } = /** @type {typeof defer<U>} */ (defer)();
+    let { promise, resolve, reject } = Promise.withResolvers();
     pending.push({ data, resolve, reject });
     return promise;
   };
-}
-
-/**
- * @template T
- * @returns {{ promise: Promise<T>, resolve: (success: T) => void, reject: (err: unknown) => void }}
- */
-function defer() {
-  let resolve, reject;
-  let promise = new Promise((res, rej) => {
-    resolve = res;
-    reject = rej;
-  });
-  // @ts-expect-error - can replace `Promise.withResolvers` in the future
-  return { promise, resolve, reject };
 }
 
 /**

@@ -4,6 +4,7 @@ import { v4 } from "https://esm.sh/@lukeed/uuid@2.0.1";
 /** @import { HGC, PluginDataFetcherConstructor, GenomicLocation, Viewconf, DataFetcher} from "./types.ts" */
 
 const NAME = "jupyter";
+const MAX_TILES_PER_REQUEST = 20;
 
 /**
  * @param {string} href
@@ -210,7 +211,7 @@ async function registerJupyterHiGlassDataFetcher(model) {
             Array.from(
               chunkIterable(
                 new Set(requests.flatMap((r) => r.data.tileIds)),
-                20,
+                MAX_TILES_PER_REQUEST,
               ),
               async (tileIds) => {
                 let response = await sendCustomMessage(tModel, {

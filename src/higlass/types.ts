@@ -70,7 +70,7 @@ export type HGC = {
     tileResponseToData<T>(
       inputData: Record<string, T>,
       server: string,
-      theseTileIds: Array<string>,
+      tileIds: Array<string>,
     ): Record<string, unknown>;
   };
 };

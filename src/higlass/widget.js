@@ -4,7 +4,6 @@ import { v4 } from "https://esm.sh/@lukeed/uuid@2.0.1";
 /** @import { HGC, PluginDataFetcherConstructor, GenomicLocation, Viewconf, DataFetcher} from "./types.ts" */
 
 const NAME = "jupyter";
-const MAX_TILES_PER_REQUEST = 20;
 
 /**
  * @param {string} href
@@ -207,29 +206,20 @@ async function registerJupyterHiGlassDataFetcher(model) {
       fetchTiles: consolidator(
         /** @param {Array<WithResolvers<{ tileIds: Array<string> }, Record<string, any>>>} requests */
         async (requests) => {
-          const batches = await Promise.all(
-            Array.from(
-              chunkIterable(
-                new Set(requests.flatMap((r) => r.data.tileIds)),
-                MAX_TILES_PER_REQUEST,
-              ),
-              async (tileIds) => {
-                let response = await sendCustomMessage(tModel, {
-                  payload: { type: "tiles", tileIds },
-                });
-                return hgc.services.tileResponseToData(
-                  response.payload,
-                  NAME,
-                  tileIds,
-                );
-              },
-            ),
+          let tileIds = [...new Set(requests.flatMap((r) => r.data.tileIds))];
+          let response = await sendCustomMessage(tModel, {
+            payload: { type: "tiles", tileIds },
+          });
+          let tiles = hgc.services.tileResponseToData(
+            response.payload,
+            NAME,
+            tileIds,
           );
           for (let request of requests) {
             /** @type {Record<string, unknown>} */
             const requestData = {};
             for (let id of request.data.tileIds) {
-              let tileData = batches.find((tile) => tile[id])?.[id];
+              let tileData = tiles[id];
               if (tileData) requestData[id] = tileData;
             }
             request.resolve(requestData);
@@ -361,26 +351,4 @@ function consolidator(processBatch) {
     pending.push({ data, resolve, reject });
     return promise;
   };
-}
-
-/**
- * Iterator helper to chunk an array into smaller arrays of a fixed size.
- *
- * @template T
- * @param {Iterable<T>} iterable
- * @param {number} size
- * @returns {Generator<Array<T>, void, unknown>}
- */
-function* chunkIterable(iterable, size) {
-  let chunk = [];
-  for (const item of iterable) {
-    chunk.push(item);
-    if (chunk.length === size) {
-      yield chunk;
-      chunk = [];
-    }
-  }
-  if (chunk.length) {
-    yield chunk;
-  }
 }

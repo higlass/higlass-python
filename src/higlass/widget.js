@@ -166,9 +166,20 @@ function sendCustomMessage(model, options) {
  * ```
  */
 function resolveJupyterServers(viewConfig) {
-  let copy = JSON.parse(JSON.stringify(viewConfig));
-  for (let view of copy.views) {
-    for (let track of Object.values(view.tracks).flat()) {
+  const copy = JSON.parse(JSON.stringify(viewConfig));
+
+  for (const view of copy.views) {
+    const baseTracks = Object.values(view.tracks).flat();
+    let allTracks = Object.values(view.tracks).flat();
+
+    for (const track of baseTracks) {
+      // Go through and check for combined tracks
+      if (track.contents) {
+        allTracks = allTracks.concat(allTracks, track.contents);
+      }
+    }
+
+    for (const track of allTracks) {
       if (track?.server === NAME) {
         delete track.server;
         track.data = track.data || {};

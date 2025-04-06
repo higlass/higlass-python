@@ -1,9 +1,9 @@
-import * as hglib from "https://esm.sh/higlass@1.13?deps=react@17,react-dom@17,pixi.js@6";
-import { v4 } from "https://esm.sh/@lukeed/uuid@2.0.1";
+import * as hglib from 'https://esm.sh/higlass@1.13?deps=react@17,react-dom@17,pixi.js@6';
+import { v4 } from 'https://esm.sh/@lukeed/uuid@2.0.1';
 
 /** @import { HGC, PluginDataFetcherConstructor, GenomicLocation, Viewconf, DataFetcher} from "./types.ts" */
 
-const NAME = "jupyter";
+const NAME = 'jupyter';
 
 /**
  * @param {string} href
@@ -19,7 +19,7 @@ function loadScript(href) {
     if (isScriptLoaded(href)) {
       return resolve();
     }
-    let script = document.createElement("script");
+    const script = document.createElement('script');
     script.src = href;
     script.async = true;
     script.onload = () => resolve();
@@ -38,22 +38,22 @@ function loadScript(href) {
  * @returns {Promise<void>} Resolves when all scripts have been processed.
  */
 async function requireScripts(pluginUrls) {
-  let backup = {
+  const backup = {
     // @ts-expect-error - not on the window
     define: window.define,
     require: window.require,
     // @ts-expect-error - not on the window
     requirejs: window.requirejs,
   };
-  for (let field of Object.keys(backup)) {
+  for (const field of Object.keys(backup)) {
     // @ts-expect-error - not on the window
     window[field] = undefined;
   }
 
-  let results = await Promise.allSettled(pluginUrls.map(loadScript));
+  const results = await Promise.allSettled(pluginUrls.map(loadScript));
 
   results.forEach((result, i) => {
-    if (result.status === "rejected") {
+    if (result.status === 'rejected') {
       console.warn(`Failed to load script: ${pluginUrls[i]}`, result.reason);
     }
   });
@@ -66,7 +66,7 @@ async function requireScripts(pluginUrls) {
  * @returns {string}
  */
 function uid() {
-  return v4().split("-")[0];
+  return v4().split('-')[0];
 }
 
 /**
@@ -77,7 +77,7 @@ function uid() {
  * @returns {asserts expression}
  * @throws an {@link Error} if `expression` is not truthy.
  */
-function assert(expression, msg = "") {
+function assert(expression, msg = '') {
   if (!expression) throw new Error(msg);
 }
 
@@ -116,16 +116,16 @@ function assert(expression, msg = "") {
  * @return {Promise<{ payload: T, buffers: Array<DataView> }>}
  */
 function sendCustomMessage(model, options) {
-  let id = uid();
-  let signal = options.signal ?? AbortSignal.timeout(3000);
+  const id = uid();
+  const signal = options.signal ?? AbortSignal.timeout(3000);
 
   return new Promise((resolve, reject) => {
     if (signal.aborted) {
       reject(signal.reason);
     }
 
-    signal.addEventListener("abort", () => {
-      model.off("msg:custom", handler);
+    signal.addEventListener('abort', () => {
+      model.off('msg:custom', handler);
       reject(signal.reason);
     });
 
@@ -136,10 +136,10 @@ function sendCustomMessage(model, options) {
     function handler(msg, buffers) {
       if (!(msg.id === id)) return;
       resolve({ payload: msg.payload, buffers });
-      model.off("msg:custom", handler);
+      model.off('msg:custom', handler);
     }
 
-    model.on("msg:custom", handler);
+    model.on('msg:custom', handler);
     model.send({ id, payload: options.payload });
   });
 }
@@ -166,9 +166,9 @@ function sendCustomMessage(model, options) {
  * ```
  */
 function resolveJupyterServers(viewConfig) {
-  let copy = JSON.parse(JSON.stringify(viewConfig));
-  for (let view of copy.views) {
-    for (let track of Object.values(view.tracks).flat()) {
+  const copy = JSON.parse(JSON.stringify(viewConfig));
+  for (const view of copy.views) {
+    for (const track of Object.values(view.tracks).flat()) {
       if (track?.server === NAME) {
         delete track.server;
         track.data = track.data || {};
@@ -187,39 +187,39 @@ async function registerJupyterHiGlassDataFetcher(model) {
     return;
   }
 
-  let tModel = await model.widget_manager.get_model(
-    model.get("_tileset_client").slice("IPY_MODEL_".length),
+  const tModel = await model.widget_manager.get_model(
+    model.get('_tileset_client').slice('IPY_MODEL_'.length),
   );
 
   /** @type {(...args: ConstructorParameters<PluginDataFetcherConstructor>) => DataFetcher} */
   function DataFetcher(hgc, dataConfig, pubSub) {
-    let config = { ...dataConfig, server: NAME };
+    const config = { ...dataConfig, server: NAME };
 
     return new hgc.dataFetchers.DataFetcher(config, pubSub, {
       async fetchTilesetInfo({ server, tilesetUid }) {
-        assert(server === NAME, "must be a jupyter server");
-        let response = await sendCustomMessage(tModel, {
-          payload: { type: "tileset_info", tilesetUid },
+        assert(server === NAME, 'must be a jupyter server');
+        const response = await sendCustomMessage(tModel, {
+          payload: { type: 'tileset_info', tilesetUid },
         });
         return response.payload;
       },
       fetchTiles: consolidator(
         /** @param {Array<WithResolvers<{ tileIds: Array<string> }, Record<string, any>>>} requests */
         async (requests) => {
-          let tileIds = [...new Set(requests.flatMap((r) => r.data.tileIds))];
-          let response = await sendCustomMessage(tModel, {
-            payload: { type: "tiles", tileIds },
+          const tileIds = [...new Set(requests.flatMap((r) => r.data.tileIds))];
+          const response = await sendCustomMessage(tModel, {
+            payload: { type: 'tiles', tileIds },
           });
-          let tiles = hgc.services.tileResponseToData(
+          const tiles = hgc.services.tileResponseToData(
             response.payload,
             NAME,
             tileIds,
           );
-          for (let request of requests) {
+          for (const request of requests) {
             /** @type {Record<string, unknown>} */
             const requestData = {};
-            for (let id of request.data.tileIds) {
-              let tileData = tiles[id];
+            for (const id of request.data.tileIds) {
+              const tileData = tiles[id];
               if (tileData) requestData[id] = tileData;
             }
             request.resolve(requestData);
@@ -227,14 +227,14 @@ async function registerJupyterHiGlassDataFetcher(model) {
         },
       ),
       registerTileset() {
-        throw new Error("Not implemented");
+        throw new Error('Not implemented');
       },
     });
   }
 
   /** @type {PluginDataFetcherConstructor} */
   // @ts-expect-error - classic function definition (above) supports `new` invocation
-  let dataFetcher = DataFetcher;
+  const dataFetcher = DataFetcher;
 
   window.higlassDataFetchersByType ??= {};
   window.higlassDataFetchersByType[NAME] = { name: NAME, dataFetcher };
@@ -245,8 +245,8 @@ async function registerJupyterHiGlassDataFetcher(model) {
  * @returns {[number, number, number, number]}
  */
 function locationToCoordinates({ xDomain, yDomain }) {
-  let [x, xe] = xDomain;
-  let [y, ye] = yDomain;
+  const [x, xe] = xDomain;
+  const [y, ye] = yDomain;
   return [x, xe, y, ye];
 }
 
@@ -255,10 +255,10 @@ function locationToCoordinates({ xDomain, yDomain }) {
  * @returns {() => void} unlisten
  */
 function addEventListenersTo(el) {
-  let controller = new AbortController();
+  const controller = new AbortController();
 
   // prevent right click events from bubbling up to Jupyter/JupyterLab
-  el.addEventListener("contextmenu", (event) => event.stopPropagation(), {
+  el.addEventListener('contextmenu', (event) => event.stopPropagation(), {
     signal: controller.signal,
   });
 
@@ -278,35 +278,41 @@ export default {
   /** @type {import("npm:@anywidget/types").Render<State>} */
   async render({ model, el }) {
     await Promise.all([
-      requireScripts(model.get("_plugin_urls")),
+      requireScripts(model.get('_plugin_urls')),
       registerJupyterHiGlassDataFetcher(model),
     ]);
-    let viewconf = resolveJupyterServers(
-      model.get("_viewconf"),
-    );
-    let options = model.get("_options") ?? {};
-    let api = await hglib.viewer(el, viewconf, options);
-    let unlisten = addEventListenersTo(el);
+    const viewconf = resolveJupyterServers(model.get('_viewconf'));
+    const options = model.get('_options') ?? {};
+    const api = await hglib.viewer(el, viewconf, options);
+    const unlisten = addEventListenersTo(el);
 
-    model.on("msg:custom", (msg) => {
+    model.on('msg:custom', (msg) => {
       msg = JSON.parse(msg);
-      let [fn, ...args] = msg;
+      const [fn, ...args] = msg;
       api[fn](...args);
     });
 
     if (viewconf.views.length === 1) {
-      api.on("location", (/** @type {GenomicLocation} */ loc) => {
-        model.set("location", locationToCoordinates(loc));
-        model.save_changes();
-      }, viewconf.views[0].uid);
+      api.on(
+        'location',
+        (/** @type {GenomicLocation} */ loc) => {
+          model.set('location', locationToCoordinates(loc));
+          model.save_changes();
+        },
+        viewconf.views[0].uid,
+      );
     } else {
       viewconf.views.forEach((view, idx) => {
-        api.on("location", (/** @type{GenomicLocation} */ loc) => {
-          let location = model.get("location").slice();
-          location[idx] = locationToCoordinates(loc);
-          model.set("location", location);
-          model.save_changes();
-        }, view.uid);
+        api.on(
+          'location',
+          (/** @type{GenomicLocation} */ loc) => {
+            const location = model.get('location').slice();
+            location[idx] = locationToCoordinates(loc);
+            model.set('location', location);
+            model.save_changes();
+          },
+          view.uid,
+        );
       });
     }
 
@@ -347,7 +353,7 @@ function consolidator(processBatch) {
 
   return function enqueue(data) {
     id = id || requestAnimationFrame(() => run());
-    let { promise, resolve, reject } = Promise.withResolvers();
+    const { promise, resolve, reject } = Promise.withResolvers();
     pending.push({ data, resolve, reject });
     return promise;
   };

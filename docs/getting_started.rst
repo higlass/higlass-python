@@ -285,6 +285,37 @@ Tracks may be combined with the ``hg.combine()`` utility:
 
    hg.view((combined_track, "top")).domain(x=[0, 1e9])
 
+Chromosome grid on a heatmap
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+    from higlass.tilesets import ClodiusTileset
+    from clodius.tiles.chromsizes import tileset_info
+    import higlass as hg
+
+    def chromsizes_tileset(filepath):
+        return ClodiusTileset(
+            datatype='chromsizes',
+            tiles_impl=None,
+            info_impl=lambda: tileset_info(filepath)
+        )
+            
+    cs_ts = chromsizes_tileset('chromSizes_hg19_reordered.tsv')
+    cool_ts = hg.cooler("my.multires.cool")
+
+    hg.view(
+        (hg.combine(
+            cool_ts.track(options={"name": "blah"}),
+            cs_ts.track('2d-chromosome-grid'),
+        position='center'), 'center'),
+        (cs_ts.track('horizontal-chromosome-labels'), 'top'),
+        (cs_ts.track('horizontal-chromosome-labels'), 'left'),
+        width=6)
+
+.. image:: img/chromsizes-overlay.png
+    :align: center
+    :width: 250
 
 Multiple Views
 --------------

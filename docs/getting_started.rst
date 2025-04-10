@@ -290,19 +290,10 @@ Chromosome grid on a heatmap
 
 .. code-block:: python
 
-    from higlass.tilesets import ClodiusTileset
-    from clodius.tiles.chromsizes import tileset_info
     import higlass as hg
 
-    def chromsizes_tileset(filepath):
-        return ClodiusTileset(
-            datatype='chromsizes',
-            tiles_impl=None,
-            info_impl=lambda: tileset_info(filepath)
-        )
-            
-    cs_ts = chromsizes_tileset('chromSizes_hg19_reordered.tsv')
-    cool_ts = hg.cooler("my.multires.cool")
+    cs_ts = hg.chromsizes('chromSizes_hg19_reordered.tsv')
+    cool_ts = hg.cooler("Dixon2012-J1-NcoI-R1-filtered.100kb.multires.cool")
 
     hg.view(
         (hg.combine(

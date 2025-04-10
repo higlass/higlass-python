@@ -191,6 +191,14 @@ def create_lazy_clodius_loader(
     return load
 
 
+def chromsizes(filepath: str) -> ClodiusTileset:
+    from clodius.tiles.chromsizes import tileset_info
+
+    return ClodiusTileset(
+        datatype="chromsizes", tiles_impl=None, info_impl=lambda: tileset_info(filepath)
+    )
+
+
 bed2ddb = create_lazy_clodius_loader("bed2ddb", datatype="2d-rectangle-domains")
 beddb = create_lazy_clodius_loader("beddb", datatype="vector")
 bigwig = create_lazy_clodius_loader("bigwig", datatype="vector")

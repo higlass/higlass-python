@@ -86,6 +86,7 @@ All commands are run from the root of the project, from a terminal:
 
 | Command                                         | Action                                        |
 | ----------------------------------------------- | --------------------------------------------- |
+| `uv run jupyter lab`                            | Run Jupyter lab with current package state    |
 | `uv run ruff check --fix && uv run ruff format` | Lint and apply formatting                     |
 | `uv run check`                                  | Check linting rules                           |
 | `uv run ruff format --check`                    | Check formatting                              |
@@ -112,6 +113,7 @@ Releases are managed via the GitHub UI.
 [Draft a new release](https://github.com/higlass/higlass-python/releases/new):
 
 1. **Create a tag**
+
    - Click _"Choose a tag"_, then **type a new tag** in the format
      `v[major].[minor].[patch]` to create it.
    - _Note_: The UI is not obvious about this. You can create a tag here, not
@@ -119,6 +121,7 @@ Releases are managed via the GitHub UI.
      [workflow](.github/workflows/ci.yml) to publish to PyPI.
 
 2. **Generate release notes**
+
    - Click _"Generate Release Notes"_ to auto-summarize changes from merged PRs.
    - Edit to exclude irrelevant changes for end users (e.g., docs or CI).
 

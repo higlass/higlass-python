@@ -35,6 +35,7 @@ from higlass.tilesets import (
     bed2ddb,
     beddb,
     bigwig,
+    chromsizes,
     cooler,
     hitile,
     multivec,

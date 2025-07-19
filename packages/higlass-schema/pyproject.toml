@@ -1,0 +1,26 @@
+[project]
+name = "higlass-schema"
+version = "0.2.1"
+description = "Pydantic models for HiGlass"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+authors = [{ name = "Trevor Manz", email = "trevor.j.manz@gmail.com" }]
+dependencies = ["pydantic>=2.0", "rich>=13.0.0"]
+
+[project.urls]
+homepage = "https://github.com/higlass/higlass-schema"
+
+[project.scripts]
+higlass-schema = "higlass_schema.cli:main"
+
+[dependency-groups]
+dev = ["pytest", "ruff"]
+
+[build-system]
+requires = ["uv_build>=0.8.0,<0.9"]
+build-backend = "uv_build"
+
+[tool.ruff]
+extend = "../../pyproject.toml"
+src = ["src", "tests"]

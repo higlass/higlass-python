@@ -14,9 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v5
-        with:
-          version: "0.5.x"
+      - uses: astral-sh/setup-uv@v6
       - run: |
           uv run ruff check .
 
@@ -27,9 +25,7 @@ jobs:
         python-version: ["3.8", "3.9", "3.10", "3.11"]
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v5
-        with:
-          version: "0.5.x"
+      - uses: astral-sh/setup-uv@v6
       - run: uv run pytest
         env:
           UV_PYTHON: ${{ matrix.python-version }}
@@ -57,6 +53,20 @@ jobs:
       - run: |
           deno check src/higlass/widget.js
 
+  Schema:
+    name: JS viewconf validation with generated JSON Schema
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: |
+          uv run --package higlass-schema higlass-schema export > schema.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+      - run: npm install -g ajv-cli
+      - run: ajv validate --spec=draft2020 -s schema.json -d "packages/higlass-schema/tests/fixtures/{docs/examples/viewconfs,test/{view-configs,view-configs-more}}/*.json"
+
   Release:
     needs: [Lint, Test]
     runs-on: ubuntu-latest
@@ -66,9 +76,7 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v5
-        with:
-          version: "0.5.x"
+      - uses: astral-sh/setup-uv@v6
       - run: uv build
       - name: Publish distribution 📦 to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1

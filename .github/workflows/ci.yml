@@ -54,7 +54,7 @@ jobs:
           deno check src/higlass/widget.js
 
   Schema:
-    name: JS viewconf validation with generated JSON Schema
+    name: Check higlass-schema against viewconfs
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -63,7 +63,7 @@ jobs:
           uv run --package higlass-schema higlass-schema export > schema.json
       - uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: "20.x"
       - run: npm install -g ajv-cli
       - run: ajv validate --spec=draft2020 -s schema.json -d "packages/higlass-schema/tests/fixtures/{docs/examples/viewconfs,test/{view-configs,view-configs-more}}/*.json"
 

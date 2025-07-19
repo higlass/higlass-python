@@ -70,9 +70,9 @@ and understanding are greatly appreciated.
 
 ## Development
 
-**higlass-python** is a uv workspace monorepo that includes the main library
-and additional packages (e.g., **higlass-schema**). It's primarily a Python
-project, but includes JavaScript for the anywidget-based front-end code
+**higlass-python** is a uv workspace monorepo that includes the main library and
+additional packages (e.g., **higlass-schema**). It's primarily a Python project,
+but includes JavaScript for the anywidget-based front-end code
 (`src/higlass/widget.js`). We use [uv](https://github.com/astral-sh/uv) for
 Python development and [deno](https://github.com/denoland/deno) for linting and
 type-checking JavaScript.

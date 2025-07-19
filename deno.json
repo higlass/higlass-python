@@ -10,6 +10,6 @@
     }
   },
   "fmt": {
-    "exclude": ["examples"]
+    "exclude": ["examples", "docs", "packages/higlass-schema/tests/fixtures"]
   }
 }

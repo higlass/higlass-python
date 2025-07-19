@@ -9,16 +9,13 @@ Pydantic models for HiGlass
 pip install higlass-schema
 ```
 
-🚧 👷
-
-
 ## Development
 
 Try it out:
 
 ```bash
-$ uvx --no-cache --from . higlass-schema check ./example.json # [--verbose]
-$ uvx --no-cache --from . higlass-schema export # prints JSON schema to stdout
+$ uv run higlass-schema check ./example.json # [--verbose]
+$ uv run higlass-schema export # prints JSON schema to stdout
 ```
 
 Testing, linting, & formatting are enforced in CI. Locally, you can run:
@@ -27,11 +24,4 @@ Testing, linting, & formatting are enforced in CI. Locally, you can run:
 uv run pytest # tests
 uv run ruff check # linting
 uv run ruff format --check # formatting (remove --check to apply)
-```
-
-## Release
-
-```bash
-git tag -a v0.0.0 -m "v0.0.0"
-git push --follow-tags
 ```

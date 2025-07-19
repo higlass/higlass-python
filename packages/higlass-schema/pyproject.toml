@@ -14,9 +14,6 @@ homepage = "https://github.com/higlass/higlass-schema"
 [project.scripts]
 higlass-schema = "higlass_schema.cli:main"
 
-[dependency-groups]
-dev = ["pytest", "ruff"]
-
 [build-system]
 requires = ["uv_build>=0.8.0,<0.9"]
 build-backend = "uv_build"

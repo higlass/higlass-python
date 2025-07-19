@@ -70,11 +70,12 @@ and understanding are greatly appreciated.
 
 ## Development
 
-**higlass-python** is primarily a Python project, but it includes JavaScript for
-the anywidget-based front-end code (`src/higlass/widget.js`). We use
-[uv](https://github.com/astral-sh/uv) for Python development and
-[deno](https://github.com/denoland/deno) for linting and type-checking
-JavaScript.
+**higlass-python** is a uv workspace monorepo that includes the main library
+and additional packages (e.g., **higlass-schema**). It's primarily a Python
+project, but includes JavaScript for the anywidget-based front-end code
+(`src/higlass/widget.js`). We use [uv](https://github.com/astral-sh/uv) for
+Python development and [deno](https://github.com/denoland/deno) for linting and
+type-checking JavaScript.
 
 All formatting, linting, and tests are enforced in CI.
 
@@ -84,14 +85,24 @@ All commands are run from the root of the project, from a terminal:
 
 #### Python
 
+**Workspace-wide commands** (runs across all packages):
+
 | Command                                         | Action                                        |
 | ----------------------------------------------- | --------------------------------------------- |
 | `uv run jupyter lab`                            | Run Jupyter lab with current package state    |
-| `uv run ruff check --fix && uv run ruff format` | Lint and apply formatting                     |
-| `uv run check`                                  | Check linting rules                           |
-| `uv run ruff format --check`                    | Check formatting                              |
-| `uv run pytest`                                 | Run unit tests                                |
+| `uv run ruff check --fix && uv run ruff format` | Lint and apply formatting across all packages |
+| `uv run ruff format --check`                    | Check formatting across all packages          |
+| `uv run pytest`                                 | Run unit tests across all packages            |
 | `uv run docs/build.py`                          | Build the documentation in `docs/_build/html` |
+
+**Package-specific commands** (run a command within a specific package):
+
+| Command                                          | Action                               |
+| ------------------------------------------------ | ------------------------------------ |
+| `uv run --package higlass-schema pytest`         | Run tests for higlass-schema package |
+| `uv run --package higlass-schema ruff check`     | Lint higlass-schema package          |
+| `uv run --package higlass-schema ruff format`    | Format higlass-schema package        |
+| `uv run --package higlass-schema higlass-schema` | Run higlass-schema CLI               |
 
 #### JavaScript
 

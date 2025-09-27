@@ -54,18 +54,7 @@ visualization with ``hg.Viewconf.locks()``.
 Multivec Files
 ---------------
 
-To view multivec files, we have to load the higlass plugin track. Execute the following code in a cell in the Jupyter notebook you're using.
-
-.. code-block:: javascript
-
-    %%javascript
-
-    require(["https://unpkg.com/higlass-multivec/dist/higlass-multivec"],
-        function(hglib) {
-
-    });
-
-Create the multivec and output file:
+To view multivec files, create the multivec and output file:
 
 .. code-block:: python
 
@@ -84,7 +73,8 @@ Create the multivec and output file:
     )
 
 
-Create the viewer:
+Create the viewer. The `horizontal-stacked-bar` track is a plugin track so we
+have to pass in its url so higlass knows where to load it.
 
 .. code-block:: python
 
@@ -93,7 +83,9 @@ Create the viewer:
     ts = multivec(output_file)
     view = hg.view(
         hg.track("top-axis", height=20),
-        ts.track("horizontal-stacked-bar", height=50),
+        ts.track("horizontal-stacked-bar", height=50,
+            plugin_url="https://unpkg.com/higlass-multivec/dist/higlass-multivec"
+        ),
     )
     view.domain(x=[0, 1000000])
 

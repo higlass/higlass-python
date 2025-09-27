@@ -32,6 +32,7 @@ track_default_position: dict[str, TrackPosition] = {
     "viewport-projection-horizontal": "top",
     "vertical-chromosome-labels": "left",
     "vertical-gene-annotations": "left",
+    "sequence-logo": "top",
 }
 
 datatype_default_track = {

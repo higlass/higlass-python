@@ -730,7 +730,7 @@ def view(
             else:
                 position = utils.track_default_position.get(track.type)
                 if position is None:
-                    raise ValueError("No default track type")
+                    raise ValueError(f"No position for track type: {track.type}")
 
             data[position].append(track)
 

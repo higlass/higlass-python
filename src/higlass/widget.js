@@ -273,6 +273,12 @@ function addEventListenersTo(el) {
     signal: controller.signal,
   });
 
+  // prevent wheel events from scrolling the page while allowing HiGlass zoom
+  el.addEventListener("wheel", (event) => event.stopPropagation(), {
+    signal: controller.signal,
+    passive: false,
+  });
+
   return () => controller.abort();
 }
 

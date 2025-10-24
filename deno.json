@@ -1,9 +1,5 @@
 {
   "lock": false,
-  "imports": {
-    "higlass": "https://esm.sh/higlass@1.13?deps=react@17,react-dom@17,pixi.js@6",
-    "@lukeed/uuid": "https://esm.sh/@lukeed/uuid@2.0.1"
-  },
   "compilerOptions": {
     "checkJs": true,
     "lib": ["dom", "dom.iterable", "esnext"]

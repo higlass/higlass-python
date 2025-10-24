@@ -1,5 +1,5 @@
-import * as hglib from "higlass";
-import { v4 } from "@lukeed/uuid";
+import * as hglib from "https://esm.sh/higlass@1.13?deps=react@17,react-dom@17,pixi.js@6";
+import { v4 } from "https://esm.sh/@lukeed/uuid@2.0.1";
 
 /** @import { HGC, PluginDataFetcherConstructor, GenomicLocation, Viewconf, DataFetcher} from "./types.ts" */
 

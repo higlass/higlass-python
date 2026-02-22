@@ -196,7 +196,7 @@ class CombinedTrack(hgs.CombinedTrack, _OptionsMixin, _PropertiesMixin):
     ...
 
 
-class PluginTrack(hgs.BaseTrack, _OptionsMixin, _PropertiesMixin):
+class PluginTrack(hgs.BaseTrack, _OptionsMixin, _PropertiesMixin, _LocalDataMixin):
     """Represents an unknown plugin track."""
 
     plugin_url: ClassVar[str]

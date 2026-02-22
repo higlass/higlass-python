@@ -120,16 +120,61 @@ class _OptionsMixin:
         return track
 
 
+class _LocalDataMixin:
+    def local_data(
+        self: TrackT,  # type: ignore
+        tsinfo,
+        data,
+        inplace: bool = False,
+    ) -> TrackT:  # type: ignore
+        """Configures local data for a Track.
+
+        Parameters
+        ----------
+        tsinfo : dict
+            Tileset info to be placed under ["tilesetInfo"]["x"].
+        data : list
+            Tile data to be placed under ["tiles"].
+        inplace : bool, optional
+            Whether to modify the existing track in place or return
+            a new track with the data applied (default: `False`).
+
+        Returns
+        -------
+        track : A track with local data configured.
+        """
+        min_pos = tsinfo.get("min_pos", [])
+        max_pos = tsinfo.get("max_pos", [])
+
+        if len(min_pos) != len(max_pos):
+            raise ValueError("min_pos and max_pos must have equal lengths")
+
+        if len(min_pos) == 2:
+            tile_key = "x.0.0.0"
+        elif len(min_pos) == 1:
+            tile_key = "x.0.0"
+        else:
+            raise ValueError("min_pos must be a one or two element array")
+
+        track = self if inplace else utils.copy_unique(self)
+        track.data = {
+            "type": "local-tiles",
+            "tilesetInfo": {"x": tsinfo},
+            "tiles": {tile_key: data},
+        }
+        return track
+
+
 ## Extend higlass-schema classes
 
 
-class EnumTrack(hgs.EnumTrack, _OptionsMixin, _PropertiesMixin):
+class EnumTrack(hgs.EnumTrack, _LocalDataMixin, _OptionsMixin, _PropertiesMixin):
     """Represents a generic track."""
 
     ...
 
 
-class HeatmapTrack(hgs.HeatmapTrack, _OptionsMixin, _PropertiesMixin):
+class HeatmapTrack(hgs.HeatmapTrack, _LocalDataMixin, _OptionsMixin, _PropertiesMixin):
     """Represets a specialized heatmap track."""
 
     ...

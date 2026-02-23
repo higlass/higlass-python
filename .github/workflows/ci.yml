@@ -42,6 +42,18 @@ jobs:
           deno fmt --check
           deno lint
 
+  TestJavaScript:
+    name: JavaScript / Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - run: deno install
+      - run: npx playwright install
+      - run: deno task vitest --run
+
   TypecheckJavaScript:
     name: JavaScript / Typecheck
     runs-on: ubuntu-latest

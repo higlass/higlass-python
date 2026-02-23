@@ -330,6 +330,7 @@ export default {
     });
 
     if (viewconf.views.length === 1) {
+<<<<<<< HEAD
       api.on(
         "location",
         (/** @type {GenomicLocation} */ loc) => {
@@ -352,6 +353,20 @@ export default {
           view.uid,
           undefined,
         );
+=======
+      api.on("location", (/** @type {GenomicLocation} */ loc) => {
+        model.set("location", locationToCoordinates(loc));
+        model.save_changes();
+      }, viewconf.views[0].uid, "location-listener");
+    } else {
+      viewconf.views.forEach((view, idx) => {
+        api.on("location", (/** @type{GenomicLocation} */ loc) => {
+          let location = model.get("location").slice();
+          location[idx] = locationToCoordinates(loc);
+          model.set("location", location);
+          model.save_changes();
+        }, view.uid, `location-listener-${idx}`);
+>>>>>>> f7c33b2 (Fixed linting errors)
       });
     }
 

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import * as hglib from "https://esm.sh/higlass@2.2.3?deps=react@17,react-dom@17,pixi.js@6";
+=======
+import * as hglib from "https://esm.sh/higlass@2.2.1?deps=react@17,react-dom@17,pixi.js@6";
+>>>>>>> 59fdefa (Bumped higlass version)
 import { v4 } from "https://esm.sh/@lukeed/uuid@2.0.1";
 
 /** @import { AnyModel } from "@anywidget/types" */

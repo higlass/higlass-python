@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 import * as hglib from "https://esm.sh/higlass@2.2.3?deps=react@17,react-dom@17,pixi.js@6";
-=======
-import * as hglib from "https://esm.sh/higlass@2.2.1?deps=react@17,react-dom@17,pixi.js@6";
->>>>>>> 59fdefa (Bumped higlass version)
 import { v4 } from "https://esm.sh/@lukeed/uuid@2.0.1";
 
 /** @import { AnyModel } from "@anywidget/types" */
@@ -331,6 +327,9 @@ export default {
 
     if (viewconf.views.length === 1) {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> b79a7e6 (Fixed formatting)
       api.on(
         "location",
         (/** @type {GenomicLocation} */ loc) => {
@@ -338,6 +337,7 @@ export default {
           model.save_changes();
         },
         viewconf.views[0].uid,
+<<<<<<< HEAD
         undefined,
       );
     } else {
@@ -367,6 +367,23 @@ export default {
           model.save_changes();
         }, view.uid, `location-listener-${idx}`);
 >>>>>>> f7c33b2 (Fixed linting errors)
+=======
+        "location-listener",
+      );
+    } else {
+      viewconf.views.forEach((view, idx) => {
+        api.on(
+          "location",
+          (/** @type{GenomicLocation} */ loc) => {
+            let location = model.get("location").slice();
+            location[idx] = locationToCoordinates(loc);
+            model.set("location", location);
+            model.save_changes();
+          },
+          view.uid,
+          `location-listener-${idx}`,
+        );
+>>>>>>> b79a7e6 (Fixed formatting)
       });
     }
 

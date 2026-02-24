@@ -209,31 +209,26 @@ def test_options_mixin():
     assert track.options and track.options["foo"] == "bar"
 
 
-def test_local_data_mixin():
-    track = hg.track("heatmap")
+def test_local_data_tileset():
     tsinfo = {"min_pos": [0, 0], "max_pos": [100, 100]}
     data = [{"x": 1, "y": 2}]
 
-    other = track.local_data(tsinfo, data)
-    assert track.uid != other.uid
-    assert track.data is None
+    tileset = hg.LocalDataTileset(tsinfo, data)
+    other = tileset.track("heatmap")
     assert other.data.type == "local-tiles"
     assert other.data.tilesetInfo["x"] == tsinfo
     assert other.data.tiles["x.0.0.0"] == data
 
-    track2 = hg.track("heatmap")
     tsinfo_1d = {"min_pos": [0], "max_pos": [100]}
-    other2 = track2.local_data(tsinfo_1d, data, inplace=True)
-    assert track2 is other2
-    assert track2.data.tiles["x.0.0"] == data
+    tileset_1d = hg.LocalDataTileset(tsinfo_1d, data)
+    other_1d = tileset_1d.track("heatmap")
+    assert other_1d.data.tiles["x.0.0"] == data
 
     with pytest.raises(ValueError, match="min_pos and max_pos must have equal lengths"):
-        hg.track("heatmap").local_data({"min_pos": [0], "max_pos": [0, 0]}, data)
+        hg.LocalDataTileset({"min_pos": [0], "max_pos": [0, 0]}, data)
 
     with pytest.raises(ValueError, match="min_pos must be a one or two element array"):
-        hg.track("heatmap").local_data(
-            {"min_pos": [0, 0, 0], "max_pos": [0, 0, 0]}, data
-        )
+        hg.LocalDataTileset({"min_pos": [0, 0, 0], "max_pos": [0, 0, 0]}, data)
 
 
 def test_plugin_track():

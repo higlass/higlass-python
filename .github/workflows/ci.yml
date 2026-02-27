@@ -51,7 +51,7 @@ jobs:
         with:
           deno-version: v2.x
       - run: deno install
-      - run: npx playwright install
+      - run: npx playwright install chromium
       - run: deno task vitest --run
 
   TypecheckJavaScript:

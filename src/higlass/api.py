@@ -48,10 +48,10 @@ __all__ = [
 
 class _PropertiesMixin:
     def properties(
-        self: utils.ModelT,  # type: ignore
+        self: utils.ModelT,
         inplace: bool = False,
-        **fields,  # type: ignore
-    ) -> utils.ModelT:  # type: ignore
+        **fields,
+    ) -> utils.ModelT:
         """Configures top-level properties.
 
         Updates top-level properties for a Track, View, or Viewconf. This
@@ -85,10 +85,10 @@ class _PropertiesMixin:
 
 class _OptionsMixin:
     def opts(
-        self: TrackT,  # type: ignore
+        self: TrackT,
         inplace: bool = False,
         **options,
-    ) -> TrackT:  # type: ignore
+    ) -> TrackT:
         """Configures options for a Track.
 
         A convenience method to update `track.options`.

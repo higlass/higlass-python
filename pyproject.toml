@@ -34,7 +34,15 @@ requires-python = ">=3.8"
 urls = { homepage = "https://github.com/higlass/higlass-python" }
 
 [dependency-groups]
-dev = ["anywidget[dev]", "jupyterlab", "pytest", "ruff"]
+dev = [
+    "anywidget[dev]>=0.9.13",
+# TODO Add for typechecking after we drop 3.8 support
+#   "clodius>=0.20.4",
+    "jupyterlab>=4.3.5",
+    "pytest>=8.3.5",
+    "ruff>=0.15.4",
+    "ty>=0.0.19",
+]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/higlass"]
@@ -65,5 +73,9 @@ extend-select = [
 "examples/*.ipynb" = [
     "F811", # redefintion
 ]
+
+[tool.ty.src]
+exclude = ["examples/Plugin.ipynb", "docs/conf.py", "docs/build.py"]
+
 [tool.uv]
 required-version = ">=0.10.0"

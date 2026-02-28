@@ -192,10 +192,12 @@ def create_lazy_clodius_loader(
 
 
 def chromsizes(filepath: str) -> ClodiusTileset:
-    from clodius.tiles.chromsizes import tileset_info
+    from clodius.tiles.chromsizes import tileset_info  # ty:ignore[unresolved-import]
 
     return ClodiusTileset(
-        datatype="chromsizes", tiles_impl=None, info_impl=lambda: tileset_info(filepath)
+        datatype="chromsizes",
+        tiles_impl=lambda _: {},  # chromsizes has no tiles endpoint
+        info_impl=lambda: tileset_info(filepath),
     )
 
 

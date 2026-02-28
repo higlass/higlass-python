@@ -1,5 +1,6 @@
 {
   "lock": false,
+  "nodeModulesDir": "auto",
   "compilerOptions": {
     "checkJs": true,
     "lib": ["dom", "dom.iterable", "esnext"]
@@ -11,5 +12,15 @@
   },
   "fmt": {
     "exclude": ["examples"]
+  },
+  "tasks": {
+    "vitest": "deno run -A vitest"
+  },
+  "imports": {
+    "@anywidget/types": "npm:@anywidget/types@^0.2.0",
+    "@deno/vite-plugin": "npm:@deno/vite-plugin@^1.0.6",
+    "@vitest/browser-playwright": "npm:@vitest/browser-playwright@^4.0.18",
+    "vite": "npm:vite@^7.3.1",
+    "vitest": "npm:vitest@^4.0.18"
   }
 }

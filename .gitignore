@@ -11,3 +11,5 @@ dist/
 .venv
 examples/test.mcool
 *.bigWig
+node_modules
+__screenshots__

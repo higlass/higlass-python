@@ -82,5 +82,7 @@ export type GenomicLocation = {
 
 /** Partial types for the viewconf */
 export type Viewconf = {
-  views: Array<{ uid: string }>;
+  views: Array<
+    { uid: string; layout?: unknown; tracks?: unknown }
+  >;
 };

@@ -1,6 +1,7 @@
 import * as hglib from "https://esm.sh/higlass@1.13?deps=react@17,react-dom@17,pixi.js@6";
 import { v4 } from "https://esm.sh/@lukeed/uuid@2.0.1";
 
+/** @import { AnyModel } from "@anywidget/types" */
 /** @import { PluginDataFetcherConstructor, GenomicLocation, Viewconf, DataFetcher} from "./types.ts" */
 
 const NAME = "jupyter";
@@ -111,7 +112,7 @@ function assert(expression, msg = "") {
  * ```
  *
  * @template T
- * @param {import("npm:@anywidget/types").AnyModel} model
+ * @param {AnyModel} model
  * @param {{ payload: unknown, signal?: AbortSignal }} options
  * @return {Promise<{ payload: T, buffers: Array<DataView> }>}
  */
@@ -192,7 +193,7 @@ function resolveJupyterServers(viewConfig) {
 }
 
 /**
- * @param {import("npm:@anywidget/types@0.2.0").AnyModel<State>} model */
+ * @param {AnyModel<State>} model */
 async function registerJupyterHiGlassDataFetcher(model) {
   if (window?.higlassDataFetchersByType?.[NAME]) {
     return;
@@ -292,7 +293,7 @@ function addEventListenersTo(el) {
  */
 
 export default {
-  /** @type {import("npm:@anywidget/types").Render<State>} */
+  /** @type {import("@anywidget/types").Render<State>} */
   async render({ model, el }) {
     await Promise.all([
       requireScripts(model.get("_plugin_urls")),

@@ -65,3 +65,5 @@ extend-select = [
 "examples/*.ipynb" = [
     "F811", # redefintion
 ]
+[tool.uv]
+required-version = ">=0.10.0"

@@ -48,9 +48,6 @@ packages = ["src/higlass"]
 [tool.hatch.version]
 source = "vcs"
 
-[tool.ruff]
-line-length = 88
-
 [tool.ruff.lint]
 extend-select = [
     "E", # style errors

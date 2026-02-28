@@ -7,7 +7,6 @@ from typing import (
     Generic,
     Literal,
     TypeVar,
-    Union,
     cast,
     overload,
 )
@@ -158,13 +157,13 @@ class PluginTrack(hgs.BaseTrack, _OptionsMixin, _PropertiesMixin):
     plugin_url: ClassVar[str]
 
 
-Track = Union[
-    HeatmapTrack,
-    IndependentViewportProjectionTrack,
-    EnumTrack,
-    CombinedTrack,
-    PluginTrack,
-]
+Track = (
+    HeatmapTrack
+    | IndependentViewportProjectionTrack
+    | EnumTrack
+    | CombinedTrack
+    | PluginTrack
+)
 
 TrackT = TypeVar("TrackT", bound=Track)
 
@@ -588,7 +587,7 @@ def concat(
                 getattr(a, lockattr).locksByViewUid.update(locks.locksByViewUid)
                 getattr(a, lockattr).locksDict.update(locks.locksDict)
 
-    return cast(Viewconf[Union[TrackTA, TrackTB]], a)
+    return cast(Viewconf[TrackTA | TrackTB], a)
 
 
 hconcat = functools.partial(concat, "horizontal")
@@ -787,7 +786,7 @@ def combine(t1: Track, t2: Track, uid: str | None = None, **kwargs) -> CombinedT
     )
 
 
-T = TypeVar("T", bound=Union[EnumTrack, HeatmapTrack])
+T = TypeVar("T", bound=EnumTrack | HeatmapTrack)
 
 
 def divide(t1: T, t2: T, **kwargs) -> T:

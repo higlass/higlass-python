@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import itertools
 from bisect import bisect_right
-from typing import Iterable, Tuple
+from collections.abc import Iterable
 
-GenomicPosition = Tuple[str, int]
+GenomicPosition = tuple[str, int]
 
 
 class Scale:

@@ -1,10 +1,13 @@
-import * as hglib from "https://esm.sh/higlass@1.13?deps=react@17,react-dom@17,pixi.js@6";
+import * as hglib from "https://esm.sh/higlass@2.2.2?deps=react@17,react-dom@17,pixi.js@6";
 import { v4 } from "https://esm.sh/@lukeed/uuid@2.0.1";
 
 /** @import { AnyModel } from "@anywidget/types" */
 /** @import { PluginDataFetcherConstructor, GenomicLocation, Viewconf, DataFetcher} from "./types.ts" */
 
 const NAME = "jupyter";
+
+let HIGLASS_STYLES = new CSSStyleSheet();
+HIGLASS_STYLES.replaceSync(hglib.CSS);
 
 /**
  * @param {string} href
@@ -275,7 +278,10 @@ function addEventListenersTo(el) {
   });
 
   // prevent wheel events from scrolling the page while allowing HiGlass zoom
-  el.addEventListener("wheel", (event) => event.stopPropagation(), {
+  el.addEventListener("wheel", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+  }, {
     signal: controller.signal,
     passive: false,
   });
@@ -303,7 +309,14 @@ export default {
       model.get("_viewconf"),
     );
     let options = model.get("_options") ?? {};
-    let api = await hglib.viewer(el, viewconf, options);
+
+    let shadow = el.shadowRoot ?? el.attachShadow({ mode: "open" });
+    shadow.innerHTML = "";
+    shadow.adoptedStyleSheets = [HIGLASS_STYLES];
+    let container = document.createElement("div");
+    shadow.appendChild(container);
+
+    let api = await hglib.viewer(container, viewconf, options);
     let unlisten = addEventListenersTo(el);
 
     model.on("msg:custom", (msg) => {

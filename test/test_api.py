@@ -85,7 +85,7 @@ import higlass as hg
 )
 def test_creates_correct_track(args: str | tuple, expected: hg.Track):
     track_type, kwargs = (args, {}) if isinstance(args, str) else args
-    track = hg.track(track_type, **kwargs)  # type: ignore
+    track = hg.track(track_type, **kwargs)
     assert isinstance(track, expected)  # type: ignore
     assert track.type == track_type
 
@@ -227,15 +227,16 @@ def test_plugin_track():
     }
 
     # Create and use the custom track
-    pileup_track = PileupTrack(data=pileup_data)
+    pileup_track = PileupTrack(data=pileup_data)  # ty:ignore[unknown-argument]
 
     view = hg.view((pileup_track, "top"))
     uid1 = view.uid
+    assert view.tracks.top
     assert view.tracks.top[0].plugin_url == some_url
 
     # The .domain() function creates a copy of the view. We want to make sure
     # that the plugin_url attribute of the PluginTrack is maintained
-    view = view.domain(x=[0, 10])
+    view = view.domain(x=(0, 10))
     uid2 = view.uid
     assert view.tracks.top[0].plugin_url == some_url
 

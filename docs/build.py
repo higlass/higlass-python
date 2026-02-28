@@ -2,8 +2,7 @@
 # requires-python = ">=3.12"
 # dependencies = [
 #     "higlass-python",
-#     "markupsafe==2.0.1",
-#     "setuptools",
+#     "packaging",
 #     "sphinx-js",
 #     "Sphinx",
 # ]

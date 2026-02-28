@@ -4,7 +4,7 @@ import typing
 
 from docutils import nodes
 from docutils.parsers.rst import Directive, directives
-from pkg_resources import parse_version
+from packaging.version import Version
 
 from higlass import __version__
 
@@ -70,7 +70,7 @@ author = "HiGlass Authors"
 # built documents.
 #
 # The short X.Y version.
-version = parse_version(__version__).base_version
+version = Version(__version__).base_version
 # The full version, including alpha/beta/rc tags.
 release = __version__
 

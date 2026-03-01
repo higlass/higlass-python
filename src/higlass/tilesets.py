@@ -116,13 +116,15 @@ class LocalDataTileset:
         higlass.api.Track
             A track with the ``data`` section populated for local-tiles.
         """
-        trk = higlass.api.track(type_=type_, **kwargs)
-        trk.data = {
-            "type": "local-tiles",
-            "tilesetInfo": {"x": self.tsinfo},
-            "tiles": {self._tile_key: self.data},
-        }
-        return trk
+        return higlass.api.track(
+            type_=type_,
+            data=dict(
+                type="local-tiles",
+                tilesetInfo={"x": self.tsinfo},
+                tiles={self._tile_key: self.data},
+            ),
+            **kwargs,
+        )
 
 
 class Tileset(abc.ABC):

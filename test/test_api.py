@@ -214,15 +214,15 @@ def test_local_data_tileset():
     data = [{"x": 1, "y": 2}]
 
     tileset = hg.LocalDataTileset(tsinfo, data)
-    other = tileset.track("heatmap")
-    assert other.data.type == "local-tiles"
-    assert other.data.tilesetInfo["x"] == tsinfo
-    assert other.data.tiles["x.0.0.0"] == data
+    track = tileset.track("heatmap")
+    assert track.data.type == "local-tiles"  # ty: ignore[unresolved-attribute]
+    assert track.data.tilesetInfo["x"] == tsinfo  # ty: ignore[unresolved-attribute,not-subscriptable]
+    assert track.data.tiles["x.0.0.0"] == data  # ty: ignore[unresolved-attribute,not-subscriptable]
 
     tsinfo_1d = {"min_pos": [0], "max_pos": [100]}
     tileset_1d = hg.LocalDataTileset(tsinfo_1d, data)
-    other_1d = tileset_1d.track("heatmap")
-    assert other_1d.data.tiles["x.0.0"] == data
+    track_1d = tileset_1d.track("heatmap")
+    assert track_1d.data.tiles["x.0.0"] == data  # ty: ignore[unresolved-attribute,not-subscriptable]
 
     with pytest.raises(ValueError, match="min_pos and max_pos must have equal lengths"):
         hg.LocalDataTileset({"min_pos": [0], "max_pos": [0, 0]}, data)
@@ -249,7 +249,7 @@ def test_plugin_track():
     }
 
     # Create and use the custom track
-    pileup_track = PileupTrack(data=pileup_data)  # ty:ignore[unknown-argument]
+    pileup_track = PileupTrack(data=pileup_data)  # ty: ignore[unknown-argument]
 
     view = hg.view((pileup_track, "top"))
     uid1 = view.uid

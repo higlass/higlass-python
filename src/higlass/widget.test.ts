@@ -58,8 +58,8 @@ test("render creates a HiGlass viewer with a simple viewconf", async () => {
 
   const cleanup = await widget.render({ model, el, experimental });
 
-  // resolved without throwing; container has content
-  expect(el.children.length).toBeGreaterThan(0);
+  // resolved without throwing; shadow root has content
+  expect(el.shadowRoot?.children.length).toBeGreaterThan(0);
 
   expect(typeof cleanup).toBe("function");
   cleanup?.();

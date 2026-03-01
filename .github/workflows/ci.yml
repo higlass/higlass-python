@@ -61,6 +61,11 @@ jobs:
       - run: deno install
       - run: npx playwright install chromium
       - run: deno task vitest --run
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: screenshots
+          path: src/higlass/__screenshots__/
 
   TypecheckJavaScript:
     name: JavaScript / Typecheck

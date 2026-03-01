@@ -322,22 +322,32 @@ export default {
     model.on("msg:custom", (msg) => {
       msg = JSON.parse(msg);
       let [fn, ...args] = msg;
-      api[fn](...args);
+      /** @type {any} */ (api)[fn](...args);
     });
 
     if (viewconf.views.length === 1) {
-      api.on("location", (/** @type {GenomicLocation} */ loc) => {
-        model.set("location", locationToCoordinates(loc));
-        model.save_changes();
-      }, viewconf.views[0].uid);
+      api.on(
+        "location",
+        (/** @type {GenomicLocation} */ loc) => {
+          model.set("location", locationToCoordinates(loc));
+          model.save_changes();
+        },
+        viewconf.views[0].uid,
+        undefined,
+      );
     } else {
       viewconf.views.forEach((view, idx) => {
-        api.on("location", (/** @type{GenomicLocation} */ loc) => {
-          let location = model.get("location").slice();
-          location[idx] = locationToCoordinates(loc);
-          model.set("location", location);
-          model.save_changes();
-        }, view.uid);
+        api.on(
+          "location",
+          (/** @type{GenomicLocation} */ loc) => {
+            let location = model.get("location").slice();
+            location[idx] = locationToCoordinates(loc);
+            model.set("location", location);
+            model.save_changes();
+          },
+          view.uid,
+          undefined,
+        );
       });
     }
 

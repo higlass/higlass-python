@@ -31,6 +31,7 @@ from higlass.api import (
 )
 from higlass.server import HiGlassServer
 from higlass.tilesets import (
+    LocalDataTileset,
     Tileset,
     bed2ddb,
     beddb,

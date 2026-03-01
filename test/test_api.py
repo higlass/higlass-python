@@ -209,6 +209,28 @@ def test_options_mixin():
     assert track.options and track.options["foo"] == "bar"
 
 
+def test_local_data_tileset():
+    tsinfo = {"min_pos": [0, 0], "max_pos": [100, 100]}
+    data = [{"x": 1, "y": 2}]
+
+    tileset = hg.LocalDataTileset(tsinfo, data)
+    other = tileset.track("heatmap")
+    assert other.data.type == "local-tiles"
+    assert other.data.tilesetInfo["x"] == tsinfo
+    assert other.data.tiles["x.0.0.0"] == data
+
+    tsinfo_1d = {"min_pos": [0], "max_pos": [100]}
+    tileset_1d = hg.LocalDataTileset(tsinfo_1d, data)
+    other_1d = tileset_1d.track("heatmap")
+    assert other_1d.data.tiles["x.0.0"] == data
+
+    with pytest.raises(ValueError, match="min_pos and max_pos must have equal lengths"):
+        hg.LocalDataTileset({"min_pos": [0], "max_pos": [0, 0]}, data)
+
+    with pytest.raises(ValueError, match="min_pos must be a one or two element array"):
+        hg.LocalDataTileset({"min_pos": [0, 0, 0], "max_pos": [0, 0, 0]}, data)
+
+
 def test_plugin_track():
     """Test that plugin track attributes are maintained after a copy."""
     some_url = "https://some_url"

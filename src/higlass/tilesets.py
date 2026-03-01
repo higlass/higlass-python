@@ -11,6 +11,7 @@ from higlass._tileset_registry import TilesetInfo, TilesetRegistry
 from higlass._utils import TrackType, datatype_default_track
 
 __all__ = [
+    "LocalDataTileset",
     "Tileset",
     "bed2ddb",
     "bigwig",
@@ -69,6 +70,59 @@ def remote(
         A RemoteTileset instance that can be used to create HiGlass tracks.
     """
     return RemoteTileset(uid, server, name)
+
+
+@dataclass
+class LocalDataTileset:
+    """A tileset that serves data locally without a server.
+
+    Parameters
+    ----------
+    tsinfo : dict
+        Tileset info dict (must include ``min_pos`` and ``max_pos``).
+    data : list
+        Tile data for the tileset.
+    """
+
+    tsinfo: dict
+    data: list
+
+    def __post_init__(self):
+        min_pos = self.tsinfo.get("min_pos", [])
+        max_pos = self.tsinfo.get("max_pos", [])
+
+        if len(min_pos) != len(max_pos):
+            raise ValueError("min_pos and max_pos must have equal lengths")
+
+        if len(min_pos) == 2:
+            self._tile_key = "x.0.0.0"
+        elif len(min_pos) == 1:
+            self._tile_key = "x.0.0"
+        else:
+            raise ValueError("min_pos must be a one or two element array")
+
+    def track(self, type_: TrackType, **kwargs) -> higlass.api.Track:
+        """Create a HiGlass track with local data embedded.
+
+        Parameters
+        ----------
+        type_ : TrackType
+            The track type to create.
+        **kwargs : dict
+            Additional top-level track properties.
+
+        Returns
+        -------
+        higlass.api.Track
+            A track with the ``data`` section populated for local-tiles.
+        """
+        trk = higlass.api.track(type_=type_, **kwargs)
+        trk.data = {
+            "type": "local-tiles",
+            "tilesetInfo": {"x": self.tsinfo},
+            "tiles": {self._tile_key: self.data},
+        }
+        return trk
 
 
 class Tileset(abc.ABC):

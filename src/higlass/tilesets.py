@@ -11,7 +11,7 @@ from higlass._tileset_registry import TilesetInfo, TilesetRegistry
 from higlass._utils import TrackType, datatype_default_track
 
 __all__ = [
-    "LocalDataTileset",
+    "InlineTileset",
     "Tileset",
     "bed2ddb",
     "bigwig",
@@ -73,7 +73,7 @@ def remote(
 
 
 @dataclass
-class LocalDataTileset:
+class InlineTileset:
     """A tileset that serves data locally without a server.
 
     Parameters

@@ -217,18 +217,18 @@ def test_local_data_tileset():
     track = tileset.track("heatmap")
     assert track.data.type == "local-tiles"  # ty: ignore[unresolved-attribute]
     assert (
-        track.data.tilesetInfo["x"] == tsinfo
-    )  # ty: ignore[unresolved-attribute,not-subscriptable]
+        track.data.tilesetInfo["x"] == tsinfo  # ty: ignore[unresolved-attribute,not-subscriptable]
+    )
     assert (
-        track.data.tiles["x.0.0.0"] == data
-    )  # ty: ignore[unresolved-attribute,not-subscriptable]
+        track.data.tiles["x.0.0.0"] == data  # ty: ignore[unresolved-attribute,not-subscriptable]
+    )
 
     tsinfo_1d = {"min_pos": [0], "max_pos": [100]}
     tileset_1d = hg.InlineTileset(tsinfo_1d, data)
     track_1d = tileset_1d.track("heatmap")
     assert (
-        track_1d.data.tiles["x.0.0"] == data
-    )  # ty: ignore[unresolved-attribute,not-subscriptable]
+        track_1d.data.tiles["x.0.0"] == data  # ty: ignore[unresolved-attribute,not-subscriptable]
+    )
 
     with pytest.raises(ValueError, match="min_pos and max_pos must have equal lengths"):
         hg.InlineTileset({"min_pos": [0], "max_pos": [0, 0]}, data)

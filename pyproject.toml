@@ -69,7 +69,7 @@ extend-select = [
 ]
 
 [tool.ty.src]
-exclude = ["examples/Plugin.ipynb", "docs/conf.py", "docs/build.py"]
+exclude = ["**/*.ipynb", "docs/conf.py", "docs/build.py"]
 
 [tool.uv]
 required-version = ">=0.10.0"

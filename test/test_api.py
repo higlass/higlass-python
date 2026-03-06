@@ -209,6 +209,34 @@ def test_options_mixin():
     assert track.options and track.options["foo"] == "bar"
 
 
+def test_local_data_tileset():
+    tsinfo = {"min_pos": [0, 0], "max_pos": [100, 100]}
+    data = [{"x": 1, "y": 2}]
+
+    tileset = hg.InlineTileset(tsinfo, data)
+    track = tileset.track("heatmap")
+    assert track.data.type == "local-tiles"  # ty: ignore[unresolved-attribute]
+    assert (
+        track.data.tilesetInfo["x"] == tsinfo  # ty: ignore[unresolved-attribute,not-subscriptable]
+    )
+    assert (
+        track.data.tiles["x.0.0.0"] == data  # ty: ignore[unresolved-attribute,not-subscriptable]
+    )
+
+    tsinfo_1d = {"min_pos": [0], "max_pos": [100]}
+    tileset_1d = hg.InlineTileset(tsinfo_1d, data)
+    track_1d = tileset_1d.track("heatmap")
+    assert (
+        track_1d.data.tiles["x.0.0"] == data  # ty: ignore[unresolved-attribute,not-subscriptable]
+    )
+
+    with pytest.raises(ValueError, match="min_pos and max_pos must have equal lengths"):
+        hg.InlineTileset({"min_pos": [0], "max_pos": [0, 0]}, data)
+
+    with pytest.raises(ValueError, match="min_pos must be a one or two element array"):
+        hg.InlineTileset({"min_pos": [0, 0, 0], "max_pos": [0, 0, 0]}, data)
+
+
 def test_plugin_track():
     """Test that plugin track attributes are maintained after a copy."""
     some_url = "https://some_url"
@@ -227,7 +255,7 @@ def test_plugin_track():
     }
 
     # Create and use the custom track
-    pileup_track = PileupTrack(data=pileup_data)  # ty:ignore[unknown-argument]
+    pileup_track = PileupTrack(data=pileup_data)  # ty: ignore[unknown-argument]
 
     view = hg.view((pileup_track, "top"))
     uid1 = view.uid

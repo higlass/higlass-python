@@ -502,6 +502,63 @@ light-weight HiGlass server in a *background thread*. This temporary
 server is only started if a local tileset is used and will only persist
 for the duration of the Python session.
 
+Local Data with Plugin Tracks
+"""""""""""""""""""""""""""""
+
+For regular or plugin tracks that support local data, you can use the ``local_data()`` method
+to provide tileset info and tile data directly without needing a server. This is
+particularly useful for small datasets or custom visualizations.
+
+.. code-block:: python
+
+    from typing import Literal, ClassVar
+    import higlass as hg
+
+    class LabelledPointsTrack(hg.PluginTrack):
+        type: Literal["labelled-points-track"] = "labelled-points-track"
+        plugin_url: ClassVar[str] = (
+            "https://unpkg.com/higlass-labelled-points-track@0.5.1/"
+            "dist/higlass-labelled-points-track.min.js"
+        )
+
+    # Create track with local data
+    track = LabelledPointsTrack().local_data(
+        tsinfo={
+            "zoom_step": 1,
+            "tile_size": 256,
+            "max_zoom": 0,
+            "min_pos": [-180, -180],
+            "max_pos": [180, 180],
+            "max_data_length": 134217728,
+            "max_width": 360
+        },
+        data=[
+            {
+                "x": -122.29340351667594,
+                "y": -40.90076029033937,
+                "size": 10,
+                "data": "Fraxinus o. 'Raywood'",
+                "uid": "Eq71PfMlR0aqHd2zSlDclA"
+            },
+            {
+                "x": -122.18808936055962,
+                "y": -40.805069480744535,
+                "size": 20,
+                "data": "Acer rubrum",
+                "uid": "DYKKOHNuRBmEPdTip0pyDw"
+            },
+            {
+                "x": -122.23773953309676,
+                "y": -40.885281196424444,
+                "size": 1,
+                "data": "Other",
+                "uid": "b04PPSR6Ti28MJPpzXpAuA"
+            },
+        ]
+    )
+
+    hg.view(track)
+
 Cooler Files
 """"""""""""
 
